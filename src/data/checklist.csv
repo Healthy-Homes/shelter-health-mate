@@ -1,0 +1,11 @@
+item_key,label_key,description_key,code,code_system
+moldVisible,Visible Mold,Evidence of mold growth on surfaces,mold-visible,http://healthyhomes.local/checklist
+leakingPipes,Leaking Pipes,Water leaks from plumbing,leaking-pipes,http://healthyhomes.local/checklist
+noVentilation,Poor Ventilation,Inadequate air circulation,poor-ventilation,http://healthyhomes.local/checklist
+pestInfestation,Pest Infestation,Evidence of rodents or insects,pest-infestation,http://healthyhomes.local/checklist
+electricalHazards,Electrical Hazards,Exposed wiring or unsafe electrical,electrical-hazards,http://healthyhomes.local/checklist
+structuralDamage,Structural Damage,Damaged walls floors or ceiling,structural-damage,http://healthyhomes.local/checklist
+leadPaint,Lead Paint,Peeling paint in pre-1978 housing,lead-paint,http://healthyhomes.local/checklist
+asbestos,Asbestos Materials,Suspected asbestos materials present,asbestos,http://healthyhomes.local/checklist
+overcrowding,Overcrowding,Too many occupants for space,overcrowding,http://healthyhomes.local/checklist
+inadequateHeating,Inadequate Heating,Insufficient heating in winter,inadequate-heating,http://healthyhomes.local/checklist

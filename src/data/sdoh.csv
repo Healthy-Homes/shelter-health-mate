@@ -1,0 +1,9 @@
+id,label_key,opt1_key,opt2_key,opt3_key,code,code_system
+foodSecurity,Food Security,Always adequate,Sometimes inadequate,Often inadequate,food-security,http://healthyhomes.local/sdoh
+housingStability,Housing Stability,Stable,Somewhat unstable,Very unstable,housing-stability,http://healthyhomes.local/sdoh
+transportation,Transportation Access,Reliable access,Limited access,No reliable access,transportation,http://healthyhomes.local/sdoh
+socialSupport,Social Support,Strong support,Some support,Little support,social-support,http://healthyhomes.local/sdoh
+healthcare,Healthcare Access,Easy access,Difficult access,No access,healthcare-access,http://healthyhomes.local/sdoh
+employment,Employment Status,Employed full-time,Part-time/seasonal,Unemployed,employment,http://healthyhomes.local/sdoh
+education,Education Level,High school plus,Some high school,Less than high school,education,http://healthyhomes.local/sdoh
+income,Income Adequacy,Adequate income,Barely adequate,Inadequate income,income,http://healthyhomes.local/sdoh
