@@ -1,0 +1,5 @@
+id,sectionKey,itemKey,descriptionKey,type,optionsKey,required
+1,asthma,ventilation,checklist.descriptions.noVentilation_desc,yesno,,true
+2,asthma,moldVisible,checklist.descriptions.moldVisible_desc,yesno,,true
+3,asthma,dust_mites,checklist.descriptions.dust_mites_desc,yesno,,false
+4,asthma,smoking_exposure,checklist.descriptions.smoking_exposure_desc,yesno,,false

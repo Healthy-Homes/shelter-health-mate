@@ -1,0 +1,9 @@
+id,sectionKey,itemKey,descriptionKey,type,optionsKey,required
+1,sdoh,housingStability,sdoh.housing_stability,single,sdoh.housing_stability_options,true
+2,sdoh,foodSecurity,sdoh.food_security,single,sdoh.food_security_options,true
+3,sdoh,transportation,sdoh.transportation,single,sdoh.transportation_options,true
+4,sdoh,socialSupport,sdoh.social_support,single,sdoh.social_support_options,true
+5,sdoh,healthcare,sdoh.healthcare_access,single,sdoh.healthcare_access_options,true
+6,sdoh,employment,sdoh.employment_status,single,sdoh.employment_status_options,true
+7,sdoh,education,sdoh.education_level,single,sdoh.education_level_options,true
+8,sdoh,income,sdoh.income_adequacy,single,sdoh.income_adequacy_options,true

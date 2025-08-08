@@ -1,0 +1,7 @@
+{
+  "default": "general_safety",
+  "options": [
+    { "id": "general_safety", "labelKey": "checklist.general_safety", "csvPath": "/data/checklists/general_safety.csv" },
+    { "id": "asthma_focused", "labelKey": "checklist.asthma_focused", "csvPath": "/data/checklists/asthma_focused.csv" }
+  ]
+}

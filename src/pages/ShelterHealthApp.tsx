@@ -8,6 +8,9 @@ import RiskScoringSection from '@/components/RiskScoringSection';
 import ExportSection from '@/components/ExportSection';
 import { AssessmentData } from '@/types';
 import { calculateRiskScore } from '@/utils/riskModel';
+import ResidentInfoSection, { ResidentInfo } from '@/components/ResidentInfoSection';
+
+interface ChecklistConfigOption { id: string; labelKey: string; csvPath: string }
 
 const ShelterHealthApp: React.FC = () => {
   const [hasConsent, setHasConsent] = useState(false);
@@ -16,10 +19,40 @@ const ShelterHealthApp: React.FC = () => {
   const [sdohData, setSDOHData] = useState<{ [key: string]: string }>({});
   const [riskScoringEnabled, setRiskScoringEnabled] = useState(false);
 
+  const [includeResidents, setIncludeResidents] = useState(true);
+  const [includeHome, setIncludeHome] = useState(true);
+  const [includeSDOH, setIncludeSDOH] = useState(true);
+
+  const [residentInfo, setResidentInfo] = useState<ResidentInfo>({ tenureUnit: 'months' });
+  const [homeMeta, setHomeMeta] = useState<{ ageOfHome?: string }>({});
+
+  const [checklistOptions, setChecklistOptions] = useState<ChecklistConfigOption[]>([]);
+  const [selectedChecklistId, setSelectedChecklistId] = useState<string>('');
+  const [currentCsvPath, setCurrentCsvPath] = useState<string>('');
+
+  useEffect(() => {
+    const loadConfig = async () => {
+      try {
+        const res = await fetch('/data/checklists/index.json');
+        const json = await res.json();
+        setChecklistOptions(json.options);
+        setSelectedChecklistId(json.default);
+      } catch (e) {
+        console.error('Failed to load checklist config', e);
+      }
+    };
+    loadConfig();
+  }, []);
+
+  useEffect(() => {
+    const current = checklistOptions.find((o) => o.id === selectedChecklistId);
+    setCurrentCsvPath(current ? current.csvPath : '');
+  }, [selectedChecklistId, checklistOptions]);
+
   // Calculate risk score when data changes
   const assessmentData: AssessmentData = {
     checklist: checklistData,
-    sdoh: sdohData
+    sdoh: sdohData,
   };
 
   useEffect(() => {
@@ -33,8 +66,12 @@ const ShelterHealthApp: React.FC = () => {
   return (
     <LanguageProvider>
       <div className="min-h-screen bg-background">
-        <Header />
-        
+        <Header
+          selectedChecklistId={selectedChecklistId}
+          setSelectedChecklistId={setSelectedChecklistId}
+          checklistOptions={checklistOptions}
+        />
+
         <main className="max-w-4xl mx-auto px-4 py-6 space-y-6">
           <ConsentSection
             hasConsent={hasConsent}
@@ -43,14 +80,28 @@ const ShelterHealthApp: React.FC = () => {
             setResidentName={setResidentName}
           />
 
+          <ResidentInfoSection
+            data={residentInfo}
+            setData={setResidentInfo}
+            include={includeResidents}
+            setInclude={setIncludeResidents}
+          />
+
           <ChecklistSection
             checklistData={checklistData}
             setChecklistData={setChecklistData}
+            csvPath={currentCsvPath}
+            include={includeHome}
+            setInclude={setIncludeHome}
+            homeMeta={homeMeta}
+            setHomeMeta={setHomeMeta}
           />
 
           <SDOHSection
             sdohData={sdohData}
             setSDOHData={setSDOHData}
+            include={includeSDOH}
+            setInclude={setIncludeSDOH}
           />
 
           <RiskScoringSection
@@ -64,6 +115,9 @@ const ShelterHealthApp: React.FC = () => {
             hasConsent={hasConsent}
             residentName={residentName}
             riskScoringEnabled={riskScoringEnabled}
+            include={{ residents: includeResidents, home: includeHome, sdoh: includeSDOH }}
+            residentInfo={residentInfo}
+            homeMeta={homeMeta}
           />
         </main>
 

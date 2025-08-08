@@ -1,83 +1,80 @@
 import { useState, useEffect } from 'react';
-import { ChecklistItem, SDOHQuestion } from '@/types';
+import Papa from 'papaparse';
 
-export const useChecklistData = () => {
-  const [checklist, setChecklist] = useState<ChecklistItem[]>([]);
+export interface ChecklistRow {
+  id: string;
+  sectionKey: string;
+  itemKey: string;
+  descriptionKey: string;
+  type: 'yesno' | 'single' | 'multi' | 'text' | 'number';
+  optionsKey?: string;
+  required?: boolean;
+}
+
+export const useChecklistData = (csvPath: string) => {
+  const [rows, setRows] = useState<ChecklistRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const loadChecklist = async () => {
+    const load = async () => {
+      setLoading(true);
+      setError(null);
       try {
-        const response = await fetch('/src/data/checklist.csv');
+        const response = await fetch(csvPath);
         if (!response.ok) throw new Error('Failed to fetch checklist data');
-        
         const text = await response.text();
-        const lines = text.trim().split('\n');
-        const headers = lines[0].split(',');
-        
-        const data = lines.slice(1).map(line => {
-          const values = line.split(',');
-          return {
-            item_key: values[0],
-            label_key: values[1],
-            description_key: values[2],
-            code: values[3],
-            code_system: values[4]
-          };
-        });
-        
-        setChecklist(data);
+        const parsed = Papa.parse(text, { header: true, skipEmptyLines: true });
+        setRows((parsed.data as any[]).map((r) => ({
+          id: String(r.id),
+          sectionKey: r.sectionKey,
+          itemKey: r.itemKey,
+          descriptionKey: r.descriptionKey,
+          type: r.type,
+          optionsKey: r.optionsKey || undefined,
+          required: r.required === 'true'
+        })));
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Unknown error');
       } finally {
         setLoading(false);
       }
     };
+    if (csvPath) load();
+  }, [csvPath]);
 
-    loadChecklist();
-  }, []);
-
-  return { checklist, loading, error };
+  return { checklist: rows, loading, error };
 };
 
 export const useSDOHData = () => {
-  const [sdohQuestions, setSDOHQuestions] = useState<SDOHQuestion[]>([]);
+  const [rows, setRows] = useState<ChecklistRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const loadSDOH = async () => {
+    const load = async () => {
       try {
-        const response = await fetch('/src/data/sdoh.csv');
+        const response = await fetch('/data/sdoh.csv');
         if (!response.ok) throw new Error('Failed to fetch SDOH data');
-        
         const text = await response.text();
-        const lines = text.trim().split('\n');
-        
-        const data = lines.slice(1).map(line => {
-          const values = line.split(',');
-          return {
-            id: values[0],
-            label_key: values[1],
-            opt1_key: values[2],
-            opt2_key: values[3],
-            opt3_key: values[4],
-            code: values[5],
-            code_system: values[6]
-          };
-        });
-        
-        setSDOHQuestions(data);
+        const parsed = Papa.parse(text, { header: true, skipEmptyLines: true });
+        setRows((parsed.data as any[]).map((r) => ({
+          id: String(r.id),
+          sectionKey: r.sectionKey,
+          itemKey: r.itemKey,
+          descriptionKey: r.descriptionKey,
+          type: r.type,
+          optionsKey: r.optionsKey || undefined,
+          required: r.required === 'true'
+        })));
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Unknown error');
       } finally {
         setLoading(false);
       }
     };
-
-    loadSDOH();
+    load();
   }, []);
 
-  return { sdohQuestions, loading, error };
+  return { sdohQuestions: rows, loading, error };
 };

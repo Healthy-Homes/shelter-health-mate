@@ -1,0 +1,13 @@
+id,sectionKey,itemKey,descriptionKey,type,optionsKey,required
+1,home,smoke_detectors,checklist.descriptions.smoke_detectors_desc,yesno,,true
+2,home,carbon_monoxide,checklist.descriptions.carbon_monoxide_desc,yesno,,true
+3,home,moldVisible,checklist.descriptions.moldVisible_desc,yesno,,false
+4,home,leakingPipes,checklist.descriptions.leakingPipes_desc,yesno,,false
+5,home,noVentilation,checklist.descriptions.noVentilation_desc,yesno,,false
+6,home,pestInfestation,checklist.descriptions.pestInfestation_desc,yesno,,false
+7,home,electricalHazards,checklist.descriptions.electricalHazards_desc,yesno,,true
+8,home,structuralDamage,checklist.descriptions.structuralDamage_desc,yesno,,true
+9,home,leadPaint,checklist.descriptions.leadPaint_desc,yesno,,false
+10,home,asbestos,checklist.descriptions.asbestos_desc,yesno,,false
+11,home,overcrowding,checklist.descriptions.overcrowding_desc,yesno,,false
+12,home,inadequateHeating,checklist.descriptions.inadequateHeating_desc,yesno,,false

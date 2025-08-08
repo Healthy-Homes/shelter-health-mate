@@ -1,0 +1,100 @@
+{
+  "ui": {
+    "appTitle": "住所健康應用程式",
+    "language": "語言",
+    "checklist": "檢查表類型",
+    "includeSection": "在報告中包含此部分",
+    "downloadPdf": "下載PDF",
+    "emailReport": "電子郵件報告",
+    "shareReport": "分享報告",
+    "consentRequired": "需要同意",
+    "consentNeededDesc": "請在導出數據前獲得居民同意。",
+    "loading": "載入中...",
+    "error": "載入數據錯誤",
+    "phiWarning": "請勿在電子郵件主旨中包含個人健康資訊。請使用您機構的安全電子郵件或EHR入口傳送。",
+    "secureEmailReminder": "報告已下載。請附加到您的安全電子郵件。",
+    "pdfGenerated": "已產生PDF",
+    "pdfGeneratedDesc": "報告已產生並下載",
+    "exportOptions": "匯出選項"
+  },
+  "sections": {
+    "consent": "同意書",
+    "residents": "住戶資訊",
+    "homeInspection": "居家檢查",
+    "sdoh": "健康社會決定因素",
+    "risk": "風險評估"
+  },
+  "consent": {
+    "title": "居民同意書",
+    "text": "我同意為此健康評估收集數據",
+    "residentName": "居民姓名",
+    "residentNamePlaceholder": "輸入居民姓名（可選）"
+  },
+  "residents": {
+    "numberOfResidents": "住戶人數",
+    "ages": "年齡（以逗號分隔）",
+    "gender": "性別認同",
+    "tenure": "居住時間",
+    "months": "月",
+    "years": "年"
+  },
+  "home": {
+    "ageOfHome": "房屋/建築年齡",
+    "ageOptions": ["少於5年", "5-15年", "16-30年", "31-50年", "50年以上", "不明"]
+  },
+  "checklist": {
+    "general_safety": "一般安全檢查表",
+    "asthma_focused": "氣喘與室內空氣品質",
+    "items": {
+      "smoke_detectors": "運作中的煙霧偵測器",
+      "carbon_monoxide": "一氧化碳偵測器",
+      "moldVisible": "可見黴菌",
+      "leakingPipes": "管道洩漏",
+      "noVentilation": "通風不良",
+      "pestInfestation": "害蟲感染",
+      "electricalHazards": "電氣危險",
+      "structuralDamage": "結構損壞",
+      "leadPaint": "含鉛油漆",
+      "asbestos": "石棉材料",
+      "overcrowding": "過度擁擠",
+      "inadequateHeating": "供暖不足",
+      "ventilation": "通風",
+      "dust_mites": "塵蟎控制",
+      "smoking_exposure": "吸菸暴露"
+    },
+    "descriptions": {
+      "smoke_detectors_desc": "每層至少一個偵測器；測試按鈕需可運作",
+      "carbon_monoxide_desc": "睡眠區域附近至少一個偵測器",
+      "moldVisible_desc": "檢查是否有可見黴菌或霉味",
+      "leakingPipes_desc": "檢查水槽下方與管線周圍是否滲漏",
+      "noVentilation_desc": "浴室/廚房應有運作的排風扇或窗戶",
+      "pestInfestation_desc": "是否有囓齒類/昆蟲或排泄物跡象",
+      "electricalHazards_desc": "裸露電線或插座過載",
+      "structuralDamage_desc": "裂縫、地板下陷或天花板受損",
+      "leadPaint_desc": "1978年前建造的房屋可能含鉛漆",
+      "asbestos_desc": "舊絕緣材料或磁磚可能含石棉",
+      "overcrowding_desc": "住戶數超過空間承載",
+      "inadequateHeating_desc": "供暖不足或無法運作",
+      "dust_mites_desc": "床墊/枕頭防蟎套，減少灰塵",
+      "smoking_exposure_desc": "室內吸菸或二手煙"
+    }
+  },
+  "sdoh": {
+    "housing_stability": "您目前的居住狀況有多穩定？",
+    "housing_stability_options": ["非常穩定", "有些穩定", "不穩定", "非常不穩定", "不願回答"],
+    "food_security": "您的家庭是否有足夠的食物？",
+    "food_security_options": ["總是", "有時", "很少", "不願回答"],
+    "transportation": "您是否有可靠的交通工具前往就醫/辦事？",
+    "transportation_options": ["總是", "有時", "很少", "不願回答"],
+    "social_support": "當您需要幫助時是否有人可協助？",
+    "social_support_options": ["總是", "有時", "很少", "不願回答"],
+    "healthcare_access": "您是否能在需要時取得醫療服務？",
+    "healthcare_access_options": ["總是", "有時", "很少", "不願回答"],
+    "employment_status": "您目前的就業狀況？",
+    "employment_status_options": ["有工作", "失業", "無法工作", "不願回答"],
+    "education_level": "您的最高教育程度？",
+    "education_level_options": ["高中或以下", "部分大學", "大學學位", "研究所學位", "不願回答"],
+    "income_adequacy": "您的家庭收入是否足以滿足需要？",
+    "income_adequacy_options": ["總是", "有時", "很少", "不願回答"]
+  }
+}

@@ -17,7 +17,7 @@ const ConsentSection: React.FC<ConsentSectionProps> = ({
   hasConsent,
   setHasConsent,
   residentName,
-  setResidentName
+  setResidentName,
 }) => {
   const { t } = useLanguage();
 
@@ -26,31 +26,20 @@ const ConsentSection: React.FC<ConsentSectionProps> = ({
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-primary">
           <Shield className="h-5 w-5" />
-          {t('consentTitle')}
+          {t('consent.title')}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex items-center space-x-2">
-          <Checkbox
-            id="consent-checkbox"
-            checked={hasConsent}
-            onCheckedChange={(checked) => setHasConsent(checked as boolean)}
-          />
+          <Checkbox id="consent-checkbox" checked={hasConsent} onCheckedChange={(checked) => setHasConsent(checked as boolean)} />
           <Label htmlFor="consent-checkbox" className="text-sm">
-            {t('consentText')}
+            {t('consent.text')}
           </Label>
         </div>
-        
+
         <div className="space-y-2">
-          <Label htmlFor="resident-name">{t('residentName')}</Label>
-          <Input
-            id="resident-name"
-            type="text"
-            placeholder={t('residentNamePlaceholder')}
-            value={residentName}
-            onChange={(e) => setResidentName(e.target.value)}
-            disabled={!hasConsent}
-          />
+          <Label htmlFor="resident-name">{t('consent.residentName')}</Label>
+          <Input id="resident-name" type="text" placeholder={t('consent.residentNamePlaceholder')} value={residentName} onChange={(e) => setResidentName(e.target.value)} disabled={!hasConsent} />
         </div>
       </CardContent>
     </Card>
