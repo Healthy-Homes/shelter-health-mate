@@ -15,7 +15,15 @@
     "secureEmailReminder": "報告已下載。請附加到您的安全電子郵件。",
     "pdfGenerated": "已產生PDF",
     "pdfGeneratedDesc": "報告已產生並下載",
-    "exportOptions": "匯出選項"
+    "exportOptions": "匯出選項",
+    "riskScoring": "風險評分",
+    "enableRiskScoring": "啟用風險評分",
+    "riskScore": "風險分數",
+    "riskCategoryLabel": "風險等級",
+    "low": "低",
+    "moderate": "中",
+    "high": "高",
+    "languages": { "en": "English", "zh": "繁體中文" }
   },
   "sections": {
     "consent": "同意書",
@@ -33,7 +41,6 @@
   "residents": {
     "numberOfResidents": "住戶人數",
     "ages": "年齡（以逗號分隔）",
-    "gender": "性別認同",
     "tenure": "居住時間",
     "months": "月",
     "years": "年"
@@ -46,8 +53,8 @@
     "general_safety": "一般安全檢查表",
     "asthma_focused": "氣喘與室內空氣品質",
     "items": {
-      "smoke_detectors": "運作中的煙霧偵測器",
-      "carbon_monoxide": "一氧化碳偵測器",
+      "smoke_detectors": "煙霧偵測器缺失或故障",
+      "carbon_monoxide": "一氧化碳偵測器缺失或故障",
       "moldVisible": "可見黴菌",
       "leakingPipes": "管道洩漏",
       "noVentilation": "通風不良",
@@ -63,11 +70,11 @@
       "smoking_exposure": "吸菸暴露"
     },
     "descriptions": {
-      "smoke_detectors_desc": "每層至少一個偵測器；測試按鈕需可運作",
-      "carbon_monoxide_desc": "睡眠區域附近至少一個偵測器",
+      "smoke_detectors_desc": "缺少或無法運作的偵測器",
+      "carbon_monoxide_desc": "睡眠區域附近缺少或無法運作的偵測器",
       "moldVisible_desc": "檢查是否有可見黴菌或霉味",
       "leakingPipes_desc": "檢查水槽下方與管線周圍是否滲漏",
-      "noVentilation_desc": "浴室/廚房應有運作的排風扇或窗戶",
+      "noVentilation_desc": "浴室/廚房缺乏可運作的排風扇或窗戶",
       "pestInfestation_desc": "是否有囓齒類/昆蟲或排泄物跡象",
       "electricalHazards_desc": "裸露電線或插座過載",
       "structuralDamage_desc": "裂縫、地板下陷或天花板受損",

@@ -1,7 +1,5 @@
 import React from 'react';
-import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { Globe } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface HeaderProps {
@@ -13,25 +11,20 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ selectedChecklistId, setSelectedChecklistId, checklistOptions }) => {
   const { language, setLanguage, t } = useLanguage();
 
-  const toggleLanguage = () => {
-    setLanguage(language === 'en' ? 'zh' : 'en');
-  };
-
   return (
     <header className="bg-card border-b border-border px-4 py-3 sticky top-0 z-50">
       <div className="max-w-4xl mx-auto flex flex-col sm:flex-row gap-3 sm:gap-6 sm:items-center sm:justify-between">
         <h1 className="text-xl font-bold text-primary">{t('ui.appTitle')}</h1>
         <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={toggleLanguage}
-            className="flex items-center gap-2"
-            aria-label={t('ui.language')}
-          >
-            <Globe className="h-4 w-4" />
-            {t('ui.language')}
-          </Button>
+          <Select value={language} onValueChange={(val) => setLanguage(val as any)}>
+            <SelectTrigger className="w-[160px] bg-background" aria-label={t('ui.language')}>
+              <SelectValue placeholder={t('ui.language')} />
+            </SelectTrigger>
+            <SelectContent className="z-50 bg-popover">
+              <SelectItem value="en">{t('ui.languages.en')}</SelectItem>
+              <SelectItem value="zh">{t('ui.languages.zh')}</SelectItem>
+            </SelectContent>
+          </Select>
 
           <Select value={selectedChecklistId} onValueChange={(val) => setSelectedChecklistId(val)}>
             <SelectTrigger className="w-[240px] bg-background" aria-label={t('ui.checklist')}>

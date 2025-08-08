@@ -42,7 +42,12 @@ const ResidentInfoSection: React.FC<ResidentInfoSectionProps> = ({ data, setData
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="res-count">{t('residents.numberOfResidents')}</Label>
-            <Input id="res-count" type="number" inputMode="numeric" value={data.count ?? ''} onChange={(e) => setData({ ...data, count: Number(e.target.value) })} />
+            <Input id="res-count" type="number" inputMode="numeric" min={1} value={data.count ?? 1} onChange={(e) => {
+              const val = Math.max(1, Number(e.target.value || 1));
+              setData({ ...data, count: val });
+            }} onBlur={(e) => {
+              if (!e.target.value) setData({ ...data, count: 1 });
+            }} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="res-ages">{t('residents.ages')}</Label>

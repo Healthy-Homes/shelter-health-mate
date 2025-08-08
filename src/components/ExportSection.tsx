@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { AssessmentData } from '@/types';
-import { Download, FileText, Database, Share2, MailWarning } from 'lucide-react';
+import { Download, FileText, Database, MailWarning } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { buildReportPDF, downloadPDF } from '@/utils/pdf';
 import { buildMailto, defaultEmailContent } from '@/utils/mailto';
@@ -58,24 +58,6 @@ const ExportSection: React.FC<ExportSectionProps> = ({
     if (!ensureConsent()) return;
     const link = buildMailto({ subject: defaultEmailContent.subject, body: defaultEmailContent.body });
     window.location.href = link;
-  };
-
-  const handleShareReport = async () => {
-    if (!ensureConsent()) return;
-    const blob = await generatePDFReport();
-    if (!blob) return;
-    try {
-      const file = new File([blob], 'HealthyHomesReport.pdf', { type: 'application/pdf' });
-      if ((navigator as any).canShare && (navigator as any).canShare({ files: [file] })) {
-        await (navigator as any).share({ title: 'Healthy Homes Assessment Report', text: 'Please send via secure channel', files: [file] });
-      } else {
-        downloadPDF(blob);
-        alert(t('ui.secureEmailReminder'));
-      }
-    } catch (e) {
-      downloadPDF(blob);
-      alert(t('ui.secureEmailReminder'));
-    }
   };
 
   const generateFHIRBundle = () => {
@@ -149,7 +131,7 @@ const ExportSection: React.FC<ExportSectionProps> = ({
           <AlertDescription>{t('ui.phiWarning')}</AlertDescription>
         </Alert>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Button onClick={generatePDFReport} disabled={!hasConsent} className="flex items-center gap-2" variant="outline">
             <FileText className="h-4 w-4" />
             {t('ui.downloadPdf')}
@@ -158,11 +140,6 @@ const ExportSection: React.FC<ExportSectionProps> = ({
           <Button onClick={handleEmailReport} disabled={!hasConsent} className="flex items-center gap-2" variant="outline">
             <MailWarning className="h-4 w-4" />
             {t('ui.emailReport')}
-          </Button>
-
-          <Button onClick={handleShareReport} disabled={!hasConsent} className="flex items-center gap-2" variant="outline">
-            <Share2 className="h-4 w-4" />
-            {t('ui.shareReport')}
           </Button>
         </div>
 

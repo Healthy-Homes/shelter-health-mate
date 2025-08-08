@@ -23,7 +23,7 @@ const ShelterHealthApp: React.FC = () => {
   const [includeHome, setIncludeHome] = useState(true);
   const [includeSDOH, setIncludeSDOH] = useState(true);
 
-  const [residentInfo, setResidentInfo] = useState<ResidentInfo>({ tenureUnit: 'months' });
+  const [residentInfo, setResidentInfo] = useState<ResidentInfo>({ tenureUnit: 'months', count: 1 });
   const [homeMeta, setHomeMeta] = useState<{ ageOfHome?: string }>({});
 
   const [checklistOptions, setChecklistOptions] = useState<ChecklistConfigOption[]>([]);

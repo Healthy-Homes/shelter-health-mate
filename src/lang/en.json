@@ -15,7 +15,15 @@
     "secureEmailReminder": "Report downloaded. Please attach to your secure email.",
     "pdfGenerated": "PDF Generated",
     "pdfGeneratedDesc": "Report has been generated and downloaded",
-    "exportOptions": "Export Options"
+    "exportOptions": "Export Options",
+    "riskScoring": "Risk Scoring",
+    "enableRiskScoring": "Enable risk scoring",
+    "riskScore": "Risk Score",
+    "riskCategoryLabel": "Risk Category",
+    "low": "Low",
+    "moderate": "Moderate",
+    "high": "High",
+    "languages": { "en": "English", "zh": "繁體中文" }
   },
   "sections": {
     "consent": "Consent",
@@ -33,7 +41,6 @@
   "residents": {
     "numberOfResidents": "Number of residents",
     "ages": "Ages (comma-separated)",
-    "gender": "Gender identification",
     "tenure": "Time living in home",
     "months": "Months",
     "years": "Years"
@@ -46,8 +53,8 @@
     "general_safety": "General Safety Checklist",
     "asthma_focused": "Asthma & Indoor Air Quality",
     "items": {
-      "smoke_detectors": "Working smoke detectors",
-      "carbon_monoxide": "Carbon monoxide detectors",
+      "smoke_detectors": "Missing or non-functioning smoke detectors",
+      "carbon_monoxide": "Missing or non-functioning carbon monoxide detectors",
       "moldVisible": "Visible Mold",
       "leakingPipes": "Leaking Pipes",
       "noVentilation": "Poor Ventilation",
@@ -63,11 +70,11 @@
       "smoking_exposure": "Smoking exposure"
     },
     "descriptions": {
-      "smoke_detectors_desc": "Check at least one detector per floor; test buttons work",
-      "carbon_monoxide_desc": "At least one detector near sleeping areas",
+      "smoke_detectors_desc": "Missing or non-functioning detectors",
+      "carbon_monoxide_desc": "Missing or non-functioning detector near sleeping areas",
       "moldVisible_desc": "Check for visible mold or musty odors",
       "leakingPipes_desc": "Inspect under sinks and around plumbing for leaks",
-      "noVentilation_desc": "Bathrooms/kitchens should have working exhaust fans or windows",
+      "noVentilation_desc": "Bathrooms/kitchens lack working exhaust fans or windows",
       "pestInfestation_desc": "Signs of rodents/insects or droppings",
       "electricalHazards_desc": "Exposed wiring or overloaded outlets",
       "structuralDamage_desc": "Cracks, sagging floors, or ceiling damage",
