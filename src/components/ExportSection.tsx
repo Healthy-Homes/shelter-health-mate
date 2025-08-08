@@ -1,14 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { AssessmentData } from '@/types';
-import { Download, FileText, Database, MailWarning } from 'lucide-react';
+import { Download, FileText, Database, MailWarning, Copy } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { buildReportPDF, downloadPDF } from '@/utils/pdf';
 import { buildMailto, defaultEmailContent } from '@/utils/mailto';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 interface ExportSectionProps {
   assessmentData: AssessmentData;
   hasConsent: boolean;
@@ -30,6 +30,9 @@ const ExportSection: React.FC<ExportSectionProps> = ({
 }) => {
   const { t, tList } = useLanguage();
 
+  const [fhirOpen, setFhirOpen] = useState(false);
+  const [fhirJson, setFhirJson] = useState<string>('');
+
   const ensureConsent = () => {
     if (!hasConsent) {
       toast({ title: t('ui.consentRequired'), description: t('ui.consentNeededDesc'), variant: 'destructive' });
@@ -47,6 +50,7 @@ const ExportSection: React.FC<ExportSectionProps> = ({
       checklist: include.home ? assessmentData.checklist : {},
       sdoh: include.sdoh ? assessmentData.sdoh : {},
       risk: riskScoringEnabled ? { score: assessmentData.riskScore, category: assessmentData.riskCategory } : {},
+      consent: { confirmed: hasConsent, dateISO: new Date().toISOString(), text: t('consent.text') },
       translations: { t, tList },
     });
     downloadPDF(blob);
@@ -63,6 +67,39 @@ const ExportSection: React.FC<ExportSectionProps> = ({
   const generateFHIRBundle = () => {
     if (!ensureConsent()) return;
 
+    const resolved = (path: string): string | undefined => {
+      const v = t(path);
+      return v && v !== path ? v : undefined;
+    };
+    const titleCase = (s: string) => s.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+    const yesTxt = resolved('ui.yes') || 'Yes';
+    const noTxt = resolved('ui.no') || 'No';
+    const checklistLabel = (key: string) =>
+      resolved(`checklist.items.${key}`) || resolved(`checklist.${key}`) || titleCase(key);
+    const sdohQuestionLabel = (key: string) =>
+      resolved(`sdoh.${key}.question`) || resolved(`sdoh.${key}`) || titleCase(key);
+    const sdohAnswerText = (key: string, value: any): string => {
+      if (typeof value === 'boolean') return value ? yesTxt : noTxt;
+      if (typeof value === 'string') {
+        const m = value.match(/^opt(\d+)$/);
+        if (m) {
+          const idx = parseInt(m[1], 10) - 1;
+          const opts = ((): string[] => {
+            const o1 = tList(`sdoh.${key}.options`);
+            if (o1 && o1.length) return o1;
+            const o2 = tList(`sdoh.options.${key}`);
+            if (o2 && o2.length) return o2;
+            const raw = t(`sdoh.${key}`);
+            return Array.isArray(raw) ? (raw as string[]) : [];
+          })();
+          return opts[idx] || value;
+        }
+        return value;
+      }
+      if (Array.isArray(value)) return value.map((v) => sdohAnswerText(key, v)).join(', ');
+      return String(value);
+    };
+
     const fhirBundle: any = {
       resourceType: 'Bundle',
       id: `shelter-health-${Date.now()}`,
@@ -71,24 +108,36 @@ const ExportSection: React.FC<ExportSectionProps> = ({
       entry: [],
     };
 
-    // Add patient resource
+    // Patient
     fhirBundle.entry.push({
       resource: { resourceType: 'Patient', id: 'patient-1', name: [{ text: residentName || 'Anonymous' }] },
     });
 
-    // Add consent resource
-    fhirBundle.entry.push({ resource: { resourceType: 'Consent', id: 'consent-1', status: 'active', patient: { reference: 'Patient/patient-1' } } });
+    // Consent
+    fhirBundle.entry.push({
+      resource: {
+        resourceType: 'Consent',
+        id: 'consent-1',
+        status: 'active',
+        patient: { reference: 'Patient/patient-1' },
+        dateTime: new Date().toISOString(),
+      },
+    });
 
-    // Add checklist observations (home section only if included)
+    // Checklist observations (true items)
     if (include.home) {
       Object.entries(assessmentData.checklist).forEach(([key, value], index) => {
         if (value === true) {
+          const display = checklistLabel(key);
           fhirBundle.entry.push({
             resource: {
               resourceType: 'Observation',
               id: `obs-checklist-${index}`,
               status: 'final',
-              code: { coding: [{ system: 'http://healthyhomes.local/checklist', code: key, display: key }] },
+              code: {
+                coding: [{ system: 'http://healthyhomes.local/checklist', code: key, display }],
+                text: display,
+              },
               subject: { reference: 'Patient/patient-1' },
               valueBoolean: true,
             },
@@ -97,24 +146,30 @@ const ExportSection: React.FC<ExportSectionProps> = ({
       });
     }
 
-    // Add SDOH observations if included
+    // SDOH observations
     if (include.sdoh) {
       Object.entries(assessmentData.sdoh).forEach(([key, value], index) => {
+        const display = sdohQuestionLabel(key);
+        const answer = sdohAnswerText(key, value);
         fhirBundle.entry.push({
           resource: {
             resourceType: 'Observation',
             id: `obs-sdoh-${index}`,
             status: 'final',
-            code: { coding: [{ system: 'http://healthyhomes.local/sdoh', code: key, display: key }] },
+            code: {
+              coding: [{ system: 'http://healthyhomes.local/sdoh', code: key, display }],
+              text: display,
+            },
             subject: { reference: 'Patient/patient-1' },
-            valueString: String(value),
+            valueString: answer,
           },
         });
       });
     }
 
-    console.log('FHIR Bundle:', JSON.stringify(fhirBundle, null, 2));
-    toast({ title: t('ui.exportOptions'), description: 'FHIR R4 compliant bundle has been created' });
+    const pretty = JSON.stringify(fhirBundle, null, 2);
+    setFhirJson(pretty);
+    setFhirOpen(true);
   };
 
   return (
@@ -151,6 +206,25 @@ const ExportSection: React.FC<ExportSectionProps> = ({
         </div>
 
         {!hasConsent && <p className="text-sm text-muted-foreground text-center">{t('ui.consentNeededDesc')}</p>}
+
+        <Dialog open={fhirOpen} onOpenChange={setFhirOpen}>
+          <DialogContent className="max-w-3xl">
+            <DialogHeader>
+              <DialogTitle>FHIR Bundle (JSON)</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-2">
+              <pre className="max-h-[50vh] overflow-auto rounded-md bg-muted p-3 text-sm"><code>{fhirJson}</code></pre>
+            </div>
+            <DialogFooter className="flex gap-2">
+              <Button variant="outline" onClick={() => { navigator.clipboard.writeText(fhirJson); toast({ title: 'Copied', description: 'FHIR JSON copied to clipboard' }); }} className="flex items-center gap-2">
+                <Copy className="h-4 w-4" /> Copy
+              </Button>
+              <Button variant="outline" onClick={() => { const blob = new Blob([fhirJson], { type: 'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `fhir-bundle-${Date.now()}.json`; a.click(); URL.revokeObjectURL(url); }} className="flex items-center gap-2">
+                <Download className="h-4 w-4" /> Download JSON
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </CardContent>
     </Card>
   );
