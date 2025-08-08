@@ -55,7 +55,17 @@ const ResidentInfoSection: React.FC<ResidentInfoSectionProps> = ({ data, setData
           <div className="space-y-2">
             <Label>{t('residents.tenure')}</Label>
             <div className="flex items-center gap-2">
-              <Input aria-label={t('residents.tenure')} type="number" inputMode="numeric" className="w-28" value={data.tenureValue ?? ''} onChange={(e) => setData({ ...data, tenureValue: Number(e.target.value) })} />
+              <Input aria-label={t('residents.tenure')} type="number" inputMode="numeric" min={0} step={1} className="w-28" value={data.tenureValue ?? ''} onChange={(e) => {
+                const raw = e.target.value;
+                if (raw === '') {
+                  setData({ ...data, tenureValue: undefined });
+                } else {
+                  const n = Math.max(0, Number(raw));
+                  setData({ ...data, tenureValue: isNaN(n) ? 0 : n });
+                }
+              }} onBlur={(e) => {
+                if (e.target.value === '') setData({ ...data, tenureValue: 0 });
+              }} />
               <select aria-label={t('residents.tenure')} className="border rounded-md px-3 py-2 bg-background" value={data.tenureUnit ?? 'months'} onChange={(e) => setData({ ...data, tenureUnit: e.target.value as 'months' | 'years' })}>
                 <option value="months">{t('residents.months')}</option>
                 <option value="years">{t('residents.years')}</option>
