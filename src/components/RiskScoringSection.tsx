@@ -4,8 +4,7 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { AssessmentData } from '@/types';
-import { calculateRiskScore } from '@/utils/riskModel';
+import { calculateRiskScores } from '@/utils/riskModel';
 import { AlertTriangle, Shield, TrendingUp } from 'lucide-react';
 
 interface RiskScoringSectionProps {
@@ -21,7 +20,7 @@ const RiskScoringSection: React.FC<RiskScoringSectionProps> = ({
 }) => {
   const { t } = useLanguage();
 
-  const riskResult = riskScoringEnabled ? calculateRiskScore(assessmentData) : null;
+  const riskResults = riskScoringEnabled ? calculateRiskScores(assessmentData) : null;
 
   const getRiskColor = (category: string) => {
     switch (category) {
@@ -46,7 +45,7 @@ const RiskScoringSection: React.FC<RiskScoringSectionProps> = ({
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-primary">
           <TrendingUp className="h-5 w-5" />
-          {t('riskScoring')}
+          {t('ui.riskScoring')}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -57,31 +56,40 @@ const RiskScoringSection: React.FC<RiskScoringSectionProps> = ({
             onCheckedChange={setRiskScoringEnabled}
           />
           <Label htmlFor="risk-scoring-toggle">
-            {t('enableRiskScoring')}
+            {t('ui.enableRiskScoring')}
           </Label>
         </div>
 
-        {riskScoringEnabled && riskResult && (
+        {riskScoringEnabled && riskResults && (
           <div className="space-y-4 p-4 bg-muted/50 rounded-lg">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                {getRiskIcon(riskResult.category)}
-                <span className="font-medium">{t('riskScore')}:</span>
-              </div>
-              <div className="text-right">
-                <span className="text-2xl font-bold">{riskResult.score}</span>
-                <span className="text-muted-foreground ml-1">/ 100</span>
-              </div>
-            </div>
-            
-            <Progress value={riskResult.score} className="w-full" />
-            
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Risk Category:</span>
-              <span className={`font-medium ${getRiskColor(riskResult.category)}`}>
-                {t(riskResult.category.toLowerCase())}
-              </span>
-            </div>
+            {(['environmental','sdoh','combined'] as const).map((key) => {
+              const result = riskResults[key];
+              return (
+                <div key={key} className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      {getRiskIcon(result.category)}
+                      <span className="font-medium">
+                        {key === 'environmental' && t('ui.environmentalRisk')}
+                        {key === 'sdoh' && t('ui.sdohRisk')}
+                        {key === 'combined' && t('ui.combinedRisk')}
+                      </span>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-2xl font-bold">{result.score}</span>
+                      <span className="text-muted-foreground ml-1">/ 100</span>
+                    </div>
+                  </div>
+                  <Progress value={result.score} className="w-full" />
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">{t('ui.riskCategoryLabel')}:</span>
+                    <span className={`font-medium ${getRiskColor(result.category)}`}>
+                      {t(`ui.${result.category.toLowerCase()}`)}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         )}
       </CardContent>

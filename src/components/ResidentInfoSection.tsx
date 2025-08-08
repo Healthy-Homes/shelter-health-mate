@@ -9,7 +9,6 @@ import { Users } from 'lucide-react';
 export interface ResidentInfo {
   count?: number;
   ages?: string;
-  gender?: string;
   tenureValue?: number;
   tenureUnit?: 'months' | 'years';
 }
@@ -52,10 +51,6 @@ const ResidentInfoSection: React.FC<ResidentInfoSectionProps> = ({ data, setData
           <div className="space-y-2">
             <Label htmlFor="res-ages">{t('residents.ages')}</Label>
             <Input id="res-ages" type="text" value={data.ages ?? ''} onChange={(e) => setData({ ...data, ages: e.target.value })} />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="res-gender">{t('residents.gender')}</Label>
-            <Input id="res-gender" type="text" value={data.gender ?? ''} onChange={(e) => setData({ ...data, gender: e.target.value })} />
           </div>
           <div className="space-y-2">
             <Label>{t('residents.tenure')}</Label>

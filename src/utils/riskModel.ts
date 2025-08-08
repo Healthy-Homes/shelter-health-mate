@@ -1,65 +1,46 @@
-import { AssessmentData, RiskWeights } from '@/types';
+import { AssessmentData } from '@/types';
+import { riskScoringConfig, Thresholds } from '@/utils/riskConfig';
 
-// Risk weights for checklist items (higher = more risk)
-const checklistWeights: RiskWeights = {
-  moldVisible: 8,
-  leakingPipes: 6,
-  noVentilation: 5,
-  pestInfestation: 4,
-  electricalHazards: 9,
-  structuralDamage: 7,
-  leadPaint: 10,
-  asbestos: 10,
-  overcrowding: 6,
-  inadequateHeating: 5
-};
+function categorize(score: number, thresholds: Thresholds): 'Low' | 'Moderate' | 'High' {
+  if (score <= thresholds.low[1]) return 'Low';
+  if (score <= thresholds.medium[1]) return 'Moderate';
+  return 'High';
+}
 
-// Risk weights for SDOH responses (opt3 = highest risk, opt1 = lowest risk)
-const sdohWeights: { [key: string]: { [option: string]: number } } = {
-  foodSecurity: { opt1: 0, opt2: 4, opt3: 8 },
-  housingStability: { opt1: 0, opt2: 5, opt3: 10 },
-  transportation: { opt1: 0, opt2: 3, opt3: 6 },
-  socialSupport: { opt1: 0, opt2: 3, opt3: 6 },
-  healthcare: { opt1: 0, opt2: 4, opt3: 8 },
-  employment: { opt1: 0, opt2: 3, opt3: 6 },
-  education: { opt1: 0, opt2: 2, opt3: 4 },
-  income: { opt1: 0, opt2: 4, opt3: 8 }
-};
-
-export const calculateRiskScore = (data: AssessmentData): { score: number; category: 'Low' | 'Moderate' | 'High' } => {
-  let totalScore = 0;
-  let maxPossibleScore = 0;
-
-  // Calculate checklist risk
-  Object.keys(checklistWeights).forEach(key => {
-    maxPossibleScore += checklistWeights[key];
-    if (data.checklist[key]) {
-      totalScore += checklistWeights[key];
-    }
+function scoreEnvironmental(checklist: Record<string, boolean>) {
+  const weights = riskScoringConfig.environmental.weights;
+  let total = 0;
+  let max = 0;
+  Object.entries(weights).forEach(([key, w]) => {
+    max += w;
+    if (checklist[key]) total += w;
   });
+  const pct = max > 0 ? Math.round((total / max) * 100) : 0;
+  return { score: pct, category: categorize(pct, riskScoringConfig.environmental.thresholds) };
+}
 
-  // Calculate SDOH risk
-  Object.keys(sdohWeights).forEach(questionId => {
-    const response = data.sdoh[questionId];
-    const weights = sdohWeights[questionId];
-    maxPossibleScore += Math.max(...Object.values(weights));
-    
-    if (response && weights[response]) {
-      totalScore += weights[response];
-    }
+function scoreSDOH(sdoh: Record<string, string>) {
+  const weightsMap = riskScoringConfig.sdoh.weights;
+  let total = 0;
+  let max = 0;
+  Object.entries(weightsMap).forEach(([qKey, opts]) => {
+    const maxForQ = Math.max(...Object.values(opts));
+    max += maxForQ;
+    const resp = sdoh[qKey];
+    if (resp && opts[resp] !== undefined) total += opts[resp];
   });
+  const pct = max > 0 ? Math.round((total / max) * 100) : 0;
+  return { score: pct, category: categorize(pct, riskScoringConfig.sdoh.thresholds) };
+}
 
-  // Convert to percentage (0-100)
-  const percentageScore = maxPossibleScore > 0 ? Math.round((totalScore / maxPossibleScore) * 100) : 0;
+export const calculateRiskScores = (data: AssessmentData) => {
+  const environmental = scoreEnvironmental(data.checklist || {});
+  const sdoh = scoreSDOH(data.sdoh || {});
 
-  let category: 'Low' | 'Moderate' | 'High';
-  if (percentageScore <= 33) {
-    category = 'Low';
-  } else if (percentageScore <= 66) {
-    category = 'Moderate';
-  } else {
-    category = 'High';
-  }
+  // Combined
+  const { weights, thresholds } = riskScoringConfig.combined;
+  const combinedRaw = environmental.score * weights.environmental + sdoh.score * weights.sdoh;
+  const combined = { score: Math.round(combinedRaw), category: categorize(Math.round(combinedRaw), thresholds) };
 
-  return { score: percentageScore, category };
+  return { environmental, sdoh, combined };
 };

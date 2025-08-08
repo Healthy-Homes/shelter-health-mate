@@ -20,6 +20,9 @@
     "enableRiskScoring": "Enable risk scoring",
     "riskScore": "Risk Score",
     "riskCategoryLabel": "Risk Category",
+    "environmentalRisk": "Environmental Risk",
+    "sdohRisk": "SDOH Risk",
+    "combinedRisk": "Combined Risk",
     "low": "Low",
     "moderate": "Moderate",
     "high": "High",
@@ -55,7 +58,7 @@
     "items": {
       "smoke_detectors": "Missing or non-functioning smoke detectors",
       "carbon_monoxide": "Missing or non-functioning carbon monoxide detectors",
-      "moldVisible": "Visible Mold",
+      "moldVisible": "Visible Mold Present",
       "leakingPipes": "Leaking Pipes",
       "noVentilation": "Poor Ventilation",
       "pestInfestation": "Pest Infestation",
@@ -65,9 +68,9 @@
       "asbestos": "Asbestos Materials",
       "overcrowding": "Overcrowding",
       "inadequateHeating": "Inadequate Heating",
-      "ventilation": "Ventilation",
-      "dust_mites": "Dust mites control",
-      "smoking_exposure": "Smoking exposure"
+      "ventilation": "Poor Ventilation",
+      "dust_mites": "Dust mites present",
+      "smoking_exposure": "Smoking exposure indoors"
     },
     "descriptions": {
       "smoke_detectors_desc": "Missing or non-functioning detectors",

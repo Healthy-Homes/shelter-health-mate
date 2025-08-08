@@ -7,7 +7,7 @@ import SDOHSection from '@/components/SDOHSection';
 import RiskScoringSection from '@/components/RiskScoringSection';
 import ExportSection from '@/components/ExportSection';
 import { AssessmentData } from '@/types';
-import { calculateRiskScore } from '@/utils/riskModel';
+import { calculateRiskScores } from '@/utils/riskModel';
 import ResidentInfoSection, { ResidentInfo } from '@/components/ResidentInfoSection';
 
 interface ChecklistConfigOption { id: string; labelKey: string; csvPath: string }
@@ -55,11 +55,11 @@ const ShelterHealthApp: React.FC = () => {
     sdoh: sdohData,
   };
 
-  useEffect(() => {
+useEffect(() => {
     if (riskScoringEnabled) {
-      const riskResult = calculateRiskScore(assessmentData);
-      assessmentData.riskScore = riskResult.score;
-      assessmentData.riskCategory = riskResult.category;
+      const risk = calculateRiskScores(assessmentData);
+      assessmentData.riskScore = risk.combined.score;
+      assessmentData.riskCategory = risk.combined.category;
     }
   }, [checklistData, sdohData, riskScoringEnabled]);
 

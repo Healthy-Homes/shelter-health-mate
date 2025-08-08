@@ -23,6 +23,19 @@ const SDOHSection: React.FC<SDOHSectionProps> = ({
   const { t, tList } = useLanguage();
   const { sdohQuestions, loading, error } = useSDOHData();
 
+  const fallbackQuestions = [
+    { id: '1', itemKey: 'housingStability', descriptionKey: 'sdoh.housing_stability', type: 'single', optionsKey: 'sdoh.housing_stability_options' },
+    { id: '2', itemKey: 'foodSecurity', descriptionKey: 'sdoh.food_security', type: 'single', optionsKey: 'sdoh.food_security_options' },
+    { id: '3', itemKey: 'transportation', descriptionKey: 'sdoh.transportation', type: 'single', optionsKey: 'sdoh.transportation_options' },
+    { id: '4', itemKey: 'socialSupport', descriptionKey: 'sdoh.social_support', type: 'single', optionsKey: 'sdoh.social_support_options' },
+    { id: '5', itemKey: 'healthcare', descriptionKey: 'sdoh.healthcare_access', type: 'single', optionsKey: 'sdoh.healthcare_access_options' },
+    { id: '6', itemKey: 'employment', descriptionKey: 'sdoh.employment_status', type: 'single', optionsKey: 'sdoh.employment_status_options' },
+    { id: '7', itemKey: 'education', descriptionKey: 'sdoh.education_level', type: 'single', optionsKey: 'sdoh.education_level_options' },
+    { id: '8', itemKey: 'income', descriptionKey: 'sdoh.income_adequacy', type: 'single', optionsKey: 'sdoh.income_adequacy_options' },
+  ] as Array<{ id: string; itemKey: string; descriptionKey: string; type: string; optionsKey?: string }>;
+
+  const questions = sdohQuestions && sdohQuestions.length ? sdohQuestions : fallbackQuestions;
+
   const handleRadioChange = (questionId: string, value: string) => {
     setSDOHData({
       ...sdohData,
@@ -68,7 +81,7 @@ const SDOHSection: React.FC<SDOHSectionProps> = ({
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        {sdohQuestions.map((question) => {
+        {questions.map((question) => {
           const options = tList(question.optionsKey || '');
           return (
             <div key={question.id} className="space-y-3">
