@@ -24,14 +24,54 @@ const SDOHSection: React.FC<SDOHSectionProps> = ({
   const { sdohQuestions, loading, error } = useSDOHData();
 
   const fallbackQuestions = [
-    { id: 'housing_stability', itemKey: 'housingStability', descriptionKey: 'sdoh.dummy.housing_stability.question', type: 'single', optionsKey: 'sdoh.dummy.housing_stability.options' },
-    { id: 'food_security', itemKey: 'foodSecurity', descriptionKey: 'sdoh.dummy.food_security.question', type: 'single', optionsKey: 'sdoh.dummy.food_security.options' },
-    { id: 'transportation', itemKey: 'transportation', descriptionKey: 'sdoh.dummy.transportation.question', type: 'single', optionsKey: 'sdoh.dummy.transportation.options' },
-    { id: 'utilities', itemKey: 'utilities', descriptionKey: 'sdoh.dummy.utilities.question', type: 'single', optionsKey: 'sdoh.dummy.utilities.options' },
-    { id: 'social_support', itemKey: 'socialSupport', descriptionKey: 'sdoh.dummy.social_support.question', type: 'single', optionsKey: 'sdoh.dummy.social_support.options' },
-  ] as Array<{ id: string; itemKey: string; descriptionKey: string; type: string; optionsKey?: string }>;
+    {
+      id: 'housing_stability',
+      itemKey: 'housingStability',
+      question: 'How worried are you about losing your housing?',
+      descriptionKey: 'sdoh.dummy.housing_stability.question',
+      type: 'single',
+      options: ['Not worried', 'A little worried', 'Somewhat worried', 'Very worried', 'Extremely worried'],
+      optionsKey: 'sdoh.dummy.housing_stability.options'
+    },
+    {
+      id: 'food_security',
+      itemKey: 'foodSecurity',
+      question: 'In the past month, did you run out of food before you could buy more?',
+      descriptionKey: 'sdoh.dummy.food_security.question',
+      type: 'single',
+      options: ['Never', 'Rarely', 'Sometimes', 'Often', 'Always'],
+      optionsKey: 'sdoh.dummy.food_security.options'
+    },
+    {
+      id: 'transportation',
+      itemKey: 'transportation',
+      question: 'Do you have reliable transportation to medical appointments?',
+      descriptionKey: 'sdoh.dummy.transportation.question',
+      type: 'yesno',
+      options: ['Yes', 'No'],
+      optionsKey: 'sdoh.dummy.transportation.options'
+    },
+    {
+      id: 'utilities',
+      itemKey: 'utilities',
+      question: 'In the past year, has your utility service been shut off?',
+      descriptionKey: 'sdoh.dummy.utilities.question',
+      type: 'yesno',
+      options: ['Yes', 'No'],
+      optionsKey: 'sdoh.dummy.utilities.options'
+    },
+    {
+      id: 'social_support',
+      itemKey: 'socialSupport',
+      question: 'How often do you feel socially isolated?',
+      descriptionKey: 'sdoh.dummy.social_support.question',
+      type: 'single',
+      options: ['Never', 'Rarely', 'Sometimes', 'Often', 'Always'],
+      optionsKey: 'sdoh.dummy.social_support.options'
+    }
+  ] as Array<{ id: string; itemKey: string; descriptionKey?: string; question?: string; type: string; optionsKey?: string; options?: string[] }>;
 
-  const questions = sdohQuestions && sdohQuestions.length ? sdohQuestions : fallbackQuestions;
+  const questions = fallbackQuestions;
 
   const handleRadioChange = (questionId: string, value: string) => {
     setSDOHData({
@@ -79,18 +119,21 @@ const SDOHSection: React.FC<SDOHSectionProps> = ({
       </CardHeader>
       <CardContent className="space-y-6">
         {questions.map((question) => {
-          const options = tList(question.optionsKey || '');
+          const translatedOptions = tList((question as any).optionsKey || '');
+          const options = translatedOptions.length > 0 ? translatedOptions : ((question as any).options || []);
+          const translatedDesc = (question as any).descriptionKey ? t((question as any).descriptionKey) : '';
+          const labelText = translatedDesc && translatedDesc !== (question as any).descriptionKey ? translatedDesc : ((question as any).question || '');
           return (
-            <div key={question.id} className="space-y-3">
-              <Label className="text-sm font-medium">{t(question.descriptionKey)}</Label>
+            <div key={(question as any).id} className="space-y-3">
+              <Label className="text-sm font-medium">{labelText}</Label>
               <RadioGroup
-                value={sdohData[question.itemKey] || ''}
-                onValueChange={(value) => handleRadioChange(question.itemKey, value)}
+                value={sdohData[(question as any).itemKey] || ''}
+                onValueChange={(value) => handleRadioChange((question as any).itemKey, value)}
                 className="space-y-2"
               >
-                {options.map((opt, idx) => {
+                {options.map((opt: string, idx: number) => {
                   const value = `opt${idx + 1}`;
-                  const radioId = `${question.itemKey}-${value}`;
+                  const radioId = `${(question as any).itemKey}-${value}`;
                   return (
                     <div key={value} className="flex items-center space-x-2">
                       <RadioGroupItem value={value} id={radioId} />
@@ -104,6 +147,7 @@ const SDOHSection: React.FC<SDOHSectionProps> = ({
             </div>
           );
         })}
+
       </CardContent>
     </Card>
   );
