@@ -16,6 +16,7 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 const dictionaries: Record<Language, any> = { en, zh };
 
 function getByPath(obj: any, path: string) {
+  if (!path || typeof path !== 'string') return undefined;
   return path.split('.').reduce((acc, part) => (acc && acc[part] !== undefined ? acc[part] : undefined), obj);
 }
 
@@ -27,11 +28,13 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
   const [language, setLanguage] = useState<Language>('en');
 
   const t = (key: string): any => {
+    if (!key || typeof key !== 'string' || key.trim() === '') return '';
     const value = getByPath(dictionaries[language], key);
     return value !== undefined ? value : key;
   };
 
   const tList = (key: string): string[] => {
+    if (!key || typeof key !== 'string' || key.trim() === '') return [];
     const value = t(key);
     return Array.isArray(value) ? (value as string[]) : [];
     };
