@@ -24,14 +24,11 @@ const SDOHSection: React.FC<SDOHSectionProps> = ({
   const { sdohQuestions, loading, error } = useSDOHData();
 
   const fallbackQuestions = [
-    { id: '1', itemKey: 'housingStability', descriptionKey: 'sdoh.housing_stability', type: 'single', optionsKey: 'sdoh.housing_stability_options' },
-    { id: '2', itemKey: 'foodSecurity', descriptionKey: 'sdoh.food_security', type: 'single', optionsKey: 'sdoh.food_security_options' },
-    { id: '3', itemKey: 'transportation', descriptionKey: 'sdoh.transportation', type: 'single', optionsKey: 'sdoh.transportation_options' },
-    { id: '4', itemKey: 'socialSupport', descriptionKey: 'sdoh.social_support', type: 'single', optionsKey: 'sdoh.social_support_options' },
-    { id: '5', itemKey: 'healthcare', descriptionKey: 'sdoh.healthcare_access', type: 'single', optionsKey: 'sdoh.healthcare_access_options' },
-    { id: '6', itemKey: 'employment', descriptionKey: 'sdoh.employment_status', type: 'single', optionsKey: 'sdoh.employment_status_options' },
-    { id: '7', itemKey: 'education', descriptionKey: 'sdoh.education_level', type: 'single', optionsKey: 'sdoh.education_level_options' },
-    { id: '8', itemKey: 'income', descriptionKey: 'sdoh.income_adequacy', type: 'single', optionsKey: 'sdoh.income_adequacy_options' },
+    { id: 'housing_stability', itemKey: 'housingStability', descriptionKey: 'sdoh.dummy.housing_stability.question', type: 'single', optionsKey: 'sdoh.dummy.housing_stability.options' },
+    { id: 'food_security', itemKey: 'foodSecurity', descriptionKey: 'sdoh.dummy.food_security.question', type: 'single', optionsKey: 'sdoh.dummy.food_security.options' },
+    { id: 'transportation', itemKey: 'transportation', descriptionKey: 'sdoh.dummy.transportation.question', type: 'single', optionsKey: 'sdoh.dummy.transportation.options' },
+    { id: 'utilities', itemKey: 'utilities', descriptionKey: 'sdoh.dummy.utilities.question', type: 'single', optionsKey: 'sdoh.dummy.utilities.options' },
+    { id: 'social_support', itemKey: 'socialSupport', descriptionKey: 'sdoh.dummy.social_support.question', type: 'single', optionsKey: 'sdoh.dummy.social_support.options' },
   ] as Array<{ id: string; itemKey: string; descriptionKey: string; type: string; optionsKey?: string }>;
 
   const questions = sdohQuestions && sdohQuestions.length ? sdohQuestions : fallbackQuestions;

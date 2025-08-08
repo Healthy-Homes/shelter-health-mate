@@ -105,6 +105,28 @@
     "education_level": "What is your highest level of education?",
     "education_level_options": ["High school or less", "Some college", "College degree", "Graduate degree", "Prefer not to answer"],
     "income_adequacy": "Is your household income enough to meet your needs?",
-    "income_adequacy_options": ["Always", "Sometimes", "Rarely", "Prefer not to answer"]
+    "income_adequacy_options": ["Always", "Sometimes", "Rarely", "Prefer not to answer"],
+    "dummy": {
+      "housing_stability": {
+        "question": "How worried are you about losing your housing?",
+        "options": ["Not worried", "A little worried", "Somewhat worried", "Very worried", "Extremely worried"]
+      },
+      "food_security": {
+        "question": "In the past month, did you run out of food before you could buy more?",
+        "options": ["Never", "Rarely", "Sometimes", "Often", "Always"]
+      },
+      "transportation": {
+        "question": "Do you have reliable transportation to medical appointments?",
+        "options": ["Yes", "No"]
+      },
+      "utilities": {
+        "question": "In the past year, has your utility service been shut off?",
+        "options": ["Yes", "No"]
+      },
+      "social_support": {
+        "question": "How often do you feel socially isolated?",
+        "options": ["Never", "Rarely", "Sometimes", "Often", "Always"]
+      }
+    }
   }
 }

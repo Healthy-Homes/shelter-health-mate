@@ -4,6 +4,7 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { AssessmentData } from '@/types';
 import { calculateRiskScores } from '@/utils/riskModel';
 import { AlertTriangle, Shield, TrendingUp } from 'lucide-react';
 

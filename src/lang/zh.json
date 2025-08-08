@@ -102,6 +102,28 @@
     "education_level": "您的最高教育程度？",
     "education_level_options": ["高中或以下", "部分大學", "大學學位", "研究所學位", "不願回答"],
     "income_adequacy": "您的家庭收入是否足以滿足需要？",
-    "income_adequacy_options": ["總是", "有時", "很少", "不願回答"]
+    "income_adequacy_options": ["總是", "有時", "很少", "不願回答"],
+    "dummy": {
+      "housing_stability": {
+        "question": "您對於失去住房的擔憂程度如何？",
+        "options": ["不擔心", "有點擔心", "有些擔心", "非常擔心", "極度擔心"]
+      },
+      "food_security": {
+        "question": "過去一個月內，您是否在能購買更多食物之前就已經用完食物？",
+        "options": ["從未", "很少", "有時", "經常", "總是"]
+      },
+      "transportation": {
+        "question": "您是否有可靠的交通工具前往醫療門診？",
+        "options": ["是", "否"]
+      },
+      "utilities": {
+        "question": "過去一年內，您的水電瓦斯等公用事業是否曾被停用？",
+        "options": ["是", "否"]
+      },
+      "social_support": {
+        "question": "您多常感到社交孤立？",
+        "options": ["從不", "很少", "有時", "經常", "總是"]
+      }
+    }
   }
 }
