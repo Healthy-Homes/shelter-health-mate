@@ -4,7 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useState } from "react";
-import { TestChecklist } from "./components/checklist/TestChecklist";
+import { SimpleChecklistTest } from "./components/checklist/SimpleChecklistTest";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 
@@ -27,7 +27,7 @@ const App = () => {
             >
               ← Back to Main App
             </button>
-            <TestChecklist />
+            <SimpleChecklistTest />
           </div>
         ) : (
           // Normal App Mode
