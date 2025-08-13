@@ -1,4 +1,6 @@
 import jsPDF from 'jspdf';
+import { encryptCompressedJsonToPayload, sha256Hex } from '@/utils/crypto';
+import { generateQRDataUrl } from '@/utils/qr';
 
 export interface PDFBuildOptions {
   residentName?: string;
@@ -8,6 +10,9 @@ export interface PDFBuildOptions {
   risk?: { score?: number; category?: string };
   consent?: { confirmed: boolean; dateISO?: string; text?: string };
   translations: { t: (key: string) => string; tList: (key: string) => string[] };
+  // Optional FHIR payload and QR settings
+  fhirBundle?: any;
+  qr?: { passphrase?: string; size?: number };
 }
 
 export async function buildReportPDF(opts: PDFBuildOptions): Promise<Blob> {
@@ -145,6 +150,40 @@ export async function buildReportPDF(opts: PDFBuildOptions): Promise<Blob> {
     const label = resolved('riskScore') || 'Risk Score';
     const category = risk.category || '';
     doc.text(`${label}: ${risk.score} (${category})`, 18, y);
+  }
+
+  // Encrypted FHIR QR (optional)
+  if (opts.fhirBundle && opts.qr?.passphrase) {
+    // Ensure space
+    const sectionTitle = resolved('ui.encryptedFhirQr') || 'Encrypted FHIR QR';
+    const infoText = resolved('ui.scanWithProviderApp') || 'Scan with provider app and decrypt with shared key.';
+    const qrSize = Math.min(Math.max(opts.qr.size || 128, 128), 256);
+
+    y += 8;
+    if (y + qrSize + 20 > 280) {
+      doc.addPage();
+      y = 14;
+    }
+
+    doc.setFontSize(12);
+    doc.text(sectionTitle, 14, y);
+    y += 6;
+    doc.setFontSize(9);
+
+    const payload = await encryptCompressedJsonToPayload(opts.fhirBundle, opts.qr.passphrase);
+    const fingerprint = (await sha256Hex(payload)).slice(0, 12);
+    const qrDataUrl = await generateQRDataUrl(payload, qrSize);
+
+    // Place QR image
+    const x = 14;
+    doc.addImage(qrDataUrl, 'PNG', x, y, qrSize / 3, qrSize / 3); // scale down to fit PDF units
+
+    // Instructions beside QR
+    const textX = x + qrSize / 3 + 6;
+    const lines = doc.splitTextToSize(`${infoText}\nRef: ${fingerprint}`, 180 - textX);
+    doc.text(lines as string[], textX, y + 6);
+
+    y += qrSize / 3 + 6;
   }
 
   return doc.output('blob');

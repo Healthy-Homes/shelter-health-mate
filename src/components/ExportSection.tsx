@@ -32,6 +32,7 @@ const ExportSection: React.FC<ExportSectionProps> = ({
 
   const [fhirOpen, setFhirOpen] = useState(false);
   const [fhirJson, setFhirJson] = useState<string>('');
+  const [passphrase, setPassphrase] = useState<string>('');
 
   const ensureConsent = () => {
     if (!hasConsent) {
@@ -44,6 +45,117 @@ const ExportSection: React.FC<ExportSectionProps> = ({
   const generatePDFReport = async () => {
     if (!ensureConsent()) return;
 
+    let fhirBundle: any | undefined;
+    let qr: { passphrase?: string; size?: number } | undefined;
+
+    // Ask for passphrase to include encrypted FHIR QR in the PDF (optional)
+    const pp = window.prompt(
+      t('ui.enterPassphrase') || 'Enter passphrase for QR encryption (providers will decrypt):',
+      ''
+    );
+    const pass = (pp || '').trim();
+
+    if (pass) {
+      // Build a FHIR bundle using the same mapping as the FHIR modal
+      const resolved = (path: string): string | undefined => {
+        const v = t(path);
+        return v && v !== path ? v : undefined;
+      };
+      const titleCase = (s: string) => s.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+      const yesTxt = resolved('ui.yes') || 'Yes';
+      const noTxt = resolved('ui.no') || 'No';
+      const checklistLabel = (key: string) =>
+        resolved(`checklist.items.${key}`) || resolved(`checklist.${key}`) || titleCase(key);
+      const sdohQuestionLabel = (key: string) =>
+        resolved(`sdoh.${key}.question`) || resolved(`sdoh.${key}`) || titleCase(key);
+      const sdohAnswerText = (key: string, value: any): string => {
+        if (typeof value === 'boolean') return value ? yesTxt : noTxt;
+        if (typeof value === 'string') {
+          const m = value.match(/^opt(\d+)$/);
+          if (m) {
+            const idx = parseInt(m[1], 10) - 1;
+            const opts = (() => {
+              const o1 = tList(`sdoh.${key}.options`);
+              if (o1 && o1.length) return o1;
+              const o2 = tList(`sdoh.options.${key}`);
+              if (o2 && o2.length) return o2;
+              const raw = t(`sdoh.${key}`);
+              return Array.isArray(raw) ? (raw as string[]) : [];
+            })();
+            return opts[idx] || value;
+          }
+          return value;
+        }
+        if (Array.isArray(value)) return value.map((v) => sdohAnswerText(key, v)).join(', ');
+        return String(value);
+      };
+
+      fhirBundle = {
+        resourceType: 'Bundle',
+        id: `shelter-health-${Date.now()}`,
+        type: 'document',
+        timestamp: new Date().toISOString(),
+        entry: [],
+      } as any;
+      // Patient
+      fhirBundle.entry.push({
+        resource: { resourceType: 'Patient', id: 'patient-1', name: [{ text: residentName || 'Anonymous' }] },
+      });
+      // Consent
+      fhirBundle.entry.push({
+        resource: {
+          resourceType: 'Consent',
+          id: 'consent-1',
+          status: 'active',
+          patient: { reference: 'Patient/patient-1' },
+          dateTime: new Date().toISOString(),
+        },
+      });
+      // Checklist
+      if (include.home) {
+        Object.entries(assessmentData.checklist).forEach(([key, value], index) => {
+          if (value === true) {
+            const display = checklistLabel(key);
+            fhirBundle.entry.push({
+              resource: {
+                resourceType: 'Observation',
+                id: `obs-checklist-${index}`,
+                status: 'final',
+                code: {
+                  coding: [{ system: 'http://healthyhomes.local/checklist', code: key, display }],
+                  text: display,
+                },
+                subject: { reference: 'Patient/patient-1' },
+                valueBoolean: true,
+              },
+            });
+          }
+        });
+      }
+      // SDOH
+      if (include.sdoh) {
+        Object.entries(assessmentData.sdoh).forEach(([key, value], index) => {
+          const display = sdohQuestionLabel(key);
+          const answer = sdohAnswerText(key, value);
+          fhirBundle.entry.push({
+            resource: {
+              resourceType: 'Observation',
+              id: `obs-sdoh-${index}`,
+              status: 'final',
+              code: {
+                coding: [{ system: 'http://healthyhomes.local/sdoh', code: key, display }],
+                text: display,
+              },
+              subject: { reference: 'Patient/patient-1' },
+              valueString: answer,
+            },
+          });
+        });
+      }
+
+      qr = { passphrase: pass, size: 192 };
+    }
+
     const blob = await buildReportPDF({
       residentName,
       include,
@@ -52,6 +164,8 @@ const ExportSection: React.FC<ExportSectionProps> = ({
       risk: riskScoringEnabled ? { score: assessmentData.riskScore, category: assessmentData.riskCategory } : {},
       consent: { confirmed: hasConsent, dateISO: new Date().toISOString(), text: t('consent.text') },
       translations: { t, tList },
+      fhirBundle,
+      qr,
     });
     downloadPDF(blob);
     toast({ title: t('ui.pdfGenerated'), description: t('ui.pdfGeneratedDesc') });
