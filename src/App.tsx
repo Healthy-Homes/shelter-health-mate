@@ -4,7 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useState } from "react";
-// import { TestChecklist } from "./components/checklist/TestChecklist";  // TEMPORARILY COMMENTED OUT
+import { TestChecklist } from "./components/checklist/TestChecklist";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 
@@ -19,7 +19,7 @@ const App = () => {
         <Toaster />
         <Sonner />
         {showChecklistTest ? (
-          // Checklist Test Mode - TEMPORARILY DISABLED
+          // Checklist Test Mode
           <div>
             <button
               onClick={() => setShowChecklistTest(false)}
@@ -27,10 +27,7 @@ const App = () => {
             >
               ← Back to Main App
             </button>
-            <div className="p-8 text-center">
-              <h1 className="text-2xl font-bold">Checklist Test Temporarily Disabled</h1>
-              <p className="text-gray-600">Waiting for build system to sync...</p>
-            </div>
+            <TestChecklist />
           </div>
         ) : (
           // Normal App Mode
