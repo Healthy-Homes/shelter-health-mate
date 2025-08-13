@@ -1,0 +1,106 @@
+// src/components/checklist/SimpleChecklistTest.tsx
+
+import React, { useState } from 'react';
+import { SAMPLE_US_CHECKLIST, SAMPLE_TAIWAN_CHECKLIST } from '../../data/sampleChecklist';
+import { calculateItemRisk } from '../../utils/riskScoring';
+
+export const SimpleChecklistTest: React.FC = () => {
+  const [responses, setResponses] = useState<Record<string, string>>({});
+  const [selectedChecklist, setSelectedChecklist] = useState<'US' | 'Taiwan'>('US');
+  
+  const currentData = selectedChecklist === 'US' ? SAMPLE_US_CHECKLIST : SAMPLE_TAIWAN_CHECKLIST;
+  
+  const handleResponse = (itemId: string, value: string) => {
+    setResponses(prev => ({ ...prev, [itemId]: value }));
+  };
+  
+  const completedCount = Object.keys(responses).length;
+  const totalCount = currentData.length;
+  
+  return (
+    <div className="max-w-4xl mx-auto p-6 bg-gray-50 min-h-screen">
+      {/* Header */}
+      <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+        <h1 className="text-3xl font-bold text-gray-900 mb-4">
+          🏠 Checklist System Test
+        </h1>
+        
+        {/* Simple Checklist Selector */}
+        <div className="flex gap-4 mb-4">
+          <button
+            onClick={() => setSelectedChecklist('US')}
+            className={`px-6 py-3 rounded-lg font-semibold transition-all ${
+              selectedChecklist === 'US'
+                ? 'bg-blue-500 text-white shadow-md'
+                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+            }`}
+          >
+            🇺🇸 US Questions ({SAMPLE_US_CHECKLIST.length})
+          </button>
+          <button
+            onClick={() => setSelectedChecklist('Taiwan')}
+            className={`px-6 py-3 rounded-lg font-semibold transition-all ${
+              selectedChecklist === 'Taiwan'
+                ? 'bg-blue-500 text-white shadow-md'
+                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+            }`}
+          >
+            🇹🇼 Taiwan Questions ({SAMPLE_TAIWAN_CHECKLIST.length})
+          </button>
+        </div>
+        
+        {/* Progress */}
+        <div className="bg-gray-100 rounded-lg p-4">
+          <div className="flex justify-between items-center mb-2">
+            <span className="font-semibold text-gray-700">Progress</span>
+            <span className="font-bold text-blue-600">{completedCount}/{totalCount}</span>
+          </div>
+          <div className="w-full bg-gray-300 rounded-full h-3">
+            <div 
+              className="bg-blue-500 h-3 rounded-full transition-all duration-300"
+              style={{ width: `${(completedCount / totalCount) * 100}%` }}
+            ></div>
+          </div>
+        </div>
+      </div>
+      
+      {/* Simple Questions */}
+      <div className="space-y-6">
+        {currentData.map(item => (
+          <div key={item.item_id} className="bg-white rounded-xl shadow-lg p-6">
+            <h3 className="text-lg font-bold text-gray-900 mb-4">
+              {item.item_id}: {item.question_key.replace(/[._]/g, ' ')}
+            </h3>
+            
+            <div className="flex flex-wrap gap-2">
+              {item.response_options.split(',').map(option => (
+                <button
+                  key={option}
+                  onClick={() => handleResponse(item.item_id, option)}
+                  className={`px-4 py-2 rounded-lg border-2 transition-all ${
+                    responses[item.item_id] === option
+                      ? 'bg-blue-500 text-white border-blue-500'
+                      : 'bg-white text-gray-700 border-gray-300 hover:border-blue-300'
+                  }`}
+                >
+                  {option}
+                </button>
+              ))}
+            </div>
+            
+            {responses[item.item_id] && (
+              <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+                <div className="text-sm text-gray-600">
+                  Response: <strong>{responses[item.item_id]}</strong>
+                </div>
+                <div className="text-sm text-gray-600">
+                  Risk Score: <strong>{calculateItemRisk(item, responses[item.item_id]).risk_score}</strong>
+                </div>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
