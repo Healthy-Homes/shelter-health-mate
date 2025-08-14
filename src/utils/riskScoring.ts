@@ -1,4 +1,4 @@
-// src/utils/riskScoring.ts
+// src/utils/riskScoring.ts - Enhanced with N/A Support
 
 import { 
   ChecklistItem, 
@@ -6,7 +6,8 @@ import {
   OverallRiskAssessment, 
   InterventionRecommendation,
   RiskCategory,
-  Priority 
+  Priority,
+  CompletenessFlag
 } from '../types/checklist';
 
 // Risk Categories and Base Weights
@@ -23,6 +24,8 @@ const RISK_CATEGORIES: Record<RiskCategory, { weight: number; urgency: string; d
   freeze_damage: { weight: 1, urgency: 'low', description: 'Weather-related damage risk' },
   privacy: { weight: 1, urgency: 'low', description: 'Privacy and comfort issues' },
   social_determinant: { weight: 3, urgency: 'medium', description: 'Social factors affecting health' },
+  energy_efficiency: { weight: 1, urgency: 'low', description: 'Energy efficiency concerns' },
+  chemical_safety: { weight: 4, urgency: 'high', description: 'Chemical and hazardous material safety' },
   none: { weight: 0, urgency: 'none', description: 'No risk identified' }
 };
 
@@ -41,14 +44,27 @@ const RESPONSE_SCORES: Record<string, Record<string, number>> = {
     'yes': 0, 'no': 1, 'good': 0, 'poor': 1, 'safe': 0, 'damaged': 1,
     'working': 0, 'not_working': 1, 'completed': 0, 'not_completed': 1,
     'dry': 0, 'wet': 1, 'intact': 0, 'clear': 0, 'blocked': 1,
-    'none': 0, 'present': 1
+    'none': 0, 'present': 1, 'adequate': 0, 'inadequate': 1,
+    'stuck': 0.5, 'faulty': 1, 'clogged': 1, 'leaking': 1, 'peeling': 1,
+    'broken': 1, 'unsafe': 1, 'n/a': 0  // N/A = 0 risk
   },
   scale: {
     'none': 0, 'excellent': 0, 'minor': 0.25, 'good': 0.25,
     'moderate': 0.75, 'fair': 0.75, 'severe': 1, 'poor': 1,
-    'a little': 0.25, 'some': 0.75, 'a lot': 1
+    'a little': 0.25, 'some': 0.75, 'a lot': 1, 'very poor': 1,
+    'very good': 0, 'n/a': 0  // N/A = 0 risk
+  },
+  multiple_choice: {
+    'n/a': 0  // N/A = 0 risk for all multiple choice
   }
 };
+
+/**
+ * Check if a response is N/A
+ */
+function isNAResponse(response: string): boolean {
+  return response.toLowerCase().trim() === 'n/a';
+}
 
 /**
  * Calculate risk score for a single checklist item
@@ -58,10 +74,15 @@ export function calculateItemRisk(item: ChecklistItem, userResponse: string): It
   const priorityWeight = PRIORITY_LEVELS[item.priority] || 1;
   const itemWeight = item.risk_weight || 1;
   
+  // Check if response is N/A
+  const isNA = isNAResponse(userResponse);
+  
   // Get response score
   let responseScore = 0;
   
-  if (item.response_type === 'binary' || item.response_type === 'scale') {
+  if (isNA) {
+    responseScore = 0; // N/A responses have zero risk
+  } else if (item.response_type === 'binary' || item.response_type === 'scale') {
     const scoreMap = RESPONSE_SCORES[item.response_type];
     responseScore = scoreMap[userResponse.toLowerCase()] ?? 0;
   } else if (item.response_type === 'multiple_choice') {
@@ -69,7 +90,7 @@ export function calculateItemRisk(item: ChecklistItem, userResponse: string): It
   }
   
   // Calculate composite risk score (0-100)
-  const riskScore = Math.min(100, 
+  const riskScore = isNA ? 0 : Math.min(100, 
     responseScore * riskCategory.weight * priorityWeight * itemWeight * 4
   );
   
@@ -80,10 +101,11 @@ export function calculateItemRisk(item: ChecklistItem, userResponse: string): It
     risk_category: item.risk_category,
     risk_score: Math.round(riskScore),
     urgency: riskCategory.urgency as any,
-    requires_action: item.requires_action === 'yes' && responseScore > 0,
-    intervention_needed: responseScore > 0.5,
+    requires_action: item.requires_action === 'yes' && responseScore > 0 && !isNA,
+    intervention_needed: responseScore > 0.5 && !isNA,
     raw_response: userResponse,
-    response_score: responseScore
+    response_score: responseScore,
+    is_na_response: isNA
   };
 }
 
@@ -91,6 +113,9 @@ export function calculateItemRisk(item: ChecklistItem, userResponse: string): It
  * Context-specific scoring for multiple choice questions
  */
 function getMultipleChoiceScore(item: ChecklistItem, response: string): number {
+  // N/A handling
+  if (isNAResponse(response)) return 0;
+  
   if (item.question_key.includes('building_type')) return 0;
   if (item.question_key.includes('occupancy')) {
     return response === 'shared_floor' ? 0.25 : 0;
@@ -105,22 +130,43 @@ function getMultipleChoiceScore(item: ChecklistItem, response: string): number {
 }
 
 /**
+ * Determine completeness flag based on N/A percentage
+ */
+function determineCompletenessFlag(naPercentage: number): CompletenessFlag {
+  if (naPercentage > 25) {
+    return 'potentially_deficient';
+  } else if (naPercentage > 15) {
+    return 'incomplete';
+  } else {
+    return 'complete';
+  }
+}
+
+/**
  * Calculate overall risk assessment for a completed checklist
  */
 export function calculateOverallRisk(itemRisks: ItemRiskAssessment[]): OverallRiskAssessment {
   const totalItems = itemRisks.length;
-  const issuesFound = itemRisks.filter(item => item.risk_score > 0).length;
-  const criticalIssues = itemRisks.filter(item => item.urgency === 'critical').length;
-  const highRiskIssues = itemRisks.filter(item => item.urgency === 'high').length;
-  const actionsNeeded = itemRisks.filter(item => item.requires_action).length;
+  const naResponses = itemRisks.filter(item => item.is_na_response);
+  const naCount = naResponses.length;
+  const naPercentage = totalItems > 0 ? Math.round((naCount / totalItems) * 100) : 0;
   
-  // Weighted average risk score
-  const totalRiskScore = itemRisks.reduce((sum, item) => {
+  // Filter out N/A responses for risk calculations
+  const scorableItems = itemRisks.filter(item => !item.is_na_response);
+  const scorableCount = scorableItems.length;
+  
+  const issuesFound = scorableItems.filter(item => item.risk_score > 0).length;
+  const criticalIssues = scorableItems.filter(item => item.urgency === 'critical').length;
+  const highRiskIssues = scorableItems.filter(item => item.urgency === 'high').length;
+  const actionsNeeded = scorableItems.filter(item => item.requires_action).length;
+  
+  // Weighted average risk score (excluding N/A responses)
+  const totalRiskScore = scorableItems.reduce((sum, item) => {
     const categoryWeight = RISK_CATEGORIES[item.risk_category]?.weight || 1;
     return sum + (item.risk_score * categoryWeight);
   }, 0);
   
-  const maxPossibleScore = itemRisks.reduce((sum, item) => {
+  const maxPossibleScore = scorableItems.reduce((sum, item) => {
     const categoryWeight = RISK_CATEGORIES[item.risk_category]?.weight || 1;
     return sum + (100 * categoryWeight);
   }, 0);
@@ -134,6 +180,10 @@ export function calculateOverallRisk(itemRisks: ItemRiskAssessment[]): OverallRi
   else if (highRiskIssues > 2 || overallRiskScore > 60) riskLevel = 'high';
   else if (highRiskIssues > 0 || overallRiskScore > 30) riskLevel = 'medium';
   
+  // Completion rate based on scorable items
+  const completionRate = scorableCount > 0 ? 
+    Math.round(((scorableCount - issuesFound) / scorableCount) * 100) : 100;
+  
   return {
     overall_risk_score: overallRiskScore,
     risk_level: riskLevel,
@@ -142,8 +192,11 @@ export function calculateOverallRisk(itemRisks: ItemRiskAssessment[]): OverallRi
     critical_issues: criticalIssues,
     high_risk_issues: highRiskIssues,
     actions_needed: actionsNeeded,
-    completion_rate: Math.round(((totalItems - issuesFound) / totalItems) * 100),
-    priority_interventions: itemRisks
+    completion_rate: completionRate,
+    na_count: naCount,
+    na_percentage: naPercentage,
+    completeness_flag: determineCompletenessFlag(naPercentage),
+    priority_interventions: scorableItems
       .filter(item => item.urgency === 'critical' || item.intervention_needed)
       .sort((a, b) => b.risk_score - a.risk_score)
       .slice(0, 5)
@@ -151,17 +204,18 @@ export function calculateOverallRisk(itemRisks: ItemRiskAssessment[]): OverallRi
 }
 
 /**
- * Generate intervention recommendations
+ * Generate intervention recommendations (excluding N/A responses)
  */
 export function generateInterventions(itemRisks: ItemRiskAssessment[]): InterventionRecommendation[] {
   const interventions: InterventionRecommendation[] = [];
   
+  // Filter out N/A responses for intervention planning
+  const scorableItems = itemRisks.filter(item => !item.is_na_response && item.risk_score > 0);
+  
   // Group by category for systematic recommendations
-  const byCategory = itemRisks.reduce((acc, item) => {
-    if (item.risk_score > 0) {
-      acc[item.category] = acc[item.category] || [];
-      acc[item.category].push(item);
-    }
+  const byCategory = scorableItems.reduce((acc, item) => {
+    acc[item.category] = acc[item.category] || [];
+    acc[item.category].push(item);
     return acc;
   }, {} as Record<string, ItemRiskAssessment[]>);
   
@@ -198,4 +252,19 @@ export function generateInterventions(itemRisks: ItemRiskAssessment[]): Interven
     const priorityOrder = { immediate: 3, high: 2, medium: 1, low: 0 };
     return priorityOrder[b.priority] - priorityOrder[a.priority];
   });
+}
+
+/**
+ * Get completeness message based on flag
+ */
+export function getCompletenessMessage(flag: CompletenessFlag, naPercentage: number): string {
+  switch (flag) {
+    case 'potentially_deficient':
+      return `Assessment may be incomplete due to high number of N/A responses (${naPercentage}%). This may indicate missing essential home features.`;
+    case 'incomplete':
+      return `Some assessment items were marked as N/A (${naPercentage}%). Review if these features are actually present.`;
+    case 'complete':
+    default:
+      return 'Assessment appears complete with comprehensive coverage of home features.';
+  }
 }
