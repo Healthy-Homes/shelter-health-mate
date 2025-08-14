@@ -675,7 +675,6 @@ export default function SimpleTest() {
                     notes && (
                       <div key={section} className="p-4 bg-gray-50 rounded-lg">
                         <h3 className="font-semibold text-gray-900">{section}</h3>
-                        <p className="text-gray-700 text-sm">{notes}</p>
                       </div>
                     )
                   ))}
@@ -683,4 +682,25 @@ export default function SimpleTest() {
               </div>
             )}
 
-            {/* Action Buttons */
+            {/* Action Buttons */}
+            <div className="flex justify-between items-center">
+              <button
+                onClick={resetAssessment}
+                className="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors"
+              >
+                🔄 Take New Assessment
+              </button>
+              
+              <a 
+                href="/"
+                className="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors"
+              >
+                ← Back to Main App
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
