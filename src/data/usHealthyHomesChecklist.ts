@@ -15,7 +15,7 @@ export const US_HEALTHY_HOMES_QUESTIONS: ChecklistItem[] = [
     response_options: "yes,no",
     risk_weight: 3,
     risk_category: "water_damage",
-    frequency: "spring",
+    frequency: "annual",  // CHANGED from "spring"
     priority: "medium",
     region: "US",
     requires_action: "yes",
@@ -33,7 +33,7 @@ export const US_HEALTHY_HOMES_QUESTIONS: ChecklistItem[] = [
     response_options: "none,present",
     risk_weight: 2,
     risk_category: "injury",
-    frequency: "seasonal",
+    frequency: "periodic",  // CHANGED from "seasonal"
     priority: "medium",
     region: "US",
     requires_action: "yes",
@@ -51,7 +51,7 @@ export const US_HEALTHY_HOMES_QUESTIONS: ChecklistItem[] = [
     response_options: "intact,damaged",
     risk_weight: 5,
     risk_category: "injury",
-    frequency: "seasonal",
+    frequency: "periodic",  // CHANGED from "seasonal"
     priority: "critical",
     region: "US",
     requires_action: "yes",
@@ -69,7 +69,7 @@ export const US_HEALTHY_HOMES_QUESTIONS: ChecklistItem[] = [
     response_options: "none,minor,moderate,severe",
     risk_weight: 4,
     risk_category: "pest_health",
-    frequency: "seasonal",
+    frequency: "periodic",  // CHANGED from "seasonal"
     priority: "high",
     region: "US",
     requires_action: "yes",
@@ -87,7 +87,7 @@ export const US_HEALTHY_HOMES_QUESTIONS: ChecklistItem[] = [
     response_options: "completed,not_completed",
     risk_weight: 1,
     risk_category: "freeze_damage",
-    frequency: "fall",
+    frequency: "annual",  // CHANGED from "fall"
     priority: "low",
     region: "US",
     requires_action: "no",
@@ -105,7 +105,7 @@ export const US_HEALTHY_HOMES_QUESTIONS: ChecklistItem[] = [
     response_options: "completed,not_completed",
     risk_weight: 2,
     risk_category: "water_damage",
-    frequency: "spring",
+    frequency: "annual",  // CHANGED from "spring"
     priority: "medium",
     region: "US",
     requires_action: "no",
@@ -123,7 +123,7 @@ export const US_HEALTHY_HOMES_QUESTIONS: ChecklistItem[] = [
     response_options: "completed,not_completed",
     risk_weight: 3,
     risk_category: "water_damage",
-    frequency: "seasonal",
+    frequency: "periodic",  // CHANGED from "seasonal"
     priority: "medium",
     region: "US",
     requires_action: "no",
@@ -197,7 +197,7 @@ export const US_HEALTHY_HOMES_QUESTIONS: ChecklistItem[] = [
     response_options: "yes,no",
     risk_weight: 3,
     risk_category: "water_damage",
-    frequency: "spring",
+    frequency: "annual",  // CHANGED from "spring"
     priority: "medium",
     region: "US",
     requires_action: "yes",
@@ -251,7 +251,7 @@ export const US_HEALTHY_HOMES_QUESTIONS: ChecklistItem[] = [
     response_options: "none,present",
     risk_weight: 3,
     risk_category: "water_damage",
-    frequency: "winter",
+    frequency: "annual",  // CHANGED from "winter"
     priority: "medium",
     region: "US",
     requires_action: "yes",
@@ -359,7 +359,7 @@ export const US_HEALTHY_HOMES_QUESTIONS: ChecklistItem[] = [
     response_options: "completed,not_completed",
     risk_weight: 3,
     risk_category: "fire_safety",
-    frequency: "seasonal",
+    frequency: "periodic",  // CHANGED from "seasonal"
     priority: "medium",
     region: "US",
     requires_action: "no",
@@ -377,7 +377,7 @@ export const US_HEALTHY_HOMES_QUESTIONS: ChecklistItem[] = [
     response_options: "clear,blocked",
     risk_weight: 2,
     risk_category: "ventilation",
-    frequency: "seasonal",
+    frequency: "periodic",  // CHANGED from "seasonal"
     priority: "medium",
     region: "US",
     requires_action: "yes",
@@ -397,7 +397,7 @@ export const US_HEALTHY_HOMES_QUESTIONS: ChecklistItem[] = [
     response_options: "dry,wet",
     risk_weight: 4,
     risk_category: "water_damage",
-    frequency: "seasonal",
+    frequency: "periodic",  // CHANGED from "seasonal"
     priority: "high",
     region: "US",
     requires_action: "yes",
@@ -415,7 +415,7 @@ export const US_HEALTHY_HOMES_QUESTIONS: ChecklistItem[] = [
     response_options: "working,not_working",
     risk_weight: 4,
     risk_category: "flooding",
-    frequency: "seasonal",
+    frequency: "periodic",  // CHANGED from "seasonal"
     priority: "high",
     region: "US",
     requires_action: "yes",
@@ -655,7 +655,7 @@ export const US_HEALTHY_HOMES_QUESTIONS: ChecklistItem[] = [
     response_options: "safe,damaged",
     risk_weight: 5,
     risk_category: "electrical_safety",
-    frequency: "seasonal",
+    frequency: "periodic",  // CHANGED from "seasonal"
     priority: "critical",
     region: "US",
     requires_action: "yes",
@@ -673,7 +673,7 @@ export const US_HEALTHY_HOMES_QUESTIONS: ChecklistItem[] = [
     response_options: "completed,not_completed",
     risk_weight: 4,
     risk_category: "electrical_safety",
-    frequency: "seasonal",
+    frequency: "periodic",  // CHANGED from "seasonal"
     priority: "high",
     region: "US",
     requires_action: "no",
@@ -691,7 +691,7 @@ export const US_HEALTHY_HOMES_QUESTIONS: ChecklistItem[] = [
     response_options: "excellent,good,fair,poor",
     risk_weight: 4,
     risk_category: "electrical_safety",
-    frequency: "seasonal",
+    frequency: "periodic",  // CHANGED from "seasonal"
     priority: "high",
     region: "US",
     requires_action: "yes",
