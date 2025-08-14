@@ -39,7 +39,7 @@ export type Frequency =
   | 'daily'
   | 'weekly'
   | 'monthly'
-  | 'seasonal'
+  | 'periodic'    // ADD THIS LINE
   | 'biannual'
   | 'annual'
   | 'every_3_years'
