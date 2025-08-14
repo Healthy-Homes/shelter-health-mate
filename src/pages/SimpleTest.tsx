@@ -702,7 +702,7 @@ export default function SimpleTest() {
               </div>
             )}
 
-            {/* Action Buttons */}
+         // Action Buttons
             <div className="flex justify-between items-center">
               <button
                 onClick={resetAssessment}
