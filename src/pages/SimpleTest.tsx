@@ -1,12 +1,12 @@
-// src/pages/SimpleTest.tsx - Enhanced with Multiple Checklists
+// src/pages/SimpleTest.tsx - Phase 2: Section-Based Navigation
 
 import React, { useState } from 'react';
-import { ChecklistItem, ResponseMap } from '../types/checklist';
-import { calculateItemRisk, calculateOverallRisk } from '../utils/riskScoring';
+import { ChecklistItem, ResponseMap, SectionNotes } from '../types/checklist';
+import { calculateItemRisk, calculateOverallRisk, getCompletenessMessage } from '../utils/riskScoring';
 
 // Import all checklist data
 import { TAIWAN_HALST_QUESTIONS } from '../data/taiwanHalstChecklist';
-import { US_HEALTHY_HOMES_QUESTIONS } from '../data/usHealthyHomesChecklist';
+import { US_HEALTHY_HOMES_QUESTIONS, US_SECTIONS, getQuestionsBySection } from '../data/usHealthyHomesChecklist';
 import { SDOH_QUESTIONS } from '../data/sdohChecklist';
 
 type HomeChecklistType = 'taiwan' | 'us' | null;
@@ -17,57 +17,106 @@ export default function SimpleTest() {
   const [phase, setPhase] = useState<AssessmentPhase>('selection');
   const [homeChecklistType, setHomeChecklistType] = useState<HomeChecklistType>(null);
   const [includeSDOH, setIncludeSDOH] = useState(false);
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
   const [responses, setResponses] = useState<ResponseMap>({});
+  const [sectionNotes, setSectionNotes] = useState<SectionNotes>({});
 
-  // Get current checklist questions based on selection
-  const getChecklistQuestions = (): ChecklistItem[] => {
+  // Get current checklist questions and sections
+  const getChecklistData = () => {
     let questions: ChecklistItem[] = [];
+    let sections: string[] = [];
     
     // Add home inspection questions
     if (homeChecklistType === 'taiwan') {
       questions = [...TAIWAN_HALST_QUESTIONS];
+      // Taiwan sections (we'll organize these later)
+      sections = ['Layout and Building Structure', 'Bedroom Environment', 'Kitchen Environment', 
+                 'Bathroom Environment', 'Living Areas', 'General Conditions'];
     } else if (homeChecklistType === 'us') {
       questions = [...US_HEALTHY_HOMES_QUESTIONS];
+      sections = [...US_SECTIONS];
     }
     
     // Add SDOH questions if selected
     if (includeSDOH) {
       questions = [...questions, ...SDOH_QUESTIONS];
+      sections = [...sections, 'Social Determinants of Health'];
     }
     
-    return questions;
+    return { questions, sections };
   };
 
-  const currentQuestions = getChecklistQuestions();
-  const currentQuestion = currentQuestions[currentQuestionIndex];
-  const totalQuestions = currentQuestions.length;
+  const { questions: currentQuestions, sections: currentSections } = getChecklistData();
+  const currentSection = currentSections[currentSectionIndex];
+  const totalSections = currentSections.length;
+
+  // Get questions for current section
+  const getCurrentSectionQuestions = (): ChecklistItem[] => {
+    if (currentSection === 'Social Determinants of Health') {
+      return SDOH_QUESTIONS;
+    }
+    
+    if (homeChecklistType === 'us') {
+      return getQuestionsBySection(currentSection);
+    }
+    
+    // For Taiwan, we'll filter by category for now (until we update Taiwan data structure)
+    if (homeChecklistType === 'taiwan') {
+      const sectionMappings: Record<string, string[]> = {
+        'Layout and Building Structure': ['layout'],
+        'Bedroom Environment': ['bedroom'],
+        'Kitchen Environment': ['kitchen'],
+        'Bathroom Environment': ['bathroom'],
+        'Living Areas': ['living_room'],
+        'General Conditions': ['general']
+      };
+      
+      const categories = sectionMappings[currentSection] || [];
+      return TAIWAN_HALST_QUESTIONS.filter(q => categories.includes(q.category));
+    }
+    
+    return [];
+  };
+
+  const sectionQuestions = getCurrentSectionQuestions();
 
   // Handle responses
   const handleResponse = (itemId: string, value: string) => {
     setResponses(prev => ({ ...prev, [itemId]: value }));
   };
 
+  // Handle section notes
+  const handleSectionNotes = (section: string, notes: string) => {
+    // Limit to 200 characters for QR code inclusion
+    const truncatedNotes = notes.slice(0, 200);
+    setSectionNotes(prev => ({ ...prev, [section]: truncatedNotes }));
+  };
+
   // Navigation
-  const handleNext = () => {
-    if (currentQuestionIndex < totalQuestions - 1) {
-      setCurrentQuestionIndex(prev => prev + 1);
+  const handleNextSection = () => {
+    if (currentSectionIndex < totalSections - 1) {
+      setCurrentSectionIndex(prev => prev + 1);
     } else {
       setPhase('results');
     }
   };
 
-  const handlePrevious = () => {
-    if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex(prev => prev - 1);
+  const handlePreviousSection = () => {
+    if (currentSectionIndex > 0) {
+      setCurrentSectionIndex(prev => prev - 1);
     }
+  };
+
+  const jumpToSection = (sectionIndex: number) => {
+    setCurrentSectionIndex(sectionIndex);
   };
 
   const startAssessment = () => {
     if (homeChecklistType || includeSDOH) {
       setPhase('assessment');
-      setCurrentQuestionIndex(0);
+      setCurrentSectionIndex(0);
       setResponses({});
+      setSectionNotes({});
     }
   };
 
@@ -75,8 +124,32 @@ export default function SimpleTest() {
     setPhase('selection');
     setHomeChecklistType(null);
     setIncludeSDOH(false);
-    setCurrentQuestionIndex(0);
+    setCurrentSectionIndex(0);
     setResponses({});
+    setSectionNotes({});
+  };
+
+  // Calculate section progress
+  const getSectionProgress = (section: string) => {
+    const questions = homeChecklistType === 'us' ? getQuestionsBySection(section) : 
+                    section === 'Social Determinants of Health' ? SDOH_QUESTIONS :
+                    getCurrentSectionQuestions();
+    const answered = questions.filter(q => responses[q.item_id]).length;
+    return {
+      total: questions.length,
+      answered,
+      percentage: questions.length > 0 ? Math.round((answered / questions.length) * 100) : 0
+    };
+  };
+
+  // Calculate overall progress
+  const overallProgress = {
+    sections: currentSections.map(section => ({
+      name: section,
+      ...getSectionProgress(section)
+    })),
+    totalQuestions: currentQuestions.length,
+    answeredQuestions: Object.keys(responses).length
   };
 
   // Calculate results
@@ -90,7 +163,14 @@ export default function SimpleTest() {
   };
 
   const results = phase === 'results' ? calculateResults() : null;
-  const completedCount = Object.keys(responses).length;
+
+  // Format display text
+  const formatDisplayText = (text: string) => {
+    return text.replace(/_/g, ' ')
+               .split(' ')
+               .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+               .join(' ');
+  };
 
   // Render question input based on type
   const renderQuestionInput = (item: ChecklistItem) => {
@@ -111,7 +191,7 @@ export default function SimpleTest() {
                     : 'bg-white text-gray-700 border-gray-300 hover:border-blue-300 hover:bg-blue-50'
                 }`}
               >
-                {option.charAt(0).toUpperCase() + option.slice(1)}
+                {formatDisplayText(option)}
               </button>
             ))}
           </div>
@@ -120,7 +200,7 @@ export default function SimpleTest() {
       case 'scale':
         return (
           <div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
               {options.map(option => (
                 <button
                   key={option}
@@ -131,7 +211,7 @@ export default function SimpleTest() {
                       : 'bg-white text-gray-700 border-gray-300 hover:border-blue-300 hover:bg-blue-50'
                   }`}
                 >
-                  {option.charAt(0).toUpperCase() + option.slice(1)}
+                  {formatDisplayText(option)}
                 </button>
               ))}
             </div>
@@ -157,7 +237,7 @@ export default function SimpleTest() {
                   className="mr-3 h-4 w-4 text-blue-500 focus:ring-blue-500"
                 />
                 <span className="text-gray-700 font-medium">
-                  {option.charAt(0).toUpperCase() + option.slice(1)}
+                  {formatDisplayText(option)}
                 </span>
               </label>
             ))}
@@ -174,7 +254,7 @@ export default function SimpleTest() {
             <option value="">Select...</option>
             {options.map(option => (
               <option key={option} value={option}>
-                {option}
+                {formatDisplayText(option)}
               </option>
             ))}
           </select>
@@ -228,7 +308,7 @@ export default function SimpleTest() {
                     Hualien home environment assessment focusing on indoor air quality and housing conditions
                   </p>
                   <div className="text-xs text-blue-600 font-medium">
-                    48 questions • Air quality focus • Taiwan standards
+                    48 questions • 6 sections • Air quality focus
                   </div>
                 </button>
                 
@@ -247,7 +327,7 @@ export default function SimpleTest() {
                     Comprehensive home health and safety inspection based on National Center for Healthy Housing guidelines
                   </p>
                   <div className="text-xs text-green-600 font-medium">
-                    39 questions • Safety focus • US standards
+                    45 questions • 10 sections • Safety focus
                   </div>
                 </button>
               </div>
@@ -288,7 +368,7 @@ export default function SimpleTest() {
                     Food security, housing stability, healthcare access, transportation
                   </p>
                   <div className="text-xs text-purple-600 font-medium">
-                    8 questions • Social factors focus • Evidence-based
+                    8 questions • 1 section • Social factors focus
                   </div>
                 </div>
               </label>
@@ -302,14 +382,15 @@ export default function SimpleTest() {
                   <p className="text-red-600">Please select at least one assessment type</p>
                 )}
                 {homeChecklistType && (
-                  <p>✓ {homeChecklistType === 'taiwan' ? 'Taiwan HALST' : 'US Healthy Homes'} ({homeChecklistType === 'taiwan' ? '48' : '39'} questions)</p>
+                  <p>✓ {homeChecklistType === 'taiwan' ? 'Taiwan HALST' : 'US Healthy Homes'} 
+                     ({homeChecklistType === 'taiwan' ? '48 questions, 6 sections' : '45 questions, 10 sections'})</p>
                 )}
                 {includeSDOH && (
-                  <p>✓ Social Determinants of Health (8 questions)</p>
+                  <p>✓ Social Determinants of Health (8 questions, 1 section)</p>
                 )}
                 {(homeChecklistType || includeSDOH) && (
                   <p className="font-semibold mt-2">
-                    Total: {getChecklistQuestions().length} questions
+                    Total: {getChecklistData().questions.length} questions across {getChecklistData().sections.length} sections
                   </p>
                 )}
               </div>
@@ -336,71 +417,126 @@ export default function SimpleTest() {
         </div>
       )}
 
-      {/* Assessment Phase */}
-      {phase === 'assessment' && currentQuestion && (
-        <div className="max-w-4xl mx-auto p-6">
-          {/* Progress Bar */}
+      {/* Assessment Phase - Section-Based */}
+      {phase === 'assessment' && (
+        <div className="max-w-6xl mx-auto p-6">
+          {/* Section Navigation Header */}
           <div className="bg-white rounded-lg shadow-md p-4 mb-6">
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-sm font-medium text-gray-700">
-                Question {currentQuestionIndex + 1} of {totalQuestions}
-              </span>
+            <div className="flex justify-between items-center mb-4">
+              <h1 className="text-2xl font-bold text-gray-900">
+                Section {currentSectionIndex + 1} of {totalSections}: {currentSection}
+              </h1>
               <span className="text-sm text-gray-500">
-                {Math.round(((currentQuestionIndex + 1) / totalQuestions) * 100)}% Complete
+                {Math.round(((currentSectionIndex + 1) / totalSections) * 100)}% Complete
               </span>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-3">
+            
+            {/* Section Progress Bar */}
+            <div className="w-full bg-gray-200 rounded-full h-3 mb-4">
               <div 
                 className="bg-blue-500 h-3 rounded-full transition-all duration-300"
-                style={{ width: `${((currentQuestionIndex + 1) / totalQuestions) * 100}%` }}
+                style={{ width: `${((currentSectionIndex + 1) / totalSections) * 100}%` }}
               />
             </div>
+
+            {/* Section Tabs */}
+            <div className="flex flex-wrap gap-2">
+              {currentSections.map((section, index) => {
+                const sectionProgress = getSectionProgress(section);
+                return (
+                  <button
+                    key={section}
+                    onClick={() => jumpToSection(index)}
+                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                      index === currentSectionIndex
+                        ? 'bg-blue-500 text-white'
+                        : sectionProgress.percentage === 100
+                        ? 'bg-green-100 text-green-700 hover:bg-green-200'
+                        : sectionProgress.answered > 0
+                        ? 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    {section.length > 20 ? section.substring(0, 17) + '...' : section}
+                    <span className="ml-1 text-xs">
+                      ({sectionProgress.answered}/{sectionProgress.total})
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
-          {/* Current Question */}
+          {/* Current Section Questions */}
           <div className="bg-white rounded-lg shadow-lg p-8">
             <div className="mb-6">
-              <div className="flex items-center gap-3 mb-4">
-                <span className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
-                  {currentQuestion.category} • {currentQuestion.item_id}
-                </span>
-                <span className={`text-xs px-3 py-1 rounded-full font-semibold ${
-                  currentQuestion.priority === 'critical' ? 'bg-red-100 text-red-700' :
-                  currentQuestion.priority === 'high' ? 'bg-orange-100 text-orange-700' :
-                  currentQuestion.priority === 'medium' ? 'bg-yellow-100 text-yellow-700' :
-                  'bg-green-100 text-green-700'
-                }`}>
-                  {currentQuestion.priority.toUpperCase()}
-                </span>
-              </div>
-              
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                {currentQuestion.question_key
-                  .replace(/[._]/g, ' ')
-                  .replace(/\b\w/g, l => l.toUpperCase())
-                  .replace(/^[A-Za-z]+\s/, '')}?
-              </h2>
-              
-              <div className="bg-gray-50 rounded-lg p-4 border-l-4 border-blue-400">
-                <p className="text-sm text-gray-700">
-                  💡 This assessment item helps identify {currentQuestion.risk_category.replace(/_/g, ' ')} issues.
-                  {currentQuestion.frequency && ` Recommended check frequency: ${currentQuestion.frequency.replace(/_/g, ' ')}.`}
-                </p>
-              </div>
+              <h2 className="text-xl font-bold text-gray-900 mb-2">{currentSection}</h2>
+              <p className="text-gray-600">
+                Complete all questions in this section before proceeding to the next.
+              </p>
             </div>
 
-            {/* Question Input */}
-            {renderQuestionInput(currentQuestion)}
+            {/* Questions Grid */}
+            <div className="space-y-6">
+              {sectionQuestions.map((question, index) => (
+                <div key={question.item_id} className="border-l-4 border-blue-400 bg-blue-50 p-6 rounded-r-lg">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-2">
+                        <span className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
+                          {question.item_id}
+                        </span>
+                        <span className={`text-xs px-2 py-1 rounded-full font-semibold ${
+                          question.priority === 'critical' ? 'bg-red-100 text-red-700' :
+                          question.priority === 'high' ? 'bg-orange-100 text-orange-700' :
+                          question.priority === 'medium' ? 'bg-yellow-100 text-yellow-700' :
+                          'bg-green-100 text-green-700'
+                        }`}>
+                          {question.priority.toUpperCase()}
+                        </span>
+                      </div>
+                      
+                      <h3 className="text-lg font-bold text-gray-900 mb-3">
+                        {question.question_text || question.question_key}
+                      </h3>
+                    </div>
+                  </div>
+
+                  {/* Question Input */}
+                  <div className="bg-white p-4 rounded-lg">
+                    {renderQuestionInput(question)}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Section Notes */}
+            <div className="mt-8 p-6 bg-gray-50 rounded-lg">
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                Section Notes & Comments
+              </h3>
+              <textarea
+                value={sectionNotes[currentSection] || ''}
+                onChange={(e) => handleSectionNotes(currentSection, e.target.value)}
+                placeholder="Add any additional notes or observations for this section..."
+                className="w-full p-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                rows={3}
+                maxLength={200}
+              />
+              <div className="text-xs text-gray-500 mt-1">
+                {(sectionNotes[currentSection] || '').length}/200 characters
+              </div>
+            </div>
           </div>
 
-          {/* Navigation */}
+          {/* Section Navigation */}
           <div className="flex justify-between items-center mt-6">
             <button
-              onClick={handlePrevious}
-              disabled={currentQuestionIndex === 0}
+              onClick={handlePreviousSection}
+              disabled={currentSectionIndex === 0}
               className="px-6 py-3 bg-gray-300 text-gray-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-400 transition-colors"
             >
-              ← Previous
+              ← Previous Section
             </button>
             
             <button
@@ -411,17 +547,16 @@ export default function SimpleTest() {
             </button>
             
             <button
-              onClick={handleNext}
-              disabled={!responses[currentQuestion.item_id]}
-              className="px-6 py-3 bg-blue-500 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-600 transition-colors"
+              onClick={handleNextSection}
+              className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
             >
-              {currentQuestionIndex === totalQuestions - 1 ? 'Complete Assessment' : 'Next →'}
+              {currentSectionIndex === totalSections - 1 ? 'Complete Assessment' : 'Next Section →'}
             </button>
           </div>
         </div>
       )}
 
-      {/* Results Phase */}
+      {/* Results Phase - Enhanced with Completeness */}
       {phase === 'results' && results && (
         <div className="max-w-6xl mx-auto p-6">
           <div className="bg-white rounded-lg shadow-lg p-8">
@@ -429,8 +564,32 @@ export default function SimpleTest() {
               📊 Assessment Complete
             </h1>
             
+            {/* Completeness Warning */}
+            {results.completeness_flag !== 'complete' && (
+              <div className={`mb-6 p-4 rounded-lg border-l-4 ${
+                results.completeness_flag === 'potentially_deficient' 
+                  ? 'bg-red-50 border-red-400' 
+                  : 'bg-yellow-50 border-yellow-400'
+              }`}>
+                <div className={`font-semibold ${
+                  results.completeness_flag === 'potentially_deficient' 
+                    ? 'text-red-800' 
+                    : 'text-yellow-800'
+                }`}>
+                  ⚠️ Assessment Completeness Notice
+                </div>
+                <p className={`text-sm mt-1 ${
+                  results.completeness_flag === 'potentially_deficient' 
+                    ? 'text-red-700' 
+                    : 'text-yellow-700'
+                }`}>
+                  {getCompletenessMessage(results.completeness_flag, results.na_percentage)}
+                </p>
+              </div>
+            )}
+            
             {/* Overall Score */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
               <div className="text-center p-6 bg-blue-50 rounded-lg">
                 <div className="text-3xl font-bold text-blue-600">{results.completion_rate}%</div>
                 <div className="text-blue-800">Completion Rate</div>
@@ -446,6 +605,10 @@ export default function SimpleTest() {
               <div className="text-center p-6 bg-green-50 rounded-lg">
                 <div className="text-3xl font-bold text-green-600">{results.actions_needed}</div>
                 <div className="text-green-800">Actions Needed</div>
+              </div>
+              <div className="text-center p-6 bg-gray-50 rounded-lg">
+                <div className="text-3xl font-bold text-gray-600">{results.na_count}</div>
+                <div className="text-gray-800">N/A Responses</div>
               </div>
             </div>
 
@@ -487,7 +650,7 @@ export default function SimpleTest() {
                           {intervention.category.toUpperCase()}: {intervention.subcategory}
                         </span>
                         <div className="text-sm text-gray-600">
-                          Response: {intervention.raw_response}
+                          Response: {formatDisplayText(intervention.raw_response)}
                         </div>
                       </div>
                       <div className={`text-lg font-bold ${
@@ -503,25 +666,21 @@ export default function SimpleTest() {
               </div>
             )}
 
-            {/* Action Buttons */}
-            <div className="flex justify-between items-center">
-              <button
-                onClick={resetAssessment}
-                className="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors"
-              >
-                🔄 Take New Assessment
-              </button>
-              
-              <a 
-                href="/"
-                className="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors"
-              >
-                ← Back to Main App
-              </a>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
+            {/* Section Notes Summary */}
+            {Object.keys(sectionNotes).length > 0 && (
+              <div className="mb-8">
+                <h2 className="text-xl font-bold text-gray-900 mb-4">Section Notes</h2>
+                <div className="space-y-3">
+                  {Object.entries(sectionNotes).map(([section, notes]) => (
+                    notes && (
+                      <div key={section} className="p-4 bg-gray-50 rounded-lg">
+                        <h3 className="font-semibold text-gray-900">{section}</h3>
+                        <p className="text-gray-700 text-sm">{notes}</p>
+                      </div>
+                    )
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Action Buttons */
