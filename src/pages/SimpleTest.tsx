@@ -688,7 +688,7 @@ export default function SimpleTest() {
             {/* Section Notes Summary */}
             {Object.keys(sectionNotes).length > 0 && (
               <div className="mb-8">
-<h2 className="text-xl font-bold text-gray-900 mb-4">Section Notes</h2>
+                <h2 className="text-xl font-bold text-gray-900 mb-4">Section Notes</h2>
                 <div className="space-y-3">
                   {Object.entries(sectionNotes).map(([section, notes]) => (
                     notes && (
@@ -702,7 +702,7 @@ export default function SimpleTest() {
               </div>
             )}
 
-         // Action Buttons
+            {/* Action Buttons */}
             <div className="flex justify-between items-center">
               <button
                 onClick={resetAssessment}
