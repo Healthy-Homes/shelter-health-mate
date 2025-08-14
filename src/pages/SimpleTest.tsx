@@ -6,11 +6,30 @@ import { calculateItemRisk, calculateOverallRisk, getCompletenessMessage } from 
 
 // Import all checklist data
 import { TAIWAN_HALST_QUESTIONS } from '../data/taiwanHalstChecklist';
-import { US_HEALTHY_HOMES_QUESTIONS, US_SECTIONS, getQuestionsBySection } from '../data/usHealthyHomesChecklist';
+import { US_HEALTHY_HOMES_QUESTIONS } from '../data/usHealthyHomesChecklist';
 import { SDOH_QUESTIONS } from '../data/sdohChecklist';
 
 type HomeChecklistType = 'taiwan' | 'us' | null;
 type AssessmentPhase = 'selection' | 'assessment' | 'results';
+
+// US Sections constant
+const US_SECTIONS = [
+  "Yard and Exterior",
+  "Exterior Roof, Walls, and Windows", 
+  "Basement and Crawlspace",
+  "HVAC Equipment",
+  "Attic",
+  "Plumbing, Fixtures, and Appliances",
+  "Interior Walls, Ceilings, Windows, and Doors",
+  "Appliances",
+  "Electrical Equipment",
+  "Garage"
+];
+
+// Helper function to get questions by section for US checklist
+const getQuestionsBySection = (section: string): ChecklistItem[] => {
+  return US_HEALTHY_HOMES_QUESTIONS.filter(q => q.section === section);
+};
 
 export default function SimpleTest() {
   // State management
@@ -607,7 +626,7 @@ export default function SimpleTest() {
                 <div className="text-green-800">Actions Needed</div>
               </div>
               <div className="text-center p-6 bg-gray-50 rounded-lg">
-                <div className="text-3xl font-bold text-gray-600">{results.na_count}</div>
+                <div className="text-3xl font-bold text-gray-600">{results.na_count || 0}</div>
                 <div className="text-gray-800">N/A Responses</div>
               </div>
             </div>
@@ -669,7 +688,7 @@ export default function SimpleTest() {
             {/* Section Notes Summary */}
             {Object.keys(sectionNotes).length > 0 && (
               <div className="mb-8">
-                <h2 className="text-xl font-bold text-gray-900 mb-4">Section Notes</h2>
+<h2 className="text-xl font-bold text-gray-900 mb-4">Section Notes</h2>
                 <div className="space-y-3">
                   {Object.entries(sectionNotes).map(([section, notes]) => (
                     notes && (
@@ -683,7 +702,7 @@ export default function SimpleTest() {
               </div>
             )}
 
-           
+            {/* Action Buttons */}
             <div className="flex justify-between items-center">
               <button
                 onClick={resetAssessment}
