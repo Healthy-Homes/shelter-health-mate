@@ -675,6 +675,7 @@ export default function SimpleTest() {
                     notes && (
                       <div key={section} className="p-4 bg-gray-50 rounded-lg">
                         <h3 className="font-semibold text-gray-900">{section}</h3>
+                        <p className="text-gray-700 text-sm">{notes}</p>
                       </div>
                     )
                   ))}
