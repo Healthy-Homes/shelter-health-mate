@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { ChecklistItem, ResponseMap, SectionNotes } from '../types/checklist';
 import { calculateItemRisk, calculateOverallRisk, getCompletenessMessage } from '../utils/riskScoring';
+import { testScoringConsistency } from '../utils/scoringAnalysis';
 
 // Import all checklist data
 import { TAIWAN_HALST_QUESTIONS } from '../data/taiwanHalstChecklist';
@@ -219,29 +220,29 @@ export default function SimpleTest() {
   };
 
   // Calculate results
-const calculateResults = () => {
-  const itemRisks = currentQuestions.map(question => {
-    const userResponse = responses[question.item_id] || '';
-    return calculateItemRisk(question, userResponse);
-  });
-  
-  // === START DEBUG CODE ===
-  console.log('=== SCORING DEBUG ===');
-  itemRisks.forEach(risk => {
-    if (risk.raw_response) {
-      const question = currentQuestions.find(q => q.item_id === risk.item_id);
-      console.log(`${risk.item_id}: "${question?.question_text?.substring(0, 50)}..."
-        Response: ${risk.raw_response}
-        Expected Risk: YES=${question?.risk_score_yes}, NO=${question?.risk_score_no}
-        Calculated: ${risk.risk_score}
-        Has Issue: ${risk.has_issue}`);
-    }
-  });
-  console.log('=== END DEBUG ===');
-  // === END DEBUG CODE ===
-  
-  return calculateOverallRisk(itemRisks);
-};
+  const calculateResults = () => {
+    const itemRisks = currentQuestions.map(question => {
+      const userResponse = responses[question.item_id] || '';
+      return calculateItemRisk(question, userResponse);
+    });
+    
+    // === START DEBUG CODE ===
+    console.log('=== SCORING DEBUG ===');
+    itemRisks.forEach(risk => {
+      if (risk.raw_response) {
+        const question = currentQuestions.find(q => q.item_id === risk.item_id);
+        console.log(`${risk.item_id}: "${question?.question_text?.substring(0, 50)}..."
+          Response: ${risk.raw_response}
+          Expected Risk: YES=${question?.risk_score_yes}, NO=${question?.risk_score_no}
+          Calculated: ${risk.risk_score}
+          Has Issue: ${risk.has_issue}`);
+      }
+    });
+    console.log('=== END DEBUG ===');
+    // === END DEBUG CODE ===
+    
+    return calculateOverallRisk(itemRisks);
+  };
 
   const results = phase === 'results' ? calculateResults() : null;
 
@@ -504,14 +505,26 @@ const calculateResults = () => {
               </div>
             </div>
 
-            {/* Start Button */}
-            <div className="flex justify-between items-center">
+            {/* Action Buttons */}
+            <div className="flex justify-between items-center gap-3">
               <a 
                 href="/"
                 className="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors"
               >
                 ← Back to Main App
               </a>
+              
+              {/* Temporary Testing Button - Remove after analysis */}
+              <button
+                onClick={() => {
+                  console.clear();
+                  testScoringConsistency();
+                  alert('Check console for scoring analysis (Press F12)');
+                }}
+                className="bg-purple-500 text-white px-6 py-3 rounded-lg hover:bg-purple-600 transition-colors"
+              >
+                🔬 Run Scoring Analysis
+              </button>
               
               <button
                 onClick={startAssessment}
