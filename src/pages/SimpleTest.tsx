@@ -219,14 +219,29 @@ export default function SimpleTest() {
   };
 
   // Calculate results
-  const calculateResults = () => {
-    const itemRisks = currentQuestions.map(question => {
-      const userResponse = responses[question.item_id] || '';
-      return calculateItemRisk(question, userResponse);
-    });
-    
-    return calculateOverallRisk(itemRisks);
-  };
+const calculateResults = () => {
+  const itemRisks = currentQuestions.map(question => {
+    const userResponse = responses[question.item_id] || '';
+    return calculateItemRisk(question, userResponse);
+  });
+  
+  // === START DEBUG CODE ===
+  console.log('=== SCORING DEBUG ===');
+  itemRisks.forEach(risk => {
+    if (risk.raw_response) {
+      const question = currentQuestions.find(q => q.item_id === risk.item_id);
+      console.log(`${risk.item_id}: "${question?.question_text?.substring(0, 50)}..."
+        Response: ${risk.raw_response}
+        Expected Risk: YES=${question?.risk_score_yes}, NO=${question?.risk_score_no}
+        Calculated: ${risk.risk_score}
+        Has Issue: ${risk.has_issue}`);
+    }
+  });
+  console.log('=== END DEBUG ===');
+  // === END DEBUG CODE ===
+  
+  return calculateOverallRisk(itemRisks);
+};
 
   const results = phase === 'results' ? calculateResults() : null;
 
