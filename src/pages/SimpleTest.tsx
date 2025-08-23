@@ -1,4 +1,4 @@
-// src/pages/SimpleTest.tsx - Phase 2: Section-Based Navigation
+// src/pages/SimpleTest.tsx - Phase 2: Section-Based Navigation with Elder Safety
 
 import React, { useState } from 'react';
 import { ChecklistItem, ResponseMap, SectionNotes } from '../types/checklist';
@@ -8,6 +8,7 @@ import { calculateItemRisk, calculateOverallRisk, getCompletenessMessage } from 
 import { TAIWAN_HALST_QUESTIONS } from '../data/taiwanHalstChecklist';
 import { US_HEALTHY_HOMES_QUESTIONS } from '../data/usHealthyHomesChecklist';
 import { SDOH_QUESTIONS } from '../data/sdohChecklist';
+import { ELDER_SAFETY_QUESTIONS } from '../data/elderSafetyChecklist';
 
 type HomeChecklistType = 'taiwan' | 'us' | null;
 type AssessmentPhase = 'selection' | 'assessment' | 'results';
@@ -26,9 +27,44 @@ const US_SECTIONS = [
   "Garage"
 ];
 
-// Helper function to get questions by section for US checklist
-const getQuestionsBySection = (section: string): ChecklistItem[] => {
-  return US_HEALTHY_HOMES_QUESTIONS.filter(q => q.section === section);
+// Taiwan Sections constant
+const TAIWAN_SECTIONS = [
+  "Layout and Building Structure",
+  "Bedroom Environment",
+  "Kitchen Environment",
+  "Bathroom Environment",
+  "Living Areas",
+  "General Conditions"
+];
+
+// Elder Safety Sections constant
+const ELDER_SECTIONS = [
+  "Floors",
+  "Stairs and Steps",
+  "Kitchen",
+  "Bedrooms",
+  "Bathrooms",
+  "Living Areas",
+  "Fire Safety",
+  "Electrical Safety",
+  "Medications",
+  "General Safety"
+];
+
+// Helper function to get questions by section
+const getQuestionsBySection = (section: string, checklist: 'us' | 'taiwan' | 'elder' | 'sdoh'): ChecklistItem[] => {
+  switch(checklist) {
+    case 'us':
+      return US_HEALTHY_HOMES_QUESTIONS.filter(q => q.section === section);
+    case 'taiwan':
+      return TAIWAN_HALST_QUESTIONS.filter(q => q.section === section);
+    case 'elder':
+      return ELDER_SAFETY_QUESTIONS.filter(q => q.section === section);
+    case 'sdoh':
+      return SDOH_QUESTIONS;
+    default:
+      return [];
+  }
 };
 
 export default function SimpleTest() {
@@ -36,6 +72,7 @@ export default function SimpleTest() {
   const [phase, setPhase] = useState<AssessmentPhase>('selection');
   const [homeChecklistType, setHomeChecklistType] = useState<HomeChecklistType>(null);
   const [includeSDOH, setIncludeSDOH] = useState(false);
+  const [includeElderSafety, setIncludeElderSafety] = useState(false);
   const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
   const [responses, setResponses] = useState<ResponseMap>({});
   const [sectionNotes, setSectionNotes] = useState<SectionNotes>({});
@@ -48,12 +85,16 @@ export default function SimpleTest() {
     // Add home inspection questions
     if (homeChecklistType === 'taiwan') {
       questions = [...TAIWAN_HALST_QUESTIONS];
-      // Taiwan sections (we'll organize these later)
-      sections = ['Layout and Building Structure', 'Bedroom Environment', 'Kitchen Environment', 
-                 'Bathroom Environment', 'Living Areas', 'General Conditions'];
+      sections = [...TAIWAN_SECTIONS];
     } else if (homeChecklistType === 'us') {
       questions = [...US_HEALTHY_HOMES_QUESTIONS];
       sections = [...US_SECTIONS];
+    }
+    
+    // Add Elder Safety questions if selected
+    if (includeElderSafety) {
+      questions = [...questions, ...ELDER_SAFETY_QUESTIONS];
+      sections = [...sections, ...ELDER_SECTIONS];
     }
     
     // Add SDOH questions if selected
@@ -75,23 +116,19 @@ export default function SimpleTest() {
       return SDOH_QUESTIONS;
     }
     
-    if (homeChecklistType === 'us') {
-      return getQuestionsBySection(currentSection);
+    // Check if it's an Elder Safety section
+    if (ELDER_SECTIONS.includes(currentSection) && includeElderSafety) {
+      return getQuestionsBySection(currentSection, 'elder');
     }
     
-    // For Taiwan, we'll filter by category for now (until we update Taiwan data structure)
-    if (homeChecklistType === 'taiwan') {
-      const sectionMappings: Record<string, string[]> = {
-        'Layout and Building Structure': ['layout'],
-        'Bedroom Environment': ['bedroom'],
-        'Kitchen Environment': ['kitchen'],
-        'Bathroom Environment': ['bathroom'],
-        'Living Areas': ['living_room'],
-        'General Conditions': ['general']
-      };
-      
-      const categories = sectionMappings[currentSection] || [];
-      return TAIWAN_HALST_QUESTIONS.filter(q => categories.includes(q.category));
+    // Check if it's a Taiwan section
+    if (TAIWAN_SECTIONS.includes(currentSection) && homeChecklistType === 'taiwan') {
+      return getQuestionsBySection(currentSection, 'taiwan');
+    }
+    
+    // Check if it's a US section
+    if (US_SECTIONS.includes(currentSection) && homeChecklistType === 'us') {
+      return getQuestionsBySection(currentSection, 'us');
     }
     
     return [];
@@ -131,7 +168,7 @@ export default function SimpleTest() {
   };
 
   const startAssessment = () => {
-    if (homeChecklistType || includeSDOH) {
+    if (homeChecklistType || includeSDOH || includeElderSafety) {
       setPhase('assessment');
       setCurrentSectionIndex(0);
       setResponses({});
@@ -143,6 +180,7 @@ export default function SimpleTest() {
     setPhase('selection');
     setHomeChecklistType(null);
     setIncludeSDOH(false);
+    setIncludeElderSafety(false);
     setCurrentSectionIndex(0);
     setResponses({});
     setSectionNotes({});
@@ -150,9 +188,18 @@ export default function SimpleTest() {
 
   // Calculate section progress
   const getSectionProgress = (section: string) => {
-    const questions = homeChecklistType === 'us' ? getQuestionsBySection(section) : 
-                    section === 'Social Determinants of Health' ? SDOH_QUESTIONS :
-                    getCurrentSectionQuestions();
+    let questions: ChecklistItem[] = [];
+    
+    if (section === 'Social Determinants of Health') {
+      questions = SDOH_QUESTIONS;
+    } else if (ELDER_SECTIONS.includes(section) && includeElderSafety) {
+      questions = getQuestionsBySection(section, 'elder');
+    } else if (TAIWAN_SECTIONS.includes(section) && homeChecklistType === 'taiwan') {
+      questions = getQuestionsBySection(section, 'taiwan');
+    } else if (US_SECTIONS.includes(section) && homeChecklistType === 'us') {
+      questions = getQuestionsBySection(section, 'us');
+    }
+    
     const answered = questions.filter(q => responses[q.item_id]).length;
     return {
       total: questions.length,
@@ -305,7 +352,7 @@ export default function SimpleTest() {
             {/* Home Inspection Section */}
             <div className="mb-8">
               <h2 className="text-xl font-semibold text-gray-800 mb-4">
-                1. Home Inspection Assessment
+                1. Home Inspection Assessment (Choose One)
               </h2>
               <p className="text-gray-600 mb-4">
                 Choose a home inspection checklist based on your location and needs:
@@ -363,51 +410,78 @@ export default function SimpleTest() {
               </button>
             </div>
 
-            {/* SDOH Section */}
+            {/* Optional Add-ons Section */}
             <div className="mb-8">
               <h2 className="text-xl font-semibold text-gray-800 mb-4">
-                2. Social Determinants of Health (SDOH)
+                2. Optional Assessments
               </h2>
               <p className="text-gray-600 mb-4">
-                Optional assessment of social factors affecting health outcomes:
+                Add supplementary assessments to your evaluation:
               </p>
               
-              <label className="flex items-center p-4 border-2 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
-                <input
-                  type="checkbox"
-                  checked={includeSDOH}
-                  onChange={(e) => setIncludeSDOH(e.target.checked)}
-                  className="mr-4 h-5 w-5 text-purple-500 focus:ring-purple-500"
-                />
-                <div>
-                  <h3 className="font-bold text-gray-900">
-                    Include SDOH Assessment
-                  </h3>
-                  <p className="text-sm text-gray-600">
-                    Food security, housing stability, healthcare access, transportation
-                  </p>
-                  <div className="text-xs text-purple-600 font-medium">
-                    8 questions • 1 section • Social factors focus
+              <div className="space-y-3">
+                {/* Elder Safety Checkbox */}
+                <label className="flex items-center p-4 border-2 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+                  <input
+                    type="checkbox"
+                    checked={includeElderSafety}
+                    onChange={(e) => setIncludeElderSafety(e.target.checked)}
+                    className="mr-4 h-5 w-5 text-orange-500 focus:ring-orange-500"
+                  />
+                  <div>
+                    <h3 className="font-bold text-gray-900">
+                      👴 Elder Safety Assessment (NIA)
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      Fall prevention, fire safety, medication management, and accessibility
+                    </p>
+                    <div className="text-xs text-orange-600 font-medium">
+                      40 questions • 10 sections • Safety & fall prevention focus
+                    </div>
                   </div>
-                </div>
-              </label>
+                </label>
+
+                {/* SDOH Checkbox */}
+                <label className="flex items-center p-4 border-2 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+                  <input
+                    type="checkbox"
+                    checked={includeSDOH}
+                    onChange={(e) => setIncludeSDOH(e.target.checked)}
+                    className="mr-4 h-5 w-5 text-purple-500 focus:ring-purple-500"
+                  />
+                  <div>
+                    <h3 className="font-bold text-gray-900">
+                      📊 Social Determinants of Health (SDOH)
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      Food security, housing stability, healthcare access, transportation
+                    </p>
+                    <div className="text-xs text-purple-600 font-medium">
+                      8 questions • 1 section • Social factors focus
+                    </div>
+                  </div>
+                </label>
+              </div>
             </div>
 
             {/* Selection Summary */}
             <div className="bg-gray-50 rounded-lg p-4 mb-6">
               <h3 className="font-semibold text-gray-900 mb-2">Assessment Summary:</h3>
               <div className="text-sm text-gray-700">
-                {!homeChecklistType && !includeSDOH && (
+                {!homeChecklistType && !includeSDOH && !includeElderSafety && (
                   <p className="text-red-600">Please select at least one assessment type</p>
                 )}
                 {homeChecklistType && (
                   <p>✓ {homeChecklistType === 'taiwan' ? 'Taiwan HALST' : 'US Healthy Homes'} 
                      ({homeChecklistType === 'taiwan' ? '48 questions, 6 sections' : '45 questions, 10 sections'})</p>
                 )}
+                {includeElderSafety && (
+                  <p>✓ Elder Safety Assessment (40 questions, 10 sections)</p>
+                )}
                 {includeSDOH && (
                   <p>✓ Social Determinants of Health (8 questions, 1 section)</p>
                 )}
-                {(homeChecklistType || includeSDOH) && (
+                {(homeChecklistType || includeSDOH || includeElderSafety) && (
                   <p className="font-semibold mt-2">
                     Total: {getChecklistData().questions.length} questions across {getChecklistData().sections.length} sections
                   </p>
@@ -426,7 +500,7 @@ export default function SimpleTest() {
               
               <button
                 onClick={startAssessment}
-                disabled={!homeChecklistType && !includeSDOH}
+                disabled={!homeChecklistType && !includeSDOH && !includeElderSafety}
                 className="bg-blue-500 text-white px-8 py-3 rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
               >
                 Start Assessment →
