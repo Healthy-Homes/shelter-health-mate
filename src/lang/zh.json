@@ -238,7 +238,25 @@
         "excellentnew": "優秀/新",
         "goodcondition": "狀況良好",
         "faircondition": "狀況尚可",
-        "poorold": "較差/舊"
+        "poorold": "較差/舊",
+        "someneedrepair": "部分需要修理",
+"needhelp": "需要幫助", 
+"yesrecently": "是，最近",
+"yeslongago": "是，但很久以前",
+"notapplicable": "不適用",
+"afewconcerns": "有幾個擔憂",
+"onemainconcern": "一個主要擔憂",
+"yesactivelyplanning": "是，正在積極計劃",
+"yesforthefuture": "是，為了未來",
+"wantbutunable": "想要但無法",
+"noplans": "沒有計劃",
+"yesmajorvarations": "是，主要變化",
+"yesminorvarations": "是，輕微變化",
+"verysatisfied": "非常滿意",
+"satisfied": "滿意",
+"neutral": "中性",
+"dissatisfied": "不滿意",
+"verydissatisfied": "非常不滿意"
       }
     },
     "taiwan": {
