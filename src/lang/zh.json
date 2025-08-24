@@ -77,45 +77,45 @@
       "description": "影響健康結果的社會因素評估（{{count}} 題）"
     }
   },
- "sections": {
-  "progress": "第 {{current}} 節，共 {{total}} 節",
-  "completed": "{{total}} 題中已完成 {{answered}} 題",
-  "sectionNotes": "章節備註（選用）",
-  "notesPlaceholder": "為此章節添加任何額外備註...",
-  "charactersRemaining": "{{remaining}}/200 個字符",
-  "names": {
-    "layoutAndBuilding": "佈局和建築結構",
-    "bedroomEnvironment": "臥室環境",
-    "kitchenEnvironment": "廚房環境", 
-    "bathroomEnvironment": "浴室環境",
-    "livingAreas": "客廳區域",
-    "generalConditions": "一般條件",
-    "yardAndExterior": "庭院和外觀",
-    "exteriorRoof": "外部屋頂、牆面和窗戶",
-    "basementCrawlspace": "地下室和爬行空間",
-    "hvacEquipment": "暖通空調設備",
-    "attic": "閣樓",
-    "plumbingFixtures": "管道、裝置和電器",
-    "interiorWalls": "內部牆面、天花板、窗戶和門",
-    "appliances": "電器",
-    "electricalEquipment": "電氣設備",
-    "garage": "車庫",
-    "floors": "地板",
-    "stairsSteps": "樓梯和台階",
-    "kitchen": "廚房",
-    "bedrooms": "臥室",
-    "bathrooms": "浴室",
-    "fireSafety": "消防安全",
-    "electricalSafety": "電氣安全", 
-    "medications": "藥物",
-    "generalSafety": "一般安全",
-    "foodSecurity": "食物安全",
-    "housingSecurity": "住房安全",
-    "transportation": "交通",
-    "socialSupport": "社會支持",
-    "stressAndSafety": "壓力和安全"
-  }
-},
+  "sections": {
+    "progress": "第 {{current}} 節，共 {{total}} 節",
+    "completed": "{{total}} 題中已完成 {{answered}} 題",
+    "sectionNotes": "章節備註（選用）",
+    "notesPlaceholder": "為此章節添加任何額外備註...",
+    "charactersRemaining": "{{remaining}}/200 個字符",
+    "names": {
+      "layoutAndBuilding": "佈局和建築結構",
+      "bedroomEnvironment": "臥室環境",
+      "kitchenEnvironment": "廚房環境", 
+      "bathroomEnvironment": "浴室環境",
+      "livingAreas": "客廳區域",
+      "generalConditions": "一般條件",
+      "yardAndExterior": "庭院和外觀",
+      "exteriorRoof": "外部屋頂、牆面和窗戶",
+      "basementCrawlspace": "地下室和爬行空間",
+      "hvacEquipment": "暖通空調設備",
+      "attic": "閣樓",
+      "plumbingFixtures": "管道、裝置和電器",
+      "interiorWalls": "內部牆面、天花板、窗戶和門",
+      "appliances": "電器",
+      "electricalEquipment": "電氣設備",
+      "garage": "車庫",
+      "floors": "地板",
+      "stairsSteps": "樓梯和台階",
+      "kitchen": "廚房",
+      "bedrooms": "臥室",
+      "bathrooms": "浴室",
+      "fireSafety": "消防安全",
+      "electricalSafety": "電氣安全", 
+      "medications": "藥物",
+      "generalSafety": "一般安全",
+      "foodSecurity": "食物安全",
+      "housingSecurity": "住房安全",
+      "transportation": "交通",
+      "socialSupport": "社會支持",
+      "stressAndSafety": "壓力和安全"
+    }
+  },
   "results": {
     "title": "評估結果",
     "subtitle": "您的居家健康評估已完成",
@@ -144,47 +144,208 @@
       "critical": "極高優先級"
     }
   },
- "analysis": {
+  "analysis": {
     "runScoringAnalysis": "🔬 執行評分分析"
   },
   "questions": {
     "common": {
-     "responses": {
-  "yes": "是",
-  "no": "否",
-  "notapplicable": "不適用", 
-  "notsure": "不確定",
-  "excellent": "優秀",
-  "verygood": "很好",
-  "good": "良好",
-  "fair": "尚可",
-  "poor": "較差",
-  "verypoor": "很差",
-  "often": "經常",
-  "sometimes": "有時",
-  "rarely": "很少",
-  "never": "從不",
-  "alwaystrue": "總是如此",
-  "oftentrue": "經常如此", 
-  "sometimestrue": "有時如此",
-  "nevertrue": "從不如此",
-  "apartment": "公寓",
-  "house": "房屋",
-  "dormitory": "宿舍",
-  "other": "其他",
-  "groundfloor": "一樓",
-  "1st3rdfloor": "1-3樓",
-  "4th6thfloor": "4-6樓", 
-  "7thfloorabove": "7樓及以上",
-  "lessthan10years": "少於10年",
-  "1020years": "10-20年",
-  "2030years": "20-30年", 
-  "morethan30years": "超過30年",
-  "yesregularly": "是，經常",
-  "yesoccasionally": "是，偶爾"
-}
+      "responses": {
+        "yes": "是",
+        "no": "否",
+        "notapplicable": "不適用", 
+        "notsure": "不確定",
+        "excellent": "優秀",
+        "verygood": "很好",
+        "good": "良好",
+        "fair": "尚可",
+        "poor": "較差",
+        "verypoor": "很差",
+        "often": "經常",
+        "sometimes": "有時",
+        "rarely": "很少",
+        "never": "從不",
+        "alwaystrue": "總是如此",
+        "oftentrue": "經常如此", 
+        "sometimestrue": "有時如此",
+        "nevertrue": "從不如此",
+        "apartment": "公寓",
+        "house": "房屋",
+        "dormitory": "宿舍",
+        "other": "其他",
+        "groundfloor": "一樓",
+        "1st3rdfloor": "1-3樓",
+        "4th6thfloor": "4-6樓", 
+        "7thfloorabove": "7樓及以上",
+        "lessthan10years": "少於10年",
+        "1020years": "10-20年",
+        "2030years": "20-30年", 
+        "morethan30years": "超過30年",
+        "yesregularly": "是，經常",
+        "yesoccasionally": "是，偶爾"
+      }
     },
-   ,
+    "taiwan": {
+      "HALST_1": {
+        "question": "您住在什麼類型的房屋中？",
+        "explanation": "不同的房屋類型有不同的健康考量"
+      },
+      "HALST_2": {
+        "question": "您住在幾樓？",
+        "explanation": "較高樓層可能有不同的空氣品質和可及性考量"
+      },
+      "HALST_3": {
+        "question": "您的建築物有多久了？",
+        "explanation": "建築物年齡影響結構完整性和潛在健康危害"
+      },
+      "HALST_4": {
+        "question": "您的家中是否有通風設備（可開啟的窗戶或通風扇）？",
+        "explanation": "適當的通風對室內空氣品質至關重要"
+      },
+      "HALST_5": {
+        "question": "牆壁或天花板是否有裂縫？",
+        "explanation": "裂縫可能表示結構問題並允許濕氣進入"
+      },
+      "HALST_6": {
+        "question": "是否有水損或漏水的跡象？",
+        "explanation": "水損可能導致黴菌生長和結構問題"
+      },
+      "HALST_7": {
+        "question": "是否有油漆剝落或破碎？",
+        "explanation": "較舊建築物中的剝落油漆可能含有鉛"
+      },
+      "HALST_8": {
+        "question": "您是否有害蟲問題（昆蟲、嚙齒動物）？",
+        "explanation": "害蟲可能傳播疾病並引發過敏"
+      },
+      "HALST_9": {
+        "question": "您的家中是否有充足的照明？",
+        "explanation": "照明不足可能導致意外和眼部疲勞"
+      },
+      "HALST_10": {
+        "question": "您在社區中感到安全嗎？",
+        "explanation": "安全疑慮可能影響心理健康和幸福感"
+      },
+      "HALST_11": {
+        "question": "您的臥室通風良好嗎？",
+        "explanation": "臥室通風影響睡眠品質和空氣品質"
+      },
+      "HALST_12": {
+        "question": "您是否因噪音而難以入睡？",
+        "explanation": "噪音污染可能干擾睡眠並影響健康"
+      },
+      "HALST_13": {
+        "question": "您的臥室是否有充足的自然光？",
+        "explanation": "自然光有助於調節生理時鐘"
+      },
+      "HALST_14": {
+        "question": "您的臥室溫度是否舒適？",
+        "explanation": "溫度控制影響睡眠品質和舒適度"
+      },
+      "HALST_15": {
+        "question": "您的臥室是否有潮濕或結露現象？",
+        "explanation": "潮濕可能導致黴菌生長和呼吸系統問題"
+      },
+      "HALST_16": {
+        "question": "您是否有充足的烹飪設施？",
+        "explanation": "適當的烹飪設施對營養和食品安全至關重要"
+      },
+      "HALST_17": {
+        "question": "您的廚房通風良好嗎？",
+        "explanation": "廚房通風可以排除烹飪煙霧和濕氣"
+      },
+      "HALST_18": {
+        "question": "您是否能取得清潔的飲用水？",
+        "explanation": "清潔的水對健康和水分補充至關重要"
+      },
+      "HALST_19": {
+        "question": "是否有充足的食物儲存空間？",
+        "explanation": "適當的食物儲存可防止腐壞和害蟲問題"
+      },
+      "HALST_20": {
+        "question": "您的爐具或烹飪設備是否有任何問題？",
+        "explanation": "故障的烹飪設備可能構成安全和健康風險"
+      },
+      "HALST_21": {
+        "question": "您是否有熱水供應？",
+        "explanation": "熱水對衛生和清潔是必要的"
+      },
+      "HALST_22": {
+        "question": "您的浴室是否乾淨且維護良好？",
+        "explanation": "浴室衛生對預防感染很重要"
+      },
+      "HALST_23": {
+        "question": "您的馬桶是否能正常沖水？",
+        "explanation": "適當的衛生設施對健康至關重要"
+      },
+      "HALST_24": {
+        "question": "您的浴室是否有充足的隱私？",
+        "explanation": "隱私對尊嚴和舒適度很重要"
+      },
+      "HALST_25": {
+        "question": "您的浴室通風良好嗎？",
+        "explanation": "浴室通風可防止濕氣積聚和黴菌"
+      },
+      "HALST_26": {
+        "question": "您的浴室是否有任何漏水？",
+        "explanation": "浴室漏水可能導致水損和黴菌生長"
+      },
+      "HALST_27": {
+        "question": "您的浴室是否有可見的黴菌？",
+        "explanation": "黴菌可能導致呼吸系統問題和過敏反應"
+      },
+      "HALST_28": {
+        "question": "您的起居區域是否有充足的放鬆空間？",
+        "explanation": "個人空間對心理健康和幸福感很重要"
+      },
+      "HALST_29": {
+        "question": "您的起居區域是否過於雜亂？",
+        "explanation": "雜亂可能造成安全隱患並影響心理健康"
+      },
+      "HALST_30": {
+        "question": "冬天時您是否有充足的暖氣？",
+        "explanation": "適當的暖氣對舒適度和健康至關重要"
+      },
+      "HALST_31": {
+        "question": "夏天時您是否有充足的冷氣？",
+        "explanation": "溫度控制可防止與熱相關的健康問題"
+      },
+      "HALST_32": {
+        "question": "您家中的空氣品質是否普遍良好？",
+        "explanation": "空氣品質差可能導致呼吸系統和其他健康問題"
+      },
+      "HALST_33": {
+        "question": "您的家中是否有強烈異味？",
+        "explanation": "強烈異味可能表示空氣品質或衛生問題"
+      },
+      "HALST_34": {
+        "question": "您的家中是否有過多灰塵？",
+        "explanation": "灰塵可能引發過敏和呼吸系統問題"
+      },
+      "HALST_35": {
+        "question": "是否有任何異常聲音（如嗡嗡聲或嗡鳴聲）？",
+        "explanation": "異常聲音可能表示電氣或機械問題"
+      },
+      "HALST_36": {
+        "question": "是否有人在您家中吸菸？",
+        "explanation": "室內吸菸對所有居住者都會造成嚴重健康危害"
+      },
+      "HALST_37": {
+        "question": "您是否有能正常工作的煙霧探測器？",
+        "explanation": "能正常工作的煙霧探測器對火災安全至關重要"
+      },
+      "HALST_38": {
+        "question": "是否有急救包可供使用？",
+        "explanation": "急救用品對緊急醫療護理很重要"
+      },
+      "HALST_39": {
+        "question": "電源插座和線路是否狀況良好？",
+        "explanation": "故障的電氣系統會造成火災和觸電危險"
+      },
+      "HALST_40": {
+        "question": "總體而言，您如何評價住房的健康和安全？",
+        "explanation": "您的整體評估有助於識別優先關注的問題"
+      }
+    },
     "us": {
       "US_1": {
         "question": "水是否從房屋排走？",
