@@ -77,13 +77,45 @@
       "description": "Assessment of social factors affecting health outcomes ({{count}} questions)"
     }
   },
-  "sections": {
-    "progress": "Section {{current}} of {{total}}",
-    "completed": "{{answered}} of {{total}} completed",
-    "sectionNotes": "Section Notes (Optional)",
-    "notesPlaceholder": "Add any additional notes about this section...",
-    "charactersRemaining": "{{remaining}}/200 characters"
-  },
+"sections": {
+  "progress": "Section {{current}} of {{total}}",
+  "completed": "{{answered}} of {{total}} completed",
+  "sectionNotes": "Section Notes (Optional)",
+  "notesPlaceholder": "Add any additional notes about this section...",
+  "charactersRemaining": "{{remaining}}/200 characters",
+  "names": {
+    "layoutAndBuilding": "Layout and Building Structure",
+    "bedroomEnvironment": "Bedroom Environment", 
+    "kitchenEnvironment": "Kitchen Environment",
+    "bathroomEnvironment": "Bathroom Environment",
+    "livingAreas": "Living Areas",
+    "generalConditions": "General Conditions",
+    "yardAndExterior": "Yard and Exterior",
+    "exteriorRoof": "Exterior Roof, Walls, and Windows",
+    "basementCrawlspace": "Basement and Crawlspace",
+    "hvacEquipment": "HVAC Equipment",
+    "attic": "Attic",
+    "plumbingFixtures": "Plumbing, Fixtures, and Appliances",
+    "interiorWalls": "Interior Walls, Ceilings, Windows, and Doors",
+    "appliances": "Appliances",
+    "electricalEquipment": "Electrical Equipment",
+    "garage": "Garage",
+    "floors": "Floors",
+    "stairsSteps": "Stairs and Steps",
+    "kitchen": "Kitchen",
+    "bedrooms": "Bedrooms",
+    "bathrooms": "Bathrooms",
+    "fireSafety": "Fire Safety",
+    "electricalSafety": "Electrical Safety",
+    "medications": "Medications",
+    "generalSafety": "General Safety",
+    "foodSecurity": "Food Security",
+    "housingSecurity": "Housing Security",
+    "transportation": "Transportation",
+    "socialSupport": "Social Support",
+    "stressAndSafety": "Stress and Safety"
+  }
+},
   "results": {
     "title": "Assessment Results",
     "subtitle": "Your home health assessment is complete",
