@@ -1,25 +1,40 @@
 // src/types/checklist.ts - Enhanced with Sections and N/A Support
 
+export interface ResponseOption {
+  value: string;
+  label: string;
+  weight?: number;
+}
+
 export interface ChecklistItem {
-  checklist_id: string;
+  checklist_id?: string;
   item_id: string;
   category: string;
-  subcategory: string;
+  subcategory?: string;
   section: string;                    // NEW: Section grouping
-  section_order: number;              // NEW: Order within section
-  question_key: string;
+  section_order?: number;             // NEW: Order within section
+  question_key?: string;
   question_text: string;              // NEW: Human-readable question
-  question_type: 'assessment' | 'action';
+  question_type?: 'assessment' | 'action';
   response_type: 'binary' | 'scale' | 'multiple_choice' | 'numeric';
-  response_options: string;           // Now includes 'n/a' for all questions
-  risk_weight: number;
-  risk_category: RiskCategory;
-  frequency: Frequency;
+  
+  // FIXED: Allow both old string format and new array format
+  response_options: ResponseOption[] | string;
+  
+  // ADDED: New simplified risk scoring fields
+  risk_score_yes?: number;
+  risk_score_no?: number;
   priority: Priority;
-  region: 'US' | 'Taiwan';
-  requires_action: 'yes' | 'no';
-  dependencies: string;
-  help_key: string;
+  explanation?: string;
+  
+  // KEPT: Original complex scoring fields for backward compatibility
+  risk_weight?: number;
+  risk_category?: RiskCategory;
+  frequency?: Frequency;
+  region?: 'US' | 'Taiwan';
+  requires_action?: 'yes' | 'no';
+  dependencies?: string;
+  help_key?: string;
 }
 
 export type RiskCategory = 
@@ -72,29 +87,32 @@ export interface SectionNotes {
 export interface ItemRiskAssessment {
   item_id: string;
   category: string;
-  subcategory: string;
-  risk_category: RiskCategory;
+  subcategory?: string;
+  risk_category?: RiskCategory;
   risk_score: number;
-  urgency: Urgency;
-  requires_action: boolean;
-  intervention_needed: boolean;
+  urgency?: Urgency;
+  requires_action?: boolean;
+  intervention_needed?: boolean;
   raw_response: string;
-  response_score: number;
-  is_na_response: boolean;            // NEW: Track N/A responses
+  response_score?: number;
+  is_na_response?: boolean;            // NEW: Track N/A responses
 }
 
 export interface OverallRiskAssessment {
-  overall_risk_score: number;
+  overall_risk_score?: number;
+  risk_score: number;                 // NEW: Simplified risk score
   risk_level: 'critical' | 'high' | 'medium' | 'low';
-  total_items: number;
-  issues_found: number;
-  critical_issues: number;
-  high_risk_issues: number;
-  actions_needed: number;
+  total_items?: number;
+  total_questions: number;            // NEW: Simplified total
+  issues_found?: number;
+  questions_with_issues: number;      // NEW: Simplified issues count
+  critical_issues?: number;
+  high_risk_issues?: number;
+  actions_needed?: number;
   completion_rate: number;
-  na_count: number;                   // NEW: Count of N/A responses
-  na_percentage: number;              // NEW: Percentage of N/A responses
-  completeness_flag: CompletenessFlag; // NEW: Completeness assessment
+  na_count?: number;                  // NEW: Count of N/A responses
+  na_percentage?: number;             // NEW: Percentage of N/A responses
+  completeness_flag?: CompletenessFlag; // NEW: Completeness assessment
   priority_interventions: ItemRiskAssessment[];
 }
 
