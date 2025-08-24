@@ -1,129 +1,118 @@
 {
   "ui": {
-    "appTitle": "住所健康應用程式",
+    "appTitle": "庇護所健康應用程式",
     "language": "語言",
-    "checklist": "檢查表類型",
-    "includeSection": "在報告中包含此部分",
-    "downloadPdf": "下載PDF",
-    "emailReport": "電子郵件報告",
+    "checklist": "檢查清單類型",
+    "includeSection": "在報告中包含此章節",
+    "downloadPdf": "下載 PDF",
+    "emailReport": "郵寄報告",
     "shareReport": "分享報告",
-    "consentRequired": "需要同意",
-    "consentNeededDesc": "請在導出數據前獲得居民同意。",
     "loading": "載入中...",
-    "error": "載入數據錯誤",
-    "phiWarning": "請勿在電子郵件主旨中包含個人健康資訊。請使用您機構的安全電子郵件或EHR入口傳送。",
-    "secureEmailReminder": "報告已下載。請附加到您的安全電子郵件。",
-    "pdfGenerated": "已產生PDF",
-    "pdfGeneratedDesc": "報告已產生並下載",
-    "exportOptions": "匯出選項",
-    "riskScoring": "風險評分",
-    "enableRiskScoring": "啟用風險評分",
-    "riskScore": "風險分數",
-    "riskCategoryLabel": "風險等級",
-    "low": "低",
-    "moderate": "中",
-    "high": "高",
+    "error": "載入資料時發生錯誤",
     "languages": { "en": "English", "zh": "繁體中文" }
   },
-  "sections": {
-    "consent": "同意書",
-    "residents": "住戶資訊",
-    "homeInspection": "居家檢查",
-    "sdoh": "健康社會決定因素",
-    "risk": "風險評估"
+  "common": {
+    "yes": "是",
+    "no": "否", 
+    "notApplicable": "不適用",
+    "notSure": "不確定",
+    "excellent": "優秀",
+    "good": "良好",
+    "fair": "尚可",
+    "poor": "較差",
+    "veryPoor": "很差",
+    "often": "經常",
+    "sometimes": "有時",
+    "rarely": "很少",
+    "never": "從不",
+    "save": "儲存",
+    "cancel": "取消", 
+    "continue": "繼續",
+    "back": "返回",
+    "next": "下一步",
+    "complete": "完成",
+    "skip": "跳過"
   },
-  "consent": {
-    "title": "居民同意書",
-    "text": "我同意為此健康評估收集數據",
-    "residentName": "居民姓名",
-    "residentNamePlaceholder": "輸入居民姓名（可選）"
+  "navigation": {
+    "backToMain": "← 返回主應用程式",
+    "startAssessment": "開始評估 →",
+    "previousSection": "← 上一節",
+    "nextSection": "下一節 →",
+    "completeAssessment": "完成評估"
   },
-  "residents": {
-    "numberOfResidents": "住戶人數",
-    "ages": "年齡（以逗號分隔）",
-    "tenure": "居住時間",
-    "months": "月",
-    "years": "年"
+  "language": {
+    "switchTo": "切換至",
+    "english": "English",
+    "traditionalChinese": "繁體中文"
   },
-  "home": {
-    "ageOfHome": "房屋/建築年齡",
-    "ageOptions": ["少於5年", "5-15年", "16-30年", "31-50年", "50年以上", "不明"]
+  "assessment": {
+    "title": "居家健康評估",
+    "subtitle": "選擇您想要完成的評估項目",
+    "homeInspection": "居家檢查評估",
+    "chooseRegion": "選擇您所在地區的居家檢查清單：",
+    "skipHomeInspection": "跳過居家檢查",
+    "onlyCompleteAdditional": "僅完成附加評估",
+    "estimatedTime": "預估時間",
+    "minutes": "分鐘",
+    "totalQuestions": "總題數",
+    "totalSections": "總章節數",
+    "questionsAnswered": "題已回答",
+    "assessmentSummary": "評估摘要"
   },
-  "checklist": {
-    "general_safety": "一般安全檢查表",
-    "asthma_focused": "氣喘與室內空氣品質",
-    "items": {
-      "smoke_detectors": "煙霧偵測器缺失或故障",
-      "carbon_monoxide": "一氧化碳偵測器缺失或故障",
-      "moldVisible": "可見黴菌",
-      "leakingPipes": "管道洩漏",
-      "noVentilation": "通風不良",
-      "pestInfestation": "害蟲感染",
-      "electricalHazards": "電氣危險",
-      "structuralDamage": "結構損壞",
-      "leadPaint": "含鉛油漆",
-      "asbestos": "石棉材料",
-      "overcrowding": "過度擁擠",
-      "inadequateHeating": "供暖不足",
-      "ventilation": "通風",
-      "dust_mites": "塵蟎控制",
-      "smoking_exposure": "吸菸暴露"
+  "checklists": {
+    "taiwan": {
+      "title": "台灣 HALST 評估",
+      "description": "台灣住宅環境健康評估（{{count}} 題）"
     },
-    "descriptions": {
-      "smoke_detectors_desc": "缺少或無法運作的偵測器",
-      "carbon_monoxide_desc": "睡眠區域附近缺少或無法運作的偵測器",
-      "moldVisible_desc": "檢查是否有可見黴菌或霉味",
-      "leakingPipes_desc": "檢查水槽下方與管線周圍是否滲漏",
-      "noVentilation_desc": "浴室/廚房缺乏可運作的排風扇或窗戶",
-      "pestInfestation_desc": "是否有囓齒類/昆蟲或排泄物跡象",
-      "electricalHazards_desc": "裸露電線或插座過載",
-      "structuralDamage_desc": "裂縫、地板下陷或天花板受損",
-      "leadPaint_desc": "1978年前建造的房屋可能含鉛漆",
-      "asbestos_desc": "舊絕緣材料或磁磚可能含石棉",
-      "overcrowding_desc": "住戶數超過空間承載",
-      "inadequateHeating_desc": "供暖不足或無法運作",
-      "dust_mites_desc": "床墊/枕頭防蟎套，減少灰塵",
-      "smoking_exposure_desc": "室內吸菸或二手煙"
+    "us": {
+      "title": "美國健康住宅評估",
+      "description": "美國住宅綜合安全評估（{{count}} 題）"
+    },
+    "elderSafety": {
+      "title": "長者安全評估（選用）",
+      "description": "專注於跌倒預防與居家安全的長者居住環境評估（{{count}} 題）"
+    },
+    "sdoh": {
+      "title": "健康社會決定因素（選用）",
+      "description": "影響健康結果的社會因素評估（{{count}} 題）"
     }
   },
-  "sdoh": {
-    "housing_stability": "您目前的居住狀況有多穩定？",
-    "housing_stability_options": ["非常穩定", "有些穩定", "不穩定", "非常不穩定", "不願回答"],
-    "food_security": "您的家庭是否有足夠的食物？",
-    "food_security_options": ["總是", "有時", "很少", "不願回答"],
-    "transportation": "您是否有可靠的交通工具前往就醫/辦事？",
-    "transportation_options": ["總是", "有時", "很少", "不願回答"],
-    "social_support": "當您需要幫助時是否有人可協助？",
-    "social_support_options": ["總是", "有時", "很少", "不願回答"],
-    "healthcare_access": "您是否能在需要時取得醫療服務？",
-    "healthcare_access_options": ["總是", "有時", "很少", "不願回答"],
-    "employment_status": "您目前的就業狀況？",
-    "employment_status_options": ["有工作", "失業", "無法工作", "不願回答"],
-    "education_level": "您的最高教育程度？",
-    "education_level_options": ["高中或以下", "部分大學", "大學學位", "研究所學位", "不願回答"],
-    "income_adequacy": "您的家庭收入是否足以滿足需要？",
-    "income_adequacy_options": ["總是", "有時", "很少", "不願回答"],
-    "dummy": {
-      "housing_stability": {
-        "question": "您對於失去住房的擔憂程度如何？",
-        "options": ["不擔心", "有點擔心", "有些擔心", "非常擔心", "極度擔心"]
-      },
-      "food_security": {
-        "question": "過去一個月內，您是否在能購買更多食物之前就已經用完食物？",
-        "options": ["從未", "很少", "有時", "經常", "總是"]
-      },
-      "transportation": {
-        "question": "您是否有可靠的交通工具前往醫療門診？",
-        "options": ["是", "否"]
-      },
-      "utilities": {
-        "question": "過去一年內，您的水電瓦斯等公用事業是否曾被停用？",
-        "options": ["是", "否"]
-      },
-      "social_support": {
-        "question": "您多常感到社交孤立？",
-        "options": ["從不", "很少", "有時", "經常", "總是"]
-      }
+  "sections": {
+    "progress": "第 {{current}} 節，共 {{total}} 節",
+    "completed": "{{total}} 題中已完成 {{answered}} 題",
+    "sectionNotes": "章節備註（選用）",
+    "notesPlaceholder": "為此章節添加任何額外備註...",
+    "charactersRemaining": "{{remaining}}/200 個字符"
+  },
+  "results": {
+    "title": "評估結果",
+    "subtitle": "您的居家健康評估已完成",
+    "riskScore": "風險評分",
+    "outOf100": "滿分 100 分",
+    "riskLevel": "風險等級",
+    "completionRate": "完成率",
+    "questionsAnswered": "{{total}} 題中已回答 {{answered}} 題",
+    "issuesIdentified": "已識別問題",
+    "areasNeedAttention": "{{total}} 個評估項目中有 {{count}} 個區域需要關注",
+    "reviewInterventions": "請查看下方的優先處理事項以了解具體行動",
+    "priorityInterventions": "優先處理事項",
+    "sectionNotes": "章節備註",
+    "takeNewAssessment": "🔄 進行新評估",
+    "riskLevels": {
+      "low": "低風險",
+      "moderate": "中度風險",
+      "elevated": "升高風險", 
+      "high": "高風險",
+      "critical": "極高風險"
+    },
+    "priorities": {
+      "low": "低優先級",
+      "medium": "中優先級",
+      "high": "高優先級", 
+      "critical": "極高優先級"
     }
+  },
+  "analysis": {
+    "runScoringAnalysis": "🔬 執行評分分析"
   }
 }
