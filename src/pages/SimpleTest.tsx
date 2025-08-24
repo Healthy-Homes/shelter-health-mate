@@ -1,4 +1,4 @@
-// src/pages/SimpleTest.tsx - With Question Translation Support
+// src/pages/SimpleTest.tsx - With Question Translation Supports
 
 import React, { useState } from 'react';
 
