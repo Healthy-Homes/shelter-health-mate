@@ -1,4 +1,4 @@
-// src/pages/SimpleTest.tsx - Section Names + SDOH Logic Fix
+// src/pages/SimpleTest.tsx - With Question Translation Support
 
 import React, { useState } from 'react';
 
@@ -96,6 +96,14 @@ const SECTION_MAPPING: Record<string, string> = {
   "stressAndSafety": "Stress and Safety"
 };
 
+// Assessment type mapping for translation keys
+const ASSESSMENT_TYPE_MAP: Record<string, string> = {
+  'HALST': 'taiwan',
+  'US': 'us', 
+  'ELDER': 'elder',
+  'SDOH': 'sdoh'
+};
+
 // Helper functions for response options compatibility
 const getResponseOptions = (question: ChecklistItem): string[] => {
   if (Array.isArray(question.response_options)) {
@@ -107,15 +115,73 @@ const getResponseOptions = (question: ChecklistItem): string[] => {
   }
 };
 
-const getResponseLabel = (question: ChecklistItem, value: string): string => {
+const getResponseLabel = (question: ChecklistItem, value: string, t: any): string => {
   if (Array.isArray(question.response_options)) {
     // New format: find the label for this value
     const option = question.response_options.find(opt => opt.value === value);
-    return option ? option.label : value;
-  } else {
-    // Old format: value is the label (with formatting)
-    return value.replace(/_/g, ' ').charAt(0).toUpperCase() + value.slice(1).replace(/_/g, ' ');
+    if (option) {
+      return option.label;
+    }
   }
+  
+  // Try to get translation for common response values
+  const normalizedValue = value.toLowerCase().replace(/\s+/g, '').replace(/-/g, '');
+  const translationKey = `questions.common.responses.${normalizedValue}`;
+  const translated = t(translationKey);
+  
+  // If translation exists and is different from the key, use it
+  if (translated !== translationKey) {
+    return translated;
+  }
+  
+  // Fallback to formatted original value
+  return value.replace(/_/g, ' ').charAt(0).toUpperCase() + value.slice(1).replace(/_/g, ' ');
+};
+
+// Helper function to get translated question text
+const getQuestionText = (question: ChecklistItem, t: any): string => {
+  // Extract assessment type from question ID (e.g., "HALST_1" -> "HALST")
+  const idParts = question.item_id.split('_');
+  const assessmentType = idParts[0];
+  
+  // Map to translation namespace
+  const translationNamespace = ASSESSMENT_TYPE_MAP[assessmentType];
+  
+  if (translationNamespace) {
+    const translationKey = `questions.${translationNamespace}.${question.item_id}.question`;
+    const translated = t(translationKey);
+    
+    // If translation exists and is different from the key, use it
+    if (translated !== translationKey) {
+      return translated;
+    }
+  }
+  
+  // Fallback to original text
+  return question.question_text;
+};
+
+// Helper function to get translated explanation
+const getQuestionExplanation = (question: ChecklistItem, t: any): string => {
+  // Extract assessment type from question ID
+  const idParts = question.item_id.split('_');
+  const assessmentType = idParts[0];
+  
+  // Map to translation namespace
+  const translationNamespace = ASSESSMENT_TYPE_MAP[assessmentType];
+  
+  if (translationNamespace && question.explanation) {
+    const translationKey = `questions.${translationNamespace}.${question.item_id}.explanation`;
+    const translated = t(translationKey);
+    
+    // If translation exists and is different from the key, use it
+    if (translated !== translationKey) {
+      return translated;
+    }
+  }
+  
+  // Fallback to original explanation or empty string
+  return question.explanation || '';
 };
 
 // Helper function to get questions by section - now handles both key and full name
@@ -498,15 +564,17 @@ export default function SimpleTest() {
               {sectionQuestions.map((question) => {
                 const responseOptions = getResponseOptions(question);
                 const currentResponse = responses[question.item_id] || '';
+                const questionText = getQuestionText(question, t);
+                const explanationText = getQuestionExplanation(question, t);
                 
                 return (
                   <div key={question.item_id} className="border-b border-gray-100 pb-6 last:border-b-0">
                     <h3 className="text-lg font-medium text-gray-900 mb-3">
-                      {question.question_text}
+                      {questionText}
                     </h3>
                     
-                    {question.explanation && (
-                      <p className="text-sm text-gray-600 mb-4">{question.explanation}</p>
+                    {explanationText && (
+                      <p className="text-sm text-gray-600 mb-4">{explanationText}</p>
                     )}
 
                     <div className="space-y-2">
@@ -521,7 +589,7 @@ export default function SimpleTest() {
                             className="mr-3"
                           />
                           <span className="text-gray-800">
-                            {getResponseLabel(question, option)}
+                            {getResponseLabel(question, option, t)}
                           </span>
                         </label>
                       ))}
