@@ -144,7 +144,58 @@
       "critical": "極高優先級"
     }
   },
-  "analysis": {
+ "analysis": {
     "runScoringAnalysis": "🔬 執行評分分析"
+  },
+  "questions": {
+    "common": {
+      "responses": {
+        "yes": "是",
+        "no": "否",
+        "notApplicable": "不適用",
+        "excellent": "優秀",
+        "verygood": "很好",
+        "good": "良好",
+        "fair": "尚可",
+        "poor": "較差",
+        "verypoor": "很差",
+        "often": "經常",
+        "sometimes": "有時",
+        "rarely": "很少",
+        "never": "從不",
+        "alwaysTrue": "總是如此",
+        "oftenTrue": "經常如此",
+        "sometimesTrue": "有時如此",
+        "neverTrue": "從不如此"
+      }
+    },
+    "taiwan": {
+      "HALST_1": {
+        "question": "您住在什麼類型的房屋中？",
+        "explanation": "不同的房屋類型有不同的健康考量"
+      },
+      "HALST_2": {
+        "question": "您住在幾樓？", 
+        "explanation": "較高樓層可能有不同的空氣品質和可及性考量"
+      }
+    },
+    "us": {
+      "US_1": {
+        "question": "水是否從房屋排走？",
+        "explanation": "水應該從地基排走以防止濕氣問題"
+      }
+    },
+    "elder": {
+      "ELDER_1": {
+        "question": "地板上是否有紙張、書籍、鞋子或其他物品？",
+        "explanation": "地板上的物品會為長者造成絆倒危險"
+      }
+    },
+    "sdoh": {
+      "SDOH_1": {
+        "question": "在過去12個月中，您是否擔心在有錢買更多食物之前食物會用完？",
+        "explanation": "食物安全是健康的重要社會決定因素"
+      }
+    }
   }
 }
