@@ -7,126 +7,112 @@
     "downloadPdf": "Download PDF",
     "emailReport": "Email Report",
     "shareReport": "Share Report",
-    "consentRequired": "Consent Required",
-    "consentNeededDesc": "Please obtain resident consent before exporting data.",
     "loading": "Loading...",
     "error": "Error loading data",
-    "phiWarning": "Do not include personal health information in email subject. Send via your organization's secure email or EHR portal.",
-    "secureEmailReminder": "Report downloaded. Please attach to your secure email.",
-    "pdfGenerated": "PDF Generated",
-    "pdfGeneratedDesc": "Report has been generated and downloaded",
-    "exportOptions": "Export Options",
-    "riskScoring": "Risk Scoring",
-    "enableRiskScoring": "Enable risk scoring",
-    "riskScore": "Risk Score",
-    "riskCategoryLabel": "Risk Category",
-    "environmentalRisk": "Environmental Risk",
-    "sdohRisk": "SDOH Risk",
-    "combinedRisk": "Combined Risk",
-    "low": "Low",
-    "moderate": "Moderate",
-    "high": "High",
     "languages": { "en": "English", "zh": "繁體中文" }
   },
-  "sections": {
-    "consent": "Consent",
-    "residents": "Resident Information",
-    "homeInspection": "Home Inspection",
-    "sdoh": "Social Determinants of Health",
-    "risk": "Risk Assessment"
+  "common": {
+    "yes": "Yes",
+    "no": "No",
+    "notApplicable": "Not applicable",
+    "notSure": "Not sure",
+    "excellent": "Excellent",
+    "good": "Good",
+    "fair": "Fair",
+    "poor": "Poor",
+    "veryPoor": "Very poor",
+    "often": "Often",
+    "sometimes": "Sometimes",
+    "rarely": "Rarely",
+    "never": "Never",
+    "save": "Save",
+    "cancel": "Cancel",
+    "continue": "Continue",
+    "back": "Back",
+    "next": "Next",
+    "complete": "Complete",
+    "skip": "Skip"
   },
-  "consent": {
-    "title": "Resident Consent",
-    "text": "I consent to data collection for this health assessment",
-    "residentName": "Resident Name",
-    "residentNamePlaceholder": "Enter resident name (optional)"
+  "navigation": {
+    "backToMain": "← Back to Main App",
+    "startAssessment": "Start Assessment →",
+    "previousSection": "← Previous Section",
+    "nextSection": "Next Section →",
+    "completeAssessment": "Complete Assessment"
   },
-  "residents": {
-    "numberOfResidents": "Number of residents",
-    "ages": "Ages (comma-separated)",
-    "tenure": "Time living in home",
-    "months": "Months",
-    "years": "Years"
+  "language": {
+    "switchTo": "Switch to",
+    "english": "English",
+    "traditionalChinese": "繁體中文"
   },
-  "home": {
-    "ageOfHome": "Age of home/building",
-    "ageOptions": ["Less than 5 years", "5-15 years", "16-30 years", "31-50 years", "Over 50 years", "Unknown"]
+  "assessment": {
+    "title": "Home Health Assessment",
+    "subtitle": "Select the assessments you'd like to complete",
+    "homeInspection": "Home Inspection Assessment",
+    "chooseRegion": "Choose your region's home inspection checklist:",
+    "skipHomeInspection": "Skip Home Inspection",
+    "onlyCompleteAdditional": "Only complete additional assessments",
+    "estimatedTime": "Estimated Time",
+    "minutes": "minutes",
+    "totalQuestions": "Total Questions",
+    "totalSections": "Total Sections",
+    "questionsAnswered": "questions answered",
+    "assessmentSummary": "Assessment Summary"
   },
-  "checklist": {
-    "general_safety": "General Safety Checklist",
-    "asthma_focused": "Asthma & Indoor Air Quality",
-    "items": {
-      "smoke_detectors": "Missing or non-functioning smoke detectors",
-      "carbon_monoxide": "Missing or non-functioning carbon monoxide detectors",
-      "moldVisible": "Visible Mold Present",
-      "leakingPipes": "Leaking Pipes",
-      "noVentilation": "Poor Ventilation",
-      "pestInfestation": "Pest Infestation",
-      "electricalHazards": "Electrical Hazards",
-      "structuralDamage": "Structural Damage",
-      "leadPaint": "Lead Paint",
-      "asbestos": "Asbestos Materials",
-      "overcrowding": "Overcrowding",
-      "inadequateHeating": "Inadequate Heating",
-      "ventilation": "Poor Ventilation",
-      "dust_mites": "Dust mites present",
-      "smoking_exposure": "Smoking exposure indoors"
+  "checklists": {
+    "taiwan": {
+      "title": "Taiwan HALST Assessment",
+      "description": "Environmental health assessment for Taiwan housing ({{count}} questions)"
     },
-    "descriptions": {
-      "smoke_detectors_desc": "Missing or non-functioning detectors",
-      "carbon_monoxide_desc": "Missing or non-functioning detector near sleeping areas",
-      "moldVisible_desc": "Check for visible mold or musty odors",
-      "leakingPipes_desc": "Inspect under sinks and around plumbing for leaks",
-      "noVentilation_desc": "Bathrooms/kitchens lack working exhaust fans or windows",
-      "pestInfestation_desc": "Signs of rodents/insects or droppings",
-      "electricalHazards_desc": "Exposed wiring or overloaded outlets",
-      "structuralDamage_desc": "Cracks, sagging floors, or ceiling damage",
-      "leadPaint_desc": "Homes built before 1978 may contain lead paint",
-      "asbestos_desc": "Old insulation or tiles may contain asbestos",
-      "overcrowding_desc": "Too many occupants for space",
-      "inadequateHeating_desc": "Insufficient or non-functioning heating",
-      "dust_mites_desc": "Covers on mattresses/pillows, reduce dust",
-      "smoking_exposure_desc": "Indoor smoking or secondhand smoke present"
+    "us": {
+      "title": "US Healthy Homes Assessment", 
+      "description": "Comprehensive home safety evaluation for US housing ({{count}} questions)"
+    },
+    "elderSafety": {
+      "title": "Elder Safety Assessment (Optional)",
+      "description": "Home safety evaluation focused on fall prevention and aging-in-place safety ({{count}} questions)"
+    },
+    "sdoh": {
+      "title": "Social Determinants of Health (Optional)",
+      "description": "Assessment of social factors affecting health outcomes ({{count}} questions)"
     }
   },
-  "sdoh": {
-    "housing_stability": "How stable is your current housing situation?",
-    "housing_stability_options": ["Very stable", "Somewhat stable", "Unstable", "Very unstable", "Prefer not to answer"],
-    "food_security": "Do you have enough food for your household?",
-    "food_security_options": ["Always", "Sometimes", "Rarely", "Prefer not to answer"],
-    "transportation": "Do you have reliable transportation to get to appointments?",
-    "transportation_options": ["Always", "Sometimes", "Rarely", "Prefer not to answer"],
-    "social_support": "Do you have someone to help you when you need it?",
-    "social_support_options": ["Always", "Sometimes", "Rarely", "Prefer not to answer"],
-    "healthcare_access": "Do you have access to healthcare when you need it?",
-    "healthcare_access_options": ["Always", "Sometimes", "Rarely", "Prefer not to answer"],
-    "employment_status": "What is your current employment status?",
-    "employment_status_options": ["Employed", "Unemployed", "Unable to work", "Prefer not to answer"],
-    "education_level": "What is your highest level of education?",
-    "education_level_options": ["High school or less", "Some college", "College degree", "Graduate degree", "Prefer not to answer"],
-    "income_adequacy": "Is your household income enough to meet your needs?",
-    "income_adequacy_options": ["Always", "Sometimes", "Rarely", "Prefer not to answer"],
-    "dummy": {
-      "housing_stability": {
-        "question": "How worried are you about losing your housing?",
-        "options": ["Not worried", "A little worried", "Somewhat worried", "Very worried", "Extremely worried"]
-      },
-      "food_security": {
-        "question": "In the past month, did you run out of food before you could buy more?",
-        "options": ["Never", "Rarely", "Sometimes", "Often", "Always"]
-      },
-      "transportation": {
-        "question": "Do you have reliable transportation to medical appointments?",
-        "options": ["Yes", "No"]
-      },
-      "utilities": {
-        "question": "In the past year, has your utility service been shut off?",
-        "options": ["Yes", "No"]
-      },
-      "social_support": {
-        "question": "How often do you feel socially isolated?",
-        "options": ["Never", "Rarely", "Sometimes", "Often", "Always"]
-      }
+  "sections": {
+    "progress": "Section {{current}} of {{total}}",
+    "completed": "{{answered}} of {{total}} completed",
+    "sectionNotes": "Section Notes (Optional)",
+    "notesPlaceholder": "Add any additional notes about this section...",
+    "charactersRemaining": "{{remaining}}/200 characters"
+  },
+  "results": {
+    "title": "Assessment Results",
+    "subtitle": "Your home health assessment is complete",
+    "riskScore": "Risk Score", 
+    "outOf100": "out of 100",
+    "riskLevel": "Risk Level",
+    "completionRate": "Completion Rate",
+    "questionsAnswered": "{{answered}}/{{total}} questions",
+    "issuesIdentified": "Issues Identified", 
+    "areasNeedAttention": "{{count}} areas need attention out of {{total}} assessed",
+    "reviewInterventions": "Review the priority interventions below for specific actions",
+    "priorityInterventions": "Priority Interventions",
+    "sectionNotes": "Section Notes",
+    "takeNewAssessment": "🔄 Take New Assessment",
+    "riskLevels": {
+      "low": "Low",
+      "moderate": "Moderate", 
+      "elevated": "Elevated",
+      "high": "High",
+      "critical": "Critical"
+    },
+    "priorities": {
+      "low": "low priority",
+      "medium": "medium priority", 
+      "high": "high priority",
+      "critical": "critical priority"
     }
+  },
+  "analysis": {
+    "runScoringAnalysis": "🔬 Run Scoring Analysis"
   }
 }
