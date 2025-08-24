@@ -115,6 +115,7 @@ const getResponseOptions = (question: ChecklistItem): string[] => {
   }
 };
 
+// Replace your current getResponseLabel function with this improved version
 const getResponseLabel = (question: ChecklistItem, value: string, t: any): string => {
   if (Array.isArray(question.response_options)) {
     // New format: find the label for this value
@@ -124,70 +125,104 @@ const getResponseLabel = (question: ChecklistItem, value: string, t: any): strin
     }
   }
   
-  // Enhanced translation logic for common response values
-  // Try multiple key variations for better matching
-  const normalizedValue = value.toLowerCase().replace(/\s+/g, '').replace(/-/g, '').replace(/,/g, '');
-  
-  // Primary key attempts
-  const possibleKeys = [
-    normalizedValue,                           // "yes", "no", "sometimes"
-    value.toLowerCase(),                       // "yes", "no", "sometimes" 
-    value.toLowerCase().replace(/\s+/g, ''),   // "verygood" from "Very good"
-    value.replace(/\s+/g, '').toLowerCase()    // "verycomfortable" from "Very comfortable"
-  ];
-  
-  // Try each possible key
-  for (const key of possibleKeys) {
-    const translationKey = `questions.common.responses.${key}`;
-    const translated = t(translationKey);
+  // Exact mappings based on Taiwan HALST response labels
+  const exactMappings: { [key: string]: string } = {
+    // Housing types
+    'Apartment': 'apartment',
+    'House': 'house', 
+    'Dormitory': 'dormitory',
+    'Other': 'other',
     
-    // If translation exists and is different from the key, use it
-    if (translated !== translationKey) {
-      return translated;
-    }
-  }
-  
-  // Additional specific mappings for common patterns
-  const specificMappings: Record<string, string> = {
-    'yes': 'yes',
-    'no': 'no', 
-    'sometimes': 'sometimes',
-    'often': 'often',
-    'rarely': 'rarely',
-    'never': 'never',
-    'weekly': 'weekly',
-    'monthly': 'monthly',
-    'daily': 'daily',
-    'partially': 'partially',
-    'very comfortable': 'verycomfortable',
-    'comfortable': 'comfortable',
-    'somewhat comfortable': 'somewhatcomfortable', 
-    'uncomfortable': 'uncomfortable',
-    'very uncomfortable': 'veryuncomfortable',
-    'excellent': 'excellent',
-    'very good': 'verygood',
-    'good': 'good',
-    'fair': 'fair',
-    'poor': 'poor',
-    'very poor': 'verypoor',
-    'apartment': 'apartment',
-    'house': 'house',
-    'dormitory': 'dormitory',
-    'other': 'other'
+    // Floor levels  
+    'Ground floor': 'groundfloor',
+    '1st-3rd floor': '1st3rdfloor', 
+    '4th-6th floor': '4th6thfloor',
+    'Above 6th floor': 'above6thfloor',
+    
+    // Basic responses
+    'Yes': 'yes',
+    'No': 'no',
+    'Not sure': 'notsure',
+    'Partially': 'partially',
+    'Sometimes': 'sometimes',
+    'Occasionally': 'occasionally',
+    
+    // Quality ratings
+    'Excellent': 'excellent',
+    'Good': 'good',
+    'Fair': 'fair', 
+    'Poor': 'poor',
+    
+    // Frequency with modifiers
+    'Yes, regularly': 'yesregularly',
+    'Yes, frequently': 'yesfrequently',
+    
+    // Time frequencies
+    'Weekly': 'weekly',
+    'Every 2 weeks': 'every2weeks',
+    'Monthly': 'monthly',
+    'Rarely': 'rarely',
+    
+    // Partial quantities
+    'Some appliances': 'someappliances',
+    'Some products': 'someproducts',
+    
+    // Comfort levels
+    'Very comfortable': 'verycomfortable',
+    'Comfortable': 'comfortable', 
+    'Somewhat comfortable': 'somewhatcomfortable',
+    'Uncomfortable': 'uncomfortable',
+    
+    // Special cases from HALST data
+    'Outdoor pets only': 'outdoorpetsonly',
+    'No carpets/rugs': 'nocarpetsrugs',
+    'Excellent/New': 'excellentnew',
+    'Good condition': 'goodcondition',
+    'Fair condition': 'faircondition', 
+    'Poor/Old': 'poorold',
+    
+    // Building age
+    'Less than 10 years': 'lessthan10years',
+    '10-30 years': '1030years',
+    'More than 30 years': 'morethan30years',
+    
+    // Condition modifiers
+    'Inadequate': 'inadequate',
+    'Poor circulation': 'poorcirculation',
+    'Moderate amount': 'moderateamount',
+    'Minor issues': 'minorissues',
+    'Minor amounts': 'minoramounts',
+    'Limited storage': 'limitedstorage',
+    'Some need repair': 'someneedrepair',
+    'Poor ventilation': 'poorventilation',
+    'Variable pressure': 'variablepressure',
+    'Inconsistent': 'inconsistent',
+    'Some concerns': 'someconcerns',
+    
+    // Frequency options
+    'Weekly or less': 'weeklyorless',
+    'Every few days': 'everyfewdays',
+    'Daily': 'daily',
+    'Constantly': 'constantly',
+    'Only seasonally': 'onlyseasonally',
+    'Outdoors only': 'outdoorsonly',
+    
+    // Additional options
+    'Barely adequate': 'barelyAdequate',
+    'Have some concerns': 'havesomeconcerns'
   };
   
-  // Try specific mapping
-  const mappedKey = specificMappings[value.toLowerCase()];
-  if (mappedKey) {
-    const translationKey = `questions.common.responses.${mappedKey}`;
+  // First try exact mapping
+  if (exactMappings[value]) {
+    const translationKey = `questions.common.responses.${exactMappings[value]}`;
     const translated = t(translationKey);
     if (translated !== translationKey) {
       return translated;
     }
   }
   
-  // Fallback to formatted original value
-  return value.charAt(0).toUpperCase() + value.slice(1);
+  // Fallback: return original value
+  return value;
 };
 
 // Helper function to get translated question text
