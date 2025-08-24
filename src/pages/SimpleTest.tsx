@@ -205,7 +205,25 @@ const getResponseLabel = (question: ChecklistItem, value: string, t: any): strin
     // Additional options from debug
     'barely': 'barelyAdequate',      // ← FROM DEBUG: "barely"
     'barely_adequate': 'barelyAdequate',
-    'have_concerns': 'havesomeconcerns'
+    'have_concerns': 'havesomeconcerns',
+    'some_issues': 'someneedrepair',
+  'need_help': 'needhelp',
+  'yes_recent': 'yesrecently', 
+  'yes_old': 'yeslongago',
+  'not_applicable': 'notapplicable',
+  'few': 'afewconcerns',
+  'one': 'onemainconcern',
+  'yes_active': 'yesactivelyplanning',
+  'yes_future': 'yesforthefuture',
+  'want_but_unable': 'wantbutunbale',
+  'no_plans': 'noplans',
+  'yes_major': 'yesmajorvarations',
+  'yes_minor': 'yesminorvarations', 
+  'very_satisfied': 'verysatisfied',
+  'satisfied': 'satisfied',
+  'neutral': 'neutral',
+  'dissatisfied': 'dissatisfied',
+  'very_dissatisfied': 'verydissatisfied'
   };
   
   // First try direct translation of the value
