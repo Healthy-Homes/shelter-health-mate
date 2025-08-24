@@ -368,10 +368,38 @@
       "HALST_39": {
         "question": "Are electrical outlets and wiring in good condition?",
         "explanation": "Faulty electrical systems pose fire and shock hazards"
-      },
+     },
       "HALST_40": {
         "question": "Overall, how would you rate the health and safety of your housing?",
         "explanation": "Your overall assessment helps identify priority concerns"
+      },
+      "HALST_41": {
+        "question": "How comfortable do you feel in your home environment overall?",
+        "explanation": "Overall comfort reflects environmental health and well-being"
+      },
+      "HALST_42": {
+        "question": "How often do you clean your home?",
+        "explanation": "Regular cleaning helps maintain a healthy living environment"
+      },
+      "HALST_43": {
+        "question": "Do you have adequate storage space in your home?",
+        "explanation": "Adequate storage helps prevent clutter and maintains organization"
+      },
+      "HALST_44": {
+        "question": "How would you rate the overall condition of your home?",
+        "explanation": "Overall home condition affects health, safety, and quality of life"
+      },
+      "HALST_45": {
+        "question": "Do you feel your home meets your basic needs?",
+        "explanation": "Meeting basic housing needs is fundamental for health and well-being"
+      },
+      "HALST_46": {
+        "question": "How satisfied are you with your current housing situation?",
+        "explanation": "Housing satisfaction affects mental health and overall well-being"
+      },
+      "HALST_47": {
+        "question": "Do you have any major concerns about your housing?",
+        "explanation": "Identifying housing concerns helps prioritize health and safety improvements"
       }
     },
     "us": {
