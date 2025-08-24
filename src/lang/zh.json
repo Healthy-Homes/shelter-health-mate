@@ -77,13 +77,45 @@
       "description": "影響健康結果的社會因素評估（{{count}} 題）"
     }
   },
-  "sections": {
-    "progress": "第 {{current}} 節，共 {{total}} 節",
-    "completed": "{{total}} 題中已完成 {{answered}} 題",
-    "sectionNotes": "章節備註（選用）",
-    "notesPlaceholder": "為此章節添加任何額外備註...",
-    "charactersRemaining": "{{remaining}}/200 個字符"
-  },
+ "sections": {
+  "progress": "第 {{current}} 節，共 {{total}} 節",
+  "completed": "{{total}} 題中已完成 {{answered}} 題",
+  "sectionNotes": "章節備註（選用）",
+  "notesPlaceholder": "為此章節添加任何額外備註...",
+  "charactersRemaining": "{{remaining}}/200 個字符",
+  "names": {
+    "layoutAndBuilding": "佈局和建築結構",
+    "bedroomEnvironment": "臥室環境",
+    "kitchenEnvironment": "廚房環境", 
+    "bathroomEnvironment": "浴室環境",
+    "livingAreas": "客廳區域",
+    "generalConditions": "一般條件",
+    "yardAndExterior": "庭院和外觀",
+    "exteriorRoof": "外部屋頂、牆面和窗戶",
+    "basementCrawlspace": "地下室和爬行空間",
+    "hvacEquipment": "暖通空調設備",
+    "attic": "閣樓",
+    "plumbingFixtures": "管道、裝置和電器",
+    "interiorWalls": "內部牆面、天花板、窗戶和門",
+    "appliances": "電器",
+    "electricalEquipment": "電氣設備",
+    "garage": "車庫",
+    "floors": "地板",
+    "stairsSteps": "樓梯和台階",
+    "kitchen": "廚房",
+    "bedrooms": "臥室",
+    "bathrooms": "浴室",
+    "fireSafety": "消防安全",
+    "electricalSafety": "電氣安全", 
+    "medications": "藥物",
+    "generalSafety": "一般安全",
+    "foodSecurity": "食物安全",
+    "housingSecurity": "住房安全",
+    "transportation": "交通",
+    "socialSupport": "社會支持",
+    "stressAndSafety": "壓力和安全"
+  }
+},
   "results": {
     "title": "評估結果",
     "subtitle": "您的居家健康評估已完成",
