@@ -1,4 +1,4 @@
-// src/data/elderSafetyChecklist.ts
+// src/data/elderSafetyChecklist.ts - Final Recalibrated to 0-100 Range
 import { ChecklistItem } from '../types/checklist';
 
 export const ELDER_SAFETY_QUESTIONS: ChecklistItem[] = [
@@ -7,53 +7,66 @@ export const ELDER_SAFETY_QUESTIONS: ChecklistItem[] = [
     item_id: "ELDER_1",
     category: "floors",
     section: "Floors",
-    subcategory: "pathways",
-    question_key: "Are all floor surfaces stable and in good repair?",
-    question_text: "When you walk through a room, do you have to walk around furniture?",
-    response_type: "binary",
-    response_options: "yes,no",
+    subcategory: "clutter",
+    question_text: "Are there papers, shoes, books, or other objects on the floors?",
+    response_options: [
+      { value: "yes", label: "Yes", weight: 1 },
+      { value: "no", label: "No", weight: 0 }
+    ],
+    risk_score_yes: 75, // Increased from 70 - major fall risk
     risk_score_no: 0,
-    risk_score_yes: 40,
-    priority: "medium"
+    priority: "high",
+    explanation: "Objects on floors are major fall hazards for older adults",
+    response_type: "binary"
   },
   {
     item_id: "ELDER_2",
     category: "floors",
     section: "Floors",
     subcategory: "rugs",
-    question_key: "Are rugs and runners secure?",
     question_text: "Do you have scatter rugs on the floor?",
-    response_type: "binary",
-    response_options: "yes,no",
+    response_options: [
+      { value: "yes", label: "Yes", weight: 1 },
+      { value: "no", label: "No", weight: 0 }
+    ],
+    risk_score_yes: 65, // Increased from 50 - fall hazard
     risk_score_no: 0,
-    risk_score_yes: 50,
-    priority: "high"
+    priority: "medium",
+    explanation: "Scatter rugs can cause trips and falls",
+    response_type: "binary"
   },
   {
     item_id: "ELDER_3",
     category: "floors",
     section: "Floors",
-    subcategory: "wires",
-    question_key: "Are there papers, books, towels, shoes, magazines, boxes, blankets, or other objects on the floor?",
-    question_text: "Are there papers, books, towels, shoes, magazines, boxes, blankets, or other objects on the floor?",
-    response_type: "binary",
-    response_options: "yes,no",
-    risk_score_no: 0,
-    risk_score_yes: 40,
-    priority: "medium"
+    subcategory: "rugs_secured",
+    question_text: "Are your rugs anchored down and do they lie flat?",
+    response_options: [
+      { value: "yes", label: "Yes", weight: 0 },
+      { value: "no", label: "No", weight: 1 },
+      { value: "not_applicable", label: "No rugs", weight: 0 }
+    ],
+    risk_score_yes: 0,
+    risk_score_no: 60, // Increased from 50
+    priority: "medium",
+    explanation: "Unsecured rugs are trip hazards",
+    response_type: "multiple_choice"
   },
   {
     item_id: "ELDER_4",
     category: "floors",
     section: "Floors",
-    subcategory: "cords",
-    question_key: "Do you have to walk over or around wires or cords?",
-    question_text: "Do you have to walk over or around wires or cords (like lamp, telephone, or extension cords)?",
-    response_type: "binary",
-    response_options: "yes,no",
-    risk_score_no: 0,
-    risk_score_yes: 60,
-    priority: "high"
+    subcategory: "surface_condition",
+    question_text: "Are your floors in good condition (no broken or uneven areas)?",
+    response_options: [
+      { value: "yes", label: "Yes", weight: 0 },
+      { value: "no", label: "No", weight: 1 }
+    ],
+    risk_score_yes: 0,
+    risk_score_no: 80, // Increased from 70 - serious fall risk
+    priority: "high",
+    explanation: "Broken or uneven floors pose serious fall risks",
+    response_type: "binary"
   },
 
   // Stairs and Steps Section
@@ -61,92 +74,120 @@ export const ELDER_SAFETY_QUESTIONS: ChecklistItem[] = [
     item_id: "ELDER_5",
     category: "stairs",
     section: "Stairs and Steps",
-    subcategory: "objects",
-    question_key: "Are there papers, shoes, books, or other objects on the stairs?",
-    question_text: "Are there papers, shoes, books, or other objects on the stairs?",
-    response_type: "binary",
-    response_options: "yes,no",
-    risk_score_no: 0,
-    risk_score_yes: 70,
-    priority: "high"
+    subcategory: "handrails",
+    question_text: "Are handrails installed on both sides of the stairs?",
+    response_options: [
+      { value: "yes", label: "Yes", weight: 0 },
+      { value: "no", label: "No", weight: 1 },
+      { value: "not_applicable", label: "No stairs", weight: 0 }
+    ],
+    risk_score_yes: 0,
+    risk_score_no: 85, // Increased from 70 - critical safety feature
+    priority: "critical",
+    explanation: "Handrails are essential fall prevention on stairs",
+    response_type: "multiple_choice"
   },
   {
     item_id: "ELDER_6",
     category: "stairs",
     section: "Stairs and Steps",
-    subcategory: "broken_steps",
-    question_key: "Are some steps broken or uneven?",
-    question_text: "Are some steps broken or uneven?",
-    response_type: "binary",
-    response_options: "yes,no",
-    risk_score_no: 0,
-    risk_score_yes: 80,
-    priority: "critical"
+    subcategory: "handrail_condition",
+    question_text: "Are the handrails sturdy and in good repair?",
+    response_options: [
+      { value: "yes", label: "Yes", weight: 0 },
+      { value: "no", label: "No", weight: 1 },
+      { value: "not_applicable", label: "No stairs/handrails", weight: 0 }
+    ],
+    risk_score_yes: 0,
+    risk_score_no: 80, // Increased from 70
+    priority: "high",
+    explanation: "Damaged handrails cannot provide safe support",
+    response_type: "multiple_choice"
   },
   {
     item_id: "ELDER_7",
     category: "stairs",
     section: "Stairs and Steps",
-    subcategory: "light_switch",
-    question_key: "Are you able to see the light switch at both the top and bottom of the stairs?",
-    question_text: "Is there a light switch at both the top and bottom of the stairs that you can see clearly?",
-    response_type: "binary",
-    response_options: "yes,no",
-    risk_score_no: 50,
-    risk_score_yes: 0,
-    priority: "high"
+    subcategory: "stair_condition",
+    question_text: "Are the steps broken or uneven?",
+    response_options: [
+      { value: "yes", label: "Yes", weight: 1 },
+      { value: "no", label: "No", weight: 0 },
+      { value: "not_applicable", label: "No stairs", weight: 0 }
+    ],
+    risk_score_yes: 90, // Increased from 80 - extremely dangerous
+    risk_score_no: 0,
+    priority: "critical",
+    explanation: "Broken or uneven steps are extremely dangerous fall hazards",
+    response_type: "multiple_choice"
   },
   {
     item_id: "ELDER_8",
     category: "stairs",
     section: "Stairs and Steps",
-    subcategory: "burned_out_bulbs",
-    question_key: "Has the stairway light bulb burned out?",
-    question_text: "Has the stairway light bulb burned out?",
-    response_type: "binary",
-    response_options: "yes,no",
+    subcategory: "objects_on_stairs",
+    question_text: "Are there papers, shoes, books, or other objects on the stairs?",
+    response_options: [
+      { value: "yes", label: "Yes", weight: 1 },
+      { value: "no", label: "No", weight: 0 },
+      { value: "not_applicable", label: "No stairs", weight: 0 }
+    ],
+    risk_score_yes: 85, // Increased from 70 - very dangerous
     risk_score_no: 0,
-    risk_score_yes: 60,
-    priority: "high"
+    priority: "critical",
+    explanation: "Objects on stairs create severe fall risks",
+    response_type: "multiple_choice"
   },
   {
     item_id: "ELDER_9",
     category: "stairs",
     section: "Stairs and Steps",
-    subcategory: "carpet",
-    question_key: "Is the carpet on the steps loose or torn?",
-    question_text: "Is the carpet on the steps loose or torn?",
-    response_type: "binary",
-    response_options: "yes,no",
-    risk_score_no: 0,
-    risk_score_yes: 70,
-    priority: "high"
+    subcategory: "stair_lighting",
+    question_text: "Do you have good lighting on the stairs?",
+    response_options: [
+      { value: "yes", label: "Yes", weight: 0 },
+      { value: "no", label: "No", weight: 1 },
+      { value: "not_applicable", label: "No stairs", weight: 0 }
+    ],
+    risk_score_yes: 0,
+    risk_score_no: 75, // Increased from 60
+    priority: "high",
+    explanation: "Poor stair lighting increases fall risk",
+    response_type: "multiple_choice"
   },
   {
     item_id: "ELDER_10",
     category: "stairs",
     section: "Stairs and Steps",
-    subcategory: "handrails",
-    question_key: "Are the handrails loose or broken?",
-    question_text: "Are the handrails loose or broken?",
-    response_type: "binary",
-    response_options: "yes,no",
-    risk_score_no: 0,
-    risk_score_yes: 70,
-    priority: "high"
+    subcategory: "light_switches",
+    question_text: "Do you have light switches at both the top and bottom of the stairs?",
+    response_options: [
+      { value: "yes", label: "Yes", weight: 0 },
+      { value: "no", label: "No", weight: 1 },
+      { value: "not_applicable", label: "No stairs", weight: 0 }
+    ],
+    risk_score_yes: 0,
+    risk_score_no: 65, // Increased from 50
+    priority: "medium",
+    explanation: "Accessible light switches improve stair safety",
+    response_type: "multiple_choice"
   },
   {
     item_id: "ELDER_11",
     category: "stairs",
     section: "Stairs and Steps",
-    subcategory: "missing_handrail",
-    question_key: "Is there a handrail on only one side of the stairs?",
-    question_text: "Is there a handrail on only one side of the stairs?",
-    response_type: "binary",
-    response_options: "yes,no",
-    risk_score_no: 0,
-    risk_score_yes: 50,
-    priority: "medium"
+    subcategory: "step_edges",
+    question_text: "Can you clearly see the edges of the steps?",
+    response_options: [
+      { value: "yes", label: "Yes", weight: 0 },
+      { value: "no", label: "No", weight: 1 },
+      { value: "not_applicable", label: "No stairs", weight: 0 }
+    ],
+    risk_score_yes: 0,
+    risk_score_no: 70, // Increased from 60
+    priority: "high",
+    explanation: "Visible step edges are crucial for safe navigation",
+    response_type: "multiple_choice"
   },
 
   // Kitchen Section
@@ -154,27 +195,33 @@ export const ELDER_SAFETY_QUESTIONS: ChecklistItem[] = [
     item_id: "ELDER_12",
     category: "kitchen",
     section: "Kitchen",
-    subcategory: "reaching",
-    question_key: "Are the things you use often on high shelves?",
-    question_text: "Are the things you use often on high shelves?",
-    response_type: "binary",
-    response_options: "yes,no",
-    risk_score_no: 0,
-    risk_score_yes: 40,
-    priority: "medium"
+    subcategory: "spills",
+    question_text: "Are spills wiped up right away?",
+    response_options: [
+      { value: "yes", label: "Yes", weight: 0 },
+      { value: "no", label: "No", weight: 1 }
+    ],
+    risk_score_yes: 0,
+    risk_score_no: 70, // Increased from 60
+    priority: "high",
+    explanation: "Kitchen spills create serious slip hazards",
+    response_type: "binary"
   },
   {
     item_id: "ELDER_13",
     category: "kitchen",
     section: "Kitchen",
-    subcategory: "step_stool",
-    question_key: "Do you stand on a chair or stool to reach things?",
-    question_text: "Do you stand on a chair or stool to reach things?",
-    response_type: "binary",
-    response_options: "yes,no",
-    risk_score_no: 0,
-    risk_score_yes: 60,
-    priority: "high"
+    subcategory: "storage_height",
+    question_text: "Are the things you use often within easy reach?",
+    response_options: [
+      { value: "yes", label: "Yes", weight: 0 },
+      { value: "no", label: "No", weight: 1 }
+    ],
+    risk_score_yes: 0,
+    risk_score_no: 55, // Increased from 40
+    priority: "medium",
+    explanation: "Items stored too high require unsafe reaching or climbing",
+    response_type: "binary"
   },
 
   // Bedrooms Section
@@ -182,40 +229,49 @@ export const ELDER_SAFETY_QUESTIONS: ChecklistItem[] = [
     item_id: "ELDER_14",
     category: "bedrooms",
     section: "Bedrooms",
-    subcategory: "lighting",
-    question_key: "Is the light switch near the door?",
-    question_text: "Is the light switch near the door?",
-    response_type: "binary",
-    response_options: "yes,no",
-    risk_score_no: 30,
+    subcategory: "path_lighting",
+    question_text: "Is there a lamp or light switch within reach of your bed?",
+    response_options: [
+      { value: "yes", label: "Yes", weight: 0 },
+      { value: "no", label: "No", weight: 1 }
+    ],
     risk_score_yes: 0,
-    priority: "medium"
+    risk_score_no: 50, // Increased from 30
+    priority: "medium",
+    explanation: "Accessible lighting prevents falls when getting up at night",
+    response_type: "binary"
   },
   {
     item_id: "ELDER_15",
     category: "bedrooms",
     section: "Bedrooms",
-    subcategory: "bed_path",
-    question_key: "Is the path from your bed to the bathroom dark?",
-    question_text: "Is the path from your bed to the bathroom dark?",
-    response_type: "binary",
-    response_options: "yes,no",
-    risk_score_no: 0,
-    risk_score_yes: 50,
-    priority: "high"
+    subcategory: "path_to_bathroom",
+    question_text: "Is the path from your bed to the bathroom clear?",
+    response_options: [
+      { value: "yes", label: "Yes", weight: 0 },
+      { value: "no", label: "No", weight: 1 }
+    ],
+    risk_score_yes: 0,
+    risk_score_no: 75, // Increased from 60 - nighttime fall risk
+    priority: "high",
+    explanation: "Clear bathroom path is essential for nighttime safety",
+    response_type: "binary"
   },
   {
     item_id: "ELDER_16",
     category: "bedrooms",
     section: "Bedrooms",
-    subcategory: "phone",
-    question_key: "Is it easy for you to reach the telephone from your bed?",
-    question_text: "Is it easy for you to reach the telephone from your bed?",
-    response_type: "binary",
-    response_options: "yes,no",
-    risk_score_no: 30,
+    subcategory: "phone_access",
+    question_text: "Do you have a phone next to your bed?",
+    response_options: [
+      { value: "yes", label: "Yes", weight: 0 },
+      { value: "no", label: "No", weight: 1 }
+    ],
     risk_score_yes: 0,
-    priority: "medium"
+    risk_score_no: 40, // Increased from 30
+    priority: "low",
+    explanation: "Bedside phone enables emergency calls without movement",
+    response_type: "binary"
   },
 
   // Bathrooms Section
@@ -223,27 +279,35 @@ export const ELDER_SAFETY_QUESTIONS: ChecklistItem[] = [
     item_id: "ELDER_17",
     category: "bathrooms",
     section: "Bathrooms",
-    subcategory: "tub_slippery",
-    question_key: "Is the tub or shower floor slippery?",
-    question_text: "Is the tub or shower floor slippery?",
-    response_type: "binary",
-    response_options: "yes,no",
-    risk_score_no: 0,
-    risk_score_yes: 70,
-    priority: "high"
+    subcategory: "grab_bars",
+    question_text: "Are there grab bars in your tub or shower?",
+    response_options: [
+      { value: "yes", label: "Yes", weight: 0 },
+      { value: "no", label: "No", weight: 1 },
+      { value: "not_applicable", label: "No tub/shower", weight: 0 }
+    ],
+    risk_score_yes: 0,
+    risk_score_no: 85, // Increased from 70 - critical safety feature
+    priority: "critical",
+    explanation: "Grab bars are essential for bathroom safety",
+    response_type: "multiple_choice"
   },
   {
     item_id: "ELDER_18",
     category: "bathrooms",
     section: "Bathrooms",
-    subcategory: "grab_bars",
-    question_key: "Do you need some support when you get in and out of the tub?",
-    question_text: "Do you need some support when you get in and out of the tub or up from the toilet?",
-    response_type: "binary",
-    response_options: "yes,no",
+    subcategory: "slip_surface",
+    question_text: "Is the tub or shower floor slippery?",
+    response_options: [
+      { value: "yes", label: "Yes", weight: 1 },
+      { value: "no", label: "No", weight: 0 },
+      { value: "not_applicable", label: "No tub/shower", weight: 0 }
+    ],
+    risk_score_yes: 80, // Increased from 70 - major slip risk
     risk_score_no: 0,
-    risk_score_yes: 60,
-    priority: "high"
+    priority: "high",
+    explanation: "Slippery bathroom surfaces cause serious falls",
+    response_type: "multiple_choice"
   },
 
   // Living Areas Section
@@ -251,27 +315,33 @@ export const ELDER_SAFETY_QUESTIONS: ChecklistItem[] = [
     item_id: "ELDER_19",
     category: "living_areas",
     section: "Living Areas",
-    subcategory: "chair_height",
-    question_key: "Do you have to use your arms to help yourself stand up from a chair?",
-    question_text: "Do you have to use your arms to help yourself stand up from a chair?",
-    response_type: "binary",
-    response_options: "yes,no",
-    risk_score_no: 0,
-    risk_score_yes: 30,
-    priority: "medium"
+    subcategory: "furniture_arrangement",
+    question_text: "Are the chairs and sofas the right height (not too low or too high)?",
+    response_options: [
+      { value: "yes", label: "Yes", weight: 0 },
+      { value: "no", label: "No", weight: 1 }
+    ],
+    risk_score_yes: 0,
+    risk_score_no: 45, // Increased from 30
+    priority: "low",
+    explanation: "Proper furniture height makes sitting and standing safer",
+    response_type: "binary"
   },
   {
     item_id: "ELDER_20",
     category: "living_areas",
     section: "Living Areas",
-    subcategory: "walking_space",
-    question_key: "Is your walking path from room to room clear?",
-    question_text: "Is your walking path from room to room clear?",
-    response_type: "binary",
-    response_options: "yes,no",
-    risk_score_no: 40,
-    risk_score_yes: 0,
-    priority: "medium"
+    subcategory: "electrical_cords",
+    question_text: "Do you have to walk over or around wires or cords?",
+    response_options: [
+      { value: "yes", label: "Yes", weight: 1 },
+      { value: "no", label: "No", weight: 0 }
+    ],
+    risk_score_yes: 70, // Increased from 60 - trip hazard
+    risk_score_no: 0,
+    priority: "high",
+    explanation: "Electrical cords create dangerous trip hazards",
+    response_type: "binary"
   },
 
   // Fire Safety Section
@@ -280,52 +350,66 @@ export const ELDER_SAFETY_QUESTIONS: ChecklistItem[] = [
     category: "fire_safety",
     section: "Fire Safety",
     subcategory: "smoke_alarms",
-    question_key: "Do you have smoke alarms on every level of your home?",
     question_text: "Do you have smoke alarms on every level of your home?",
-    response_type: "binary",
-    response_options: "yes,no",
-    risk_score_no: 80,
+    response_options: [
+      { value: "yes", label: "Yes", weight: 0 },
+      { value: "no", label: "No", weight: 1 }
+    ],
     risk_score_yes: 0,
-    priority: "critical"
+    risk_score_no: 100, // Increased from 80 - absolutely critical
+    priority: "critical",
+    explanation: "Smoke alarms are essential for fire safety and survival",
+    response_type: "binary"
   },
   {
     item_id: "ELDER_22",
     category: "fire_safety",
     section: "Fire Safety",
-    subcategory: "alarm_testing",
-    question_key: "Have you tested your smoke alarms in the last month?",
-    question_text: "Have you tested your smoke alarms in the last month?",
-    response_type: "binary",
-    response_options: "yes,no",
-    risk_score_no: 60,
+    subcategory: "alarm_batteries",
+    question_text: "Have you tested the batteries in your smoke alarms in the past year?",
+    response_options: [
+      { value: "yes", label: "Yes", weight: 0 },
+      { value: "no", label: "No", weight: 1 },
+      { value: "not_applicable", label: "No smoke alarms", weight: 1 }
+    ],
     risk_score_yes: 0,
-    priority: "high"
+    risk_score_no: 85, // Increased from 60
+    priority: "critical",
+    explanation: "Smoke alarm maintenance is critical for fire safety",
+    response_type: "multiple_choice"
   },
   {
     item_id: "ELDER_23",
     category: "fire_safety",
     section: "Fire Safety",
     subcategory: "escape_plan",
-    question_key: "Do you have an escape plan in case of fire?",
-    question_text: "Do you have an escape plan in case of fire?",
-    response_type: "binary",
-    response_options: "yes,no",
-    risk_score_no: 50,
+    question_text: "Do you have a fire escape plan?",
+    response_options: [
+      { value: "yes", label: "Yes", weight: 0 },
+      { value: "no", label: "No", weight: 1 }
+    ],
     risk_score_yes: 0,
-    priority: "high"
+    risk_score_no: 70, // Increased from 50
+    priority: "high",
+    explanation: "Fire escape plans save lives in emergencies",
+    response_type: "binary"
   },
   {
     item_id: "ELDER_24",
     category: "fire_safety",
     section: "Fire Safety",
-    subcategory: "space_heaters",
-    question_key: "Are space heaters placed away from things that can burn?",
-    question_text: "Are space heaters placed away from things that can burn?",
-    response_type: "binary",
-    response_options: "yes,no,not_applicable",
-    risk_score_no: 70,
+    subcategory: "heating_safety",
+    question_text: "Are space heaters and fireplaces used safely (clear of flammable items)?",
+    response_options: [
+      { value: "yes", label: "Yes", weight: 0 },
+      { value: "no", label: "No", weight: 1 },
+      { value: "not_applicable", label: "Don't use these", weight: 0 }
+    ],
     risk_score_yes: 0,
-    priority: "high"
+    risk_score_no: 90, // Increased from 70 - fire hazard
+    priority: "critical",
+    explanation: "Unsafe heating equipment is a major fire risk",
+    response_type: "multiple_choice"
   },
 
   // Electrical Safety Section
@@ -334,39 +418,49 @@ export const ELDER_SAFETY_QUESTIONS: ChecklistItem[] = [
     category: "electrical",
     section: "Electrical Safety",
     subcategory: "outlet_overload",
-    question_key: "Do you have too many things plugged into one outlet?",
-    question_text: "Do you have too many things plugged into one outlet?",
-    response_type: "binary",
-    response_options: "yes,no",
+    question_text: "Are electrical outlets overloaded with too many plugs?",
+    response_options: [
+      { value: "yes", label: "Yes", weight: 1 },
+      { value: "no", label: "No", weight: 0 }
+    ],
+    risk_score_yes: 75, // Increased from 60 - fire risk
     risk_score_no: 0,
-    risk_score_yes: 60,
-    priority: "high"
+    priority: "high",
+    explanation: "Overloaded outlets can cause fires",
+    response_type: "binary"
   },
   {
     item_id: "ELDER_26",
     category: "electrical",
     section: "Electrical Safety",
     subcategory: "cord_condition",
-    question_key: "Are any electrical cords cracked or frayed?",
-    question_text: "Are any electrical cords cracked or frayed?",
-    response_type: "binary",
-    response_options: "yes,no",
-    risk_score_no: 0,
-    risk_score_yes: 70,
-    priority: "high"
+    question_text: "Are electrical cords in good condition (not frayed or damaged)?",
+    response_options: [
+      { value: "yes", label: "Yes", weight: 0 },
+      { value: "no", label: "No", weight: 1 }
+    ],
+    risk_score_yes: 0,
+    risk_score_no: 80, // Increased from 70 - fire/shock risk
+    priority: "high",
+    explanation: "Damaged electrical cords pose fire and shock risks",
+    response_type: "binary"
   },
   {
     item_id: "ELDER_27",
     category: "electrical",
     section: "Electrical Safety",
-    subcategory: "extension_cords",
-    question_key: "Do you use extension cords on a regular basis?",
-    question_text: "Do you use extension cords on a regular basis?",
-    response_type: "binary",
-    response_options: "yes,no",
-    risk_score_no: 0,
-    risk_score_yes: 40,
-    priority: "medium"
+    subcategory: "gfci_protection",
+    question_text: "Do you have GFCI outlets in bathrooms and kitchen areas?",
+    response_options: [
+      { value: "yes", label: "Yes", weight: 0 },
+      { value: "no", label: "No", weight: 1 },
+      { value: "not_sure", label: "Not sure", weight: 0.7 }
+    ],
+    risk_score_yes: 0,
+    risk_score_no: 70, // Increased from 50
+    priority: "high",
+    explanation: "GFCI protection prevents electrical shock in wet areas",
+    response_type: "multiple_choice"
   },
 
   // Medications Section
@@ -374,171 +468,217 @@ export const ELDER_SAFETY_QUESTIONS: ChecklistItem[] = [
     item_id: "ELDER_28",
     category: "medications",
     section: "Medications",
-    subcategory: "visibility",
-    question_key: "Are your medications clearly labeled and easy to read?",
-    question_text: "Are your medications clearly labeled and easy to read?",
-    response_type: "binary",
-    response_options: "yes,no",
-    risk_score_no: 50,
+    subcategory: "storage_security",
+    question_text: "Are your medications stored safely and securely?",
+    response_options: [
+      { value: "yes", label: "Yes", weight: 0 },
+      { value: "no", label: "No", weight: 1 },
+      { value: "not_applicable", label: "No medications", weight: 0 }
+    ],
     risk_score_yes: 0,
-    priority: "high"
+    risk_score_no: 60, // Increased from 40
+    priority: "medium",
+    explanation: "Secure medication storage prevents accidental poisoning",
+    response_type: "multiple_choice"
   },
   {
     item_id: "ELDER_29",
     category: "medications",
     section: "Medications",
-    subcategory: "expired",
-    question_key: "Do you have expired medications?",
-    question_text: "Do you have expired medications?",
-    response_type: "binary",
-    response_options: "yes,no",
-    risk_score_no: 0,
-    risk_score_yes: 40,
-    priority: "medium"
+    subcategory: "medication_lighting",
+    question_text: "Do you have good lighting when taking medications?",
+    response_options: [
+      { value: "yes", label: "Yes", weight: 0 },
+      { value: "no", label: "No", weight: 1 },
+      { value: "not_applicable", label: "No medications", weight: 0 }
+    ],
+    risk_score_yes: 0,
+    risk_score_no: 65, // Increased from 50
+    priority: "medium",
+    explanation: "Good lighting prevents medication errors",
+    response_type: "multiple_choice"
   },
   {
     item_id: "ELDER_30",
     category: "medications",
     section: "Medications",
-    subcategory: "organization",
-    question_key: "Do you use a pill organizer or system?",
-    question_text: "Do you use a pill organizer or system to manage your medications?",
-    response_type: "binary",
-    response_options: "yes,no,not_applicable",
-    risk_score_no: 30,
+    subcategory: "expiration_check",
+    question_text: "Do you regularly check medication expiration dates?",
+    response_options: [
+      { value: "yes", label: "Yes", weight: 0 },
+      { value: "no", label: "No", weight: 1 },
+      { value: "not_applicable", label: "No medications", weight: 0 }
+    ],
     risk_score_yes: 0,
-    priority: "medium"
+    risk_score_no: 45, // Increased from 30
+    priority: "low",
+    explanation: "Expired medications can be ineffective or harmful",
+    response_type: "multiple_choice"
   },
   {
     item_id: "ELDER_31",
     category: "medications",
     section: "Medications",
-    subcategory: "lighting",
-    question_key: "Is there adequate lighting where you take your medications?",
-    question_text: "Is there adequate lighting where you take your medications?",
-    response_type: "binary",
-    response_options: "yes,no",
-    risk_score_no: 40,
+    subcategory: "organization",
+    question_text: "Do you use a pill organizer or system to track medications?",
+    response_options: [
+      { value: "yes", label: "Yes", weight: 0 },
+      { value: "no", label: "No", weight: 1 },
+      { value: "not_applicable", label: "No medications", weight: 0 }
+    ],
     risk_score_yes: 0,
-    priority: "medium"
+    risk_score_no: 55, // Increased from 40
+    priority: "medium",
+    explanation: "Medication organization prevents dosing errors",
+    response_type: "multiple_choice"
   },
 
   // General Safety Section
   {
     item_id: "ELDER_32",
-    category: "general_safety",
+    category: "general",
     section: "General Safety",
-    subcategory: "emergency_numbers",
-    question_key: "Are emergency numbers posted near phones?",
-    question_text: "Are emergency numbers posted near all phones?",
-    response_type: "binary",
-    response_options: "yes,no",
-    risk_score_no: 40,
+    subcategory: "carbon_monoxide",
+    question_text: "Do you have carbon monoxide detectors in your home?",
+    response_options: [
+      { value: "yes", label: "Yes", weight: 0 },
+      { value: "no", label: "No", weight: 1 },
+      { value: "not_applicable", label: "No gas appliances", weight: 0 }
+    ],
     risk_score_yes: 0,
-    priority: "medium"
+    risk_score_no: 95, // Increased from 80 - deadly gas
+    priority: "critical",
+    explanation: "Carbon monoxide detectors prevent deadly poisoning",
+    response_type: "multiple_choice"
   },
   {
     item_id: "ELDER_33",
-    category: "general_safety",
+    category: "general",
     section: "General Safety",
-    subcategory: "lighting_overall",
-    question_key: "Is the lighting in your home adequate?",
-    question_text: "Is the lighting in your home adequate for the activities you do?",
-    response_type: "binary",
-    response_options: "yes,no",
-    risk_score_no: 40,
+    subcategory: "emergency_numbers",
+    question_text: "Do you have emergency phone numbers posted where you can easily see them?",
+    response_options: [
+      { value: "yes", label: "Yes", weight: 0 },
+      { value: "no", label: "No", weight: 1 }
+    ],
     risk_score_yes: 0,
-    priority: "medium"
+    risk_score_no: 50, // Increased from 40
+    priority: "medium",
+    explanation: "Accessible emergency numbers enable quick response",
+    response_type: "binary"
   },
   {
     item_id: "ELDER_34",
-    category: "general_safety",
+    category: "general",
     section: "General Safety",
-    subcategory: "night_lights",
-    question_key: "Do you use night lights?",
-    question_text: "Do you use night lights in hallways and bathrooms?",
-    response_type: "binary",
-    response_options: "yes,no",
-    risk_score_no: 30,
+    subcategory: "flashlights",
+    question_text: "Do you have working flashlights and extra batteries?",
+    response_options: [
+      { value: "yes", label: "Yes", weight: 0 },
+      { value: "no", label: "No", weight: 1 }
+    ],
     risk_score_yes: 0,
-    priority: "medium"
+    risk_score_no: 40, // Increased from 30
+    priority: "low",
+    explanation: "Flashlights are essential during power outages",
+    response_type: "binary"
   },
   {
     item_id: "ELDER_35",
-    category: "general_safety",
+    category: "general",
     section: "General Safety",
-    subcategory: "shoes",
-    question_key: "Do you wear supportive shoes?",
-    question_text: "Do you wear supportive, non-slip shoes both inside and outside?",
-    response_type: "binary",
-    response_options: "yes,no",
-    risk_score_no: 40,
+    subcategory: "first_aid",
+    question_text: "Do you have a well-stocked first aid kit?",
+    response_options: [
+      { value: "yes", label: "Yes", weight: 0 },
+      { value: "no", label: "No", weight: 1 }
+    ],
     risk_score_yes: 0,
-    priority: "medium"
+    risk_score_no: 45, // Increased from 35
+    priority: "low",
+    explanation: "First aid supplies enable response to minor injuries",
+    response_type: "binary"
   },
   {
     item_id: "ELDER_36",
-    category: "general_safety",
+    category: "general",
     section: "General Safety",
-    subcategory: "pets",
-    question_key: "Do pets create tripping hazards?",
-    question_text: "Do pets or their toys create tripping hazards?",
-    response_type: "binary",
-    response_options: "yes,no,not_applicable",
-    risk_score_no: 0,
-    risk_score_yes: 30,
-    priority: "medium"
+    subcategory: "door_locks",
+    question_text: "Are your door locks in good working condition?",
+    response_options: [
+      { value: "yes", label: "Yes", weight: 0 },
+      { value: "no", label: "No", weight: 1 }
+    ],
+    risk_score_yes: 0,
+    risk_score_no: 50, // Increased from 30
+    priority: "medium",
+    explanation: "Working locks provide security and safety",
+    response_type: "binary"
   },
   {
     item_id: "ELDER_37",
-    category: "general_safety",
+    category: "general",
     section: "General Safety",
-    subcategory: "carbon_monoxide",
-    question_key: "Do you have carbon monoxide detectors?",
-    question_text: "Do you have carbon monoxide detectors installed?",
-    response_type: "binary",
-    response_options: "yes,no",
-    risk_score_no: 60,
+    subcategory: "home_temperature",
+    question_text: "Can you maintain a comfortable temperature in your home year-round?",
+    response_options: [
+      { value: "yes", label: "Yes", weight: 0 },
+      { value: "no", label: "No", weight: 1 }
+    ],
     risk_score_yes: 0,
-    priority: "high"
+    risk_score_no: 60, // Increased from 40
+    priority: "medium",
+    explanation: "Temperature extremes pose health risks for older adults",
+    response_type: "binary"
   },
   {
     item_id: "ELDER_38",
-    category: "general_safety",
+    category: "general",
     section: "General Safety",
-    subcategory: "water_temperature",
-    question_key: "Is your water heater set to a safe temperature?",
-    question_text: "Is your water heater set to 120°F (49°C) or lower to prevent scalding?",
-    response_type: "binary",
-    response_options: "yes,no,unsure",
-    risk_score_no: 40,
+    subcategory: "regular_maintenance",
+    question_text: "Is your home's heating and cooling system regularly maintained?",
+    response_options: [
+      { value: "yes", label: "Yes", weight: 0 },
+      { value: "no", label: "No", weight: 1 },
+      { value: "not_applicable", label: "No HVAC system", weight: 0 }
+    ],
     risk_score_yes: 0,
-    priority: "medium"
+    risk_score_no: 55, // Increased from 40
+    priority: "medium",
+    explanation: "HVAC maintenance ensures safe and efficient operation",
+    response_type: "multiple_choice"
   },
   {
     item_id: "ELDER_39",
-    category: "general_safety",
+    category: "general",
     section: "General Safety",
-    subcategory: "locks",
-    question_key: "Do all exterior doors have secure locks?",
-    question_text: "Do all exterior doors have secure, working locks?",
-    response_type: "binary",
-    response_options: "yes,no",
-    risk_score_no: 50,
+    subcategory: "water_temperature",
+    question_text: "Is your water heater temperature set to 120°F (49°C) or below?",
+    response_options: [
+      { value: "yes", label: "Yes", weight: 0 },
+      { value: "no", label: "No", weight: 1 },
+      { value: "not_sure", label: "Not sure", weight: 0.6 }
+    ],
     risk_score_yes: 0,
-    priority: "high"
+    risk_score_no: 65, // Increased from 50 - burn risk
+    priority: "medium",
+    explanation: "High water temperature can cause serious burns",
+    response_type: "multiple_choice"
   },
   {
     item_id: "ELDER_40",
-    category: "general_safety",
+    category: "general",
     section: "General Safety",
-    subcategory: "medical_alert",
-    question_key: "Do you have a medical alert system?",
-    question_text: "Do you have a medical alert system or way to call for help if needed?",
-    response_type: "binary",
-    response_options: "yes,no",
-    risk_score_no: 30,
+    subcategory: "home_security",
+    question_text: "Do you feel safe and secure in your home?",
+    response_options: [
+      { value: "yes", label: "Yes", weight: 0 },
+      { value: "no", label: "No", weight: 1 }
+    ],
     risk_score_yes: 0,
-    priority: "medium"
+    risk_score_no: 70, // Increased from 40
+    priority: "high",
+    explanation: "Feeling unsafe indicates security or environmental concerns",
+    response_type: "binary"
   }
 ];
