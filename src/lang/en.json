@@ -238,8 +238,25 @@
         "excellentnew": "Excellent/New",
         "goodcondition": "Good condition",
         "faircondition": "Fair condition",
-        "poorold": "Poor/Old"
-      }
+        "poorold": "Poor/Old",
+         "someneedrepair": "Some need repair",
+  "needhelp": "Need help",
+  "yesrecently": "Yes, recently",
+  "yeslongago": "Yes, but long ago",
+  "notapplicable": "Not applicable",
+  "afewconcerns": "A few concerns",
+  "onemainconcern": "One main concern",
+  "yesactivelyplanning": "Yes, actively planning",
+  "yesforthefuture": "Yes, for the future",
+  "wantbutunable": "Want to but unable",
+  "noplans": "No plans",
+  "yesmajorvarations": "Yes, major variations",
+  "yesminorvarations": "Yes, minor variations",
+  "verysatisfied": "Very satisfied",
+  "satisfied": "Satisfied",
+  "neutral": "Neutral",
+  "dissatisfied": "Dissatisfied",
+  "verydissatisfied": "Very dissatisfied"      }
     },
     "taiwan": {
       "HALST_1": {
