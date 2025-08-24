@@ -105,15 +105,7 @@ const ASSESSMENT_TYPE_MAP: Record<string, string> = {
 };
 
 // Helper functions for response options compatibility
-const getResponseOptions = (question: ChecklistItem): string[] => {
-  if (Array.isArray(question.response_options)) {
-    // New format: array of objects
-    return question.response_options.map(opt => opt.value);
-  } else {
-    // Old format: comma-separated string
-    return question.response_options.split(',').map(opt => opt.trim());
-  }
-};
+// Update this function in SimpleTest.tsx - Better Response Translation Matching
 
 const getResponseLabel = (question: ChecklistItem, value: string, t: any): string => {
   if (Array.isArray(question.response_options)) {
@@ -124,18 +116,70 @@ const getResponseLabel = (question: ChecklistItem, value: string, t: any): strin
     }
   }
   
-  // Try to get translation for common response values
-  const normalizedValue = value.toLowerCase().replace(/\s+/g, '').replace(/-/g, '');
-  const translationKey = `questions.common.responses.${normalizedValue}`;
-  const translated = t(translationKey);
+  // Enhanced translation logic for common response values
+  // Try multiple key variations for better matching
+  const normalizedValue = value.toLowerCase().replace(/\s+/g, '').replace(/-/g, '').replace(/,/g, '');
   
-  // If translation exists and is different from the key, use it
-  if (translated !== translationKey) {
-    return translated;
+  // Primary key attempts
+  const possibleKeys = [
+    normalizedValue,                           // "yes", "no", "sometimes"
+    value.toLowerCase(),                       // "yes", "no", "sometimes" 
+    value.toLowerCase().replace(/\s+/g, ''),   // "verygood" from "Very good"
+    value.replace(/\s+/g, '').toLowerCase()    // "verycomfortable" from "Very comfortable"
+  ];
+  
+  // Try each possible key
+  for (const key of possibleKeys) {
+    const translationKey = `questions.common.responses.${key}`;
+    const translated = t(translationKey);
+    
+    // If translation exists and is different from the key, use it
+    if (translated !== translationKey) {
+      return translated;
+    }
+  }
+  
+  // Additional specific mappings for common patterns
+  const specificMappings: Record<string, string> = {
+    'yes': 'yes',
+    'no': 'no', 
+    'sometimes': 'sometimes',
+    'often': 'often',
+    'rarely': 'rarely',
+    'never': 'never',
+    'weekly': 'weekly',
+    'monthly': 'monthly',
+    'daily': 'daily',
+    'partially': 'partially',
+    'very comfortable': 'verycomfortable',
+    'comfortable': 'comfortable',
+    'somewhat comfortable': 'somewhatcomfortable', 
+    'uncomfortable': 'uncomfortable',
+    'very uncomfortable': 'veryuncomfortable',
+    'excellent': 'excellent',
+    'very good': 'verygood',
+    'good': 'good',
+    'fair': 'fair',
+    'poor': 'poor',
+    'very poor': 'verypoor',
+    'apartment': 'apartment',
+    'house': 'house',
+    'dormitory': 'dormitory',
+    'other': 'other'
+  };
+  
+  // Try specific mapping
+  const mappedKey = specificMappings[value.toLowerCase()];
+  if (mappedKey) {
+    const translationKey = `questions.common.responses.${mappedKey}`;
+    const translated = t(translationKey);
+    if (translated !== translationKey) {
+      return translated;
+    }
   }
   
   // Fallback to formatted original value
-  return value.replace(/_/g, ' ').charAt(0).toUpperCase() + value.slice(1).replace(/_/g, ' ');
+  return value.charAt(0).toUpperCase() + value.slice(1);
 };
 
 // Helper function to get translated question text
