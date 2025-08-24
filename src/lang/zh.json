@@ -184,16 +184,7 @@
   "yesoccasionally": "是，偶爾"
 }
     },
-    "taiwan": {
-      "HALST_1": {
-        "question": "您住在什麼類型的房屋中？",
-        "explanation": "不同的房屋類型有不同的健康考量"
-      },
-      "HALST_2": {
-        "question": "您住在幾樓？", 
-        "explanation": "較高樓層可能有不同的空氣品質和可及性考量"
-      }
-    },
+   ,
     "us": {
       "US_1": {
         "question": "水是否從房屋排走？",
