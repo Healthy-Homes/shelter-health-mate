@@ -116,7 +116,7 @@ const getResponseOptions = (question: ChecklistItem): string[] => {
 };
 
 const getResponseLabel = (question: ChecklistItem, value: string, t: any): string => {
-  console.log('🔍 DEBUG - getResponseLabel called with:', { value, questionId: question.id });
+  console.log('🔍 DEBUG - getResponseLabel called with:', { value, questionId: question.item_id });
   
   if (Array.isArray(question.response_options)) {
     // New format: find the label for this value
