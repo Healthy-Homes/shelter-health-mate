@@ -1,156 +1,173 @@
-// src/data/sdohChecklist.ts - Standardized Version
-import { ChecklistItem } from '../types/checklist';
+// src/utils/scoringAnalysis.ts
+// Comprehensive scoring analysis for all assessment types
 
-export const SDOH_QUESTIONS: ChecklistItem[] = [
-  // Food Security
-  {
-    item_id: "SDOH_1",
-    category: "food_security",
-    section: "Food Security",
-    subcategory: "access",
-    question_text: "Within the past 12 months, you worried whether your food would run out before you got money to buy more.",
-    response_options: [
-      { value: "often_true", label: "Often true", weight: 1 },
-      { value: "sometimes_true", label: "Sometimes true", weight: 0.5 },
-      { value: "never_true", label: "Never true", weight: 0 },
-      { value: "not_applicable", label: "Not applicable", weight: 0 }
-    ],
-    risk_score_yes: 75, // Food insecurity is high risk
-    risk_score_no: 0,
-    priority: "high",
-    explanation: "Food insecurity affects health outcomes and medication adherence",
-    response_type: "multiple_choice"
-  },
-  {
-    item_id: "SDOH_2",
-    category: "food_security",
-    section: "Food Security",
-    subcategory: "access",
-    question_text: "Within the past 12 months, the food you bought just didn't last and you didn't have money to get more.",
-    response_options: [
-      { value: "often_true", label: "Often true", weight: 1 },
-      { value: "sometimes_true", label: "Sometimes true", weight: 0.5 },
-      { value: "never_true", label: "Never true", weight: 0 },
-      { value: "not_applicable", label: "Not applicable", weight: 0 }
-    ],
-    risk_score_yes: 80, // Severe food insecurity
-    risk_score_no: 0,
-    priority: "high",
-    explanation: "Indicates severe food insecurity requiring immediate intervention",
-    response_type: "multiple_choice"
-  },
-  // Housing Security
-  {
-    item_id: "SDOH_3",
-    category: "housing",
-    section: "Housing Security",
-    subcategory: "stability",
-    question_text: "What is your housing situation today?",
-    response_options: [
-      { value: "own", label: "I have housing", weight: 0 },
-      { value: "temporary", label: "I have housing, but I am worried about losing it in the future", weight: 0.6 },
-      { value: "transitional", label: "I do not have housing (staying with others, in a hotel, in a shelter, living outside on the street, on a beach, in a car, or in a park)", weight: 1 },
-      { value: "not_applicable", label: "Not applicable", weight: 0 }
-    ],
-    risk_score_yes: 90, // Homelessness is critical
-    risk_score_no: 0,
-    priority: "critical",
-    explanation: "Housing instability significantly impacts health and safety",
-    response_type: "multiple_choice"
-  },
-  // Transportation
-  {
-    item_id: "SDOH_4",
-    category: "transportation",
-    section: "Transportation",
-    subcategory: "access",
-    question_text: "In the past 12 months, has lack of reliable transportation kept you from medical appointments, meetings, work, or from getting things needed for daily living?",
-    response_options: [
-      { value: "yes", label: "Yes", weight: 1 },
-      { value: "no", label: "No", weight: 0 },
-      { value: "not_applicable", label: "Not applicable", weight: 0 }
-    ],
-    risk_score_yes: 60, // Transportation barriers moderate risk
-    risk_score_no: 0,
-    priority: "medium",
-    explanation: "Transportation barriers can prevent access to healthcare and essential services",
-    response_type: "binary"
-  },
-  // Social Integration
-  {
-    item_id: "SDOH_5",
-    category: "social_integration",
-    section: "Social Support",
-    subcategory: "isolation",
-    question_text: "How often do you see or talk to people that you care about and feel close to? (For example: talking to friends on the phone, visiting friends or family, going to church or club meetings)",
-    response_options: [
-      { value: "less_than_once_week", label: "Less than once a week", weight: 1 },
-      { value: "1_2_times_week", label: "1 or 2 times a week", weight: 0.5 },
-      { value: "3_5_times_week", label: "3 to 5 times a week", weight: 0.2 },
-      { value: "5_or_more_times_week", label: "5 or more times a week", weight: 0 },
-      { value: "not_applicable", label: "Not applicable", weight: 0 }
-    ],
-    risk_score_yes: 55, // Social isolation moderate-high risk
-    risk_score_no: 0,
-    priority: "medium",
-    explanation: "Social isolation linked to depression, anxiety, and poor health outcomes",
-    response_type: "multiple_choice"
-  },
-  // Stress
-  {
-    item_id: "SDOH_6",
-    category: "stress",
-    section: "Stress and Safety",
-    subcategory: "stress_level",
-    question_text: "Stress is when someone feels tense, nervous, anxious or can't sleep at night because their mind is troubled. How stressed are you?",
-    response_options: [
-      { value: "not_at_all", label: "Not at all", weight: 0 },
-      { value: "a_little_bit", label: "A little bit", weight: 0.3 },
-      { value: "somewhat", label: "Somewhat", weight: 0.6 },
-      { value: "quite_a_bit", label: "Quite a bit", weight: 0.8 },
-      { value: "very_much", label: "Very much", weight: 1 },
-      { value: "not_applicable", label: "Not applicable", weight: 0 }
-    ],
-    risk_score_yes: 65, // High stress is significant risk
-    risk_score_no: 0,
-    priority: "medium",
-    explanation: "Chronic stress contributes to multiple health conditions",
-    response_type: "multiple_choice"
-  },
-  // Safety
-  {
-    item_id: "SDOH_7",
-    category: "safety",
-    section: "Stress and Safety",
-    subcategory: "personal_safety",
-    question_text: "Do you feel safe in your home?",
-    response_options: [
-      { value: "yes", label: "Yes", weight: 0 },
-      { value: "no", label: "No", weight: 1 },
-      { value: "not_applicable", label: "Not applicable", weight: 0 }
-    ],
-    risk_score_yes: 85, // Safety concerns are high priority
-    risk_score_no: 0,
-    priority: "high",
-    explanation: "Personal safety concerns require immediate attention and resources",
-    response_type: "binary"
-  },
-  // Domestic Violence
-  {
-    item_id: "SDOH_8",
-    category: "safety",
-    section: "Stress and Safety",
-    subcategory: "domestic_violence",
-    question_text: "Do you feel safe in your neighborhood?",
-    response_options: [
-      { value: "yes", label: "Yes", weight: 0 },
-      { value: "no", label: "No", weight: 1 },
-      { value: "not_applicable", label: "Not applicable", weight: 0 }
-    ],
-    risk_score_yes: 70, // Neighborhood safety concerns
-    risk_score_no: 0,
-    priority: "high",
-    explanation: "Neighborhood safety affects mental health and ability to access services",
-    response_type: "binary"
+import { ChecklistItem } from '../types/checklist';
+import { calculateItemRisk, calculateOverallRisk } from './riskScoring';
+import { TAIWAN_HALST_QUESTIONS } from '../data/taiwanHalstChecklist';
+import { US_HEALTHY_HOMES_QUESTIONS } from '../data/usHealthyHomesChecklist';
+import { ELDER_SAFETY_QUESTIONS } from '../data/elderSafetyChecklist';
+import { SDOH_QUESTIONS } from '../data/sdohChecklist';
+
+interface AssessmentAnalysis {
+  name: string;
+  questions: ChecklistItem[];
+  scenarios: {
+    all_good: number;
+    all_bad: number;
+    mixed: number;
+  };
+  score_range: {
+    min: number;
+    max: number;
+    individual_max: number;
+  };
+  issues: string[];
+}
+
+// Test different response scenarios
+function testScenario(questions: ChecklistItem[], scenario: 'all_good' | 'all_bad' | 'mixed'): number {
+  const itemRisks = questions.map(question => {
+    let testResponse = '';
+    
+    if (scenario === 'all_good') {
+      // Choose the response with the lowest risk
+      if (question.response_type === 'binary') {
+        testResponse = question.risk_score_yes === 0 ? 'yes' : 'no';
+      } else {
+        // For multiple choice, find the option with lowest weight/risk
+        if (Array.isArray(question.response_options)) {
+          // New format: array of objects
+          const sortedOptions = [...question.response_options].sort((a, b) => (a.weight || 0) - (b.weight || 0));
+          testResponse = sortedOptions[0].value;
+        } else {
+          // Old format: comma-separated string
+          const options = question.response_options.split(',').map(opt => opt.trim());
+          testResponse = options[0];
+        }
+      }
+    } else if (scenario === 'all_bad') {
+      // Choose the response with the highest risk
+      if (question.response_type === 'binary') {
+        testResponse = question.risk_score_yes > question.risk_score_no ? 'yes' : 'no';
+      } else {
+        if (Array.isArray(question.response_options)) {
+          // New format: array of objects
+          const sortedOptions = [...question.response_options].sort((a, b) => (b.weight || 0) - (a.weight || 0));
+          testResponse = sortedOptions[0].value;
+        } else {
+          // Old format: comma-separated string
+          const options = question.response_options.split(',').map(opt => opt.trim());
+          testResponse = options[options.length - 1];
+        }
+      }
+    } else {
+      // Mixed - alternate between good and bad
+      const index = questions.indexOf(question);
+      if (index % 2 === 0) {
+        testResponse = question.response_type === 'binary' ? 
+          (question.risk_score_yes === 0 ? 'yes' : 'no') :
+          Array.isArray(question.response_options) ?
+            question.response_options[0].value :
+            question.response_options.split(',')[0].trim();
+      } else {
+        testResponse = question.response_type === 'binary' ? 
+          (question.risk_score_yes > question.risk_score_no ? 'yes' : 'no') :
+          Array.isArray(question.response_options) ?
+            question.response_options[question.response_options.length - 1].value :
+            question.response_options.split(',').slice(-1)[0].trim();
+      }
+    }
+    
+    return calculateItemRisk(question, testResponse);
+  });
+  
+  const overall = calculateOverallRisk(itemRisks);
+  return overall.risk_score;
+}
+
+function analyzeAssessment(name: string, questions: ChecklistItem[]): AssessmentAnalysis {
+  const scenarios = {
+    all_good: testScenario(questions, 'all_good'),
+    all_bad: testScenario(questions, 'all_bad'),
+    mixed: testScenario(questions, 'mixed')
+  };
+  
+  // Find individual score ranges
+  const individualScores = questions.map(q => Math.max(q.risk_score_yes || 0, q.risk_score_no || 0));
+  const individual_max = Math.max(...individualScores);
+  
+  const score_range = {
+    min: scenarios.all_good,
+    max: scenarios.all_bad,
+    individual_max
+  };
+  
+  // Identify issues
+  const issues: string[] = [];
+  if (scenarios.all_bad < 75) {
+    issues.push(`All bad scenario only scores ${scenarios.all_bad} (should be 75+)`);
   }
-];
+  if (scenarios.all_good > 20) {
+    issues.push(`All good scenario scores ${scenarios.all_good} (should be <20)`);
+  }
+  if (individual_max < 80) {
+    issues.push(`Highest individual risk is only ${individual_max} (should be 80+)`);
+  }
+  if (questions.some(q => (!q.risk_score_yes && q.risk_score_yes !== 0) && (!q.risk_score_no && q.risk_score_no !== 0))) {
+    issues.push('Some questions missing risk scores');
+  }
+  
+  return {
+    name,
+    questions,
+    scenarios,
+    score_range,
+    issues
+  };
+}
+
+export function testScoringConsistency() {
+  console.log('=== COMPREHENSIVE SCORING ANALYSIS ===');
+  
+  const assessments: AssessmentAnalysis[] = [
+    analyzeAssessment('Taiwan HALST', TAIWAN_HALST_QUESTIONS),
+    analyzeAssessment('US Healthy Homes', US_HEALTHY_HOMES_QUESTIONS),
+    analyzeAssessment('Elder Safety', ELDER_SAFETY_QUESTIONS),
+    analyzeAssessment('SDOH', SDOH_QUESTIONS)
+  ];
+  
+  assessments.forEach(assessment => {
+    console.log(`\n--- ${assessment.name} (${assessment.questions.length} questions) ---`);
+    console.log('Scenarios:');
+    console.log(`  All Good: ${assessment.scenarios.all_good}`);
+    console.log(`  All Bad: ${assessment.scenarios.all_bad}`);
+    console.log(`  Mixed: ${assessment.scenarios.mixed}`);
+    console.log(`Score Range: ${assessment.score_range.min} - ${assessment.score_range.max}`);
+    console.log(`Max Individual Risk: ${assessment.score_range.individual_max}`);
+    
+    if (assessment.issues.length > 0) {
+      console.log('Issues:');
+      assessment.issues.forEach(issue => console.log(`  ❌ ${issue}`));
+    } else {
+      console.log('✅ No issues detected');
+    }
+  });
+  
+  // Overall recommendations
+  console.log('\n=== RECOMMENDATIONS ===');
+  const allIssues = assessments.flatMap(a => a.issues);
+  if (allIssues.length === 0) {
+    console.log('🎉 All assessments are properly calibrated!');
+  } else {
+    console.log('Issues found - standardization needed:');
+    [...new Set(allIssues)].forEach(issue => console.log(`  • ${issue}`));
+  }
+  
+  console.log('\n=== STANDARDIZATION TARGET ===');
+  console.log('Target ranges:');
+  console.log('  All Good: 0-15');
+  console.log('  All Bad: 85-100');
+  console.log('  Individual Max: 90-100');
+  
+  return assessments;
+}
