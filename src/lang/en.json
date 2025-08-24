@@ -144,7 +144,58 @@
       "critical": "critical priority"
     }
   },
-  "analysis": {
+"analysis": {
     "runScoringAnalysis": "🔬 Run Scoring Analysis"
+  },
+  "questions": {
+    "common": {
+      "responses": {
+        "yes": "Yes",
+        "no": "No",
+        "notApplicable": "Not applicable",
+        "excellent": "Excellent",
+        "verygood": "Very good",
+        "good": "Good",
+        "fair": "Fair",
+        "poor": "Poor",
+        "verypoor": "Very poor",
+        "often": "Often",
+        "sometimes": "Sometimes",
+        "rarely": "Rarely",
+        "never": "Never",
+        "alwaysTrue": "Always true",
+        "oftenTrue": "Often true",
+        "sometimesTrue": "Sometimes true",
+        "neverTrue": "Never true"
+      }
+    },
+    "taiwan": {
+      "HALST_1": {
+        "question": "What type of housing do you live in?",
+        "explanation": "Different housing types have different health considerations"
+      },
+      "HALST_2": {
+        "question": "What floor do you live on?",
+        "explanation": "Higher floors may have different air quality and accessibility considerations"
+      }
+    },
+    "us": {
+      "US_1": {
+        "question": "Is water draining away from the house?",
+        "explanation": "Water should drain away from the foundation to prevent moisture problems"
+      }
+    },
+    "elder": {
+      "ELDER_1": {
+        "question": "Are there papers, books, shoes, or other objects on floors?",
+        "explanation": "Objects on floors create tripping hazards for seniors"
+      }
+    },
+    "sdoh": {
+      "SDOH_1": {
+        "question": "Within the past 12 months, did you worry that your food would run out before you got money to buy more?",
+        "explanation": "Food security is a key social determinant of health"
+      }
+    }
   }
 }
