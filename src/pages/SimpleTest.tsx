@@ -127,91 +127,95 @@ const getResponseLabel = (question: ChecklistItem, value: string, t: any): strin
   }
   
   // Exact mappings based on Taiwan HALST response labels
-  const exactMappings: { [key: string]: string } = {
-    // Housing types
-    'Apartment': 'apartment',
-    'House': 'house', 
-    'Dormitory': 'dormitory',
-    'Other': 'other',
-    
-    // Floor levels  
-    'Ground floor': 'groundfloor',
-    '1st-3rd floor': '1st3rdfloor', 
-    '4th-6th floor': '4th6thfloor',
-    'Above 6th floor': 'above6thfloor',
-    
-    // Basic responses
-    'Yes': 'yes',
-    'No': 'no',
-    'Not sure': 'notsure',
-    'Partially': 'partially',
-    'Sometimes': 'sometimes',
-    'Occasionally': 'occasionally',
-    
-    // Quality ratings
-    'Excellent': 'excellent',
-    'Good': 'good',
-    'Fair': 'fair', 
-    'Poor': 'poor',
-    
-    // Frequency with modifiers
-    'Yes, regularly': 'yesregularly',
-    'Yes, frequently': 'yesfrequently',
-    
-    // Time frequencies
-    'Weekly': 'weekly',
-    'Every 2 weeks': 'every2weeks',
-    'Monthly': 'monthly',
-    'Rarely': 'rarely',
-    
-    // Partial quantities
-    'Some appliances': 'someappliances',
-    'Some products': 'someproducts',
-    
-    // Comfort levels
-    'Very comfortable': 'verycomfortable',
-    'Comfortable': 'comfortable', 
-    'Somewhat comfortable': 'somewhatcomfortable',
-    'Uncomfortable': 'uncomfortable',
-    
-    // Special cases from HALST data
-    'Outdoor pets only': 'outdoorpetsonly',
-    'No carpets/rugs': 'nocarpetsrugs',
-    'Excellent/New': 'excellentnew',
-    'Good condition': 'goodcondition',
-    'Fair condition': 'faircondition', 
-    'Poor/Old': 'poorold',
-    
-    // Building age
-    'Less than 10 years': 'lessthan10years',
-    '10-30 years': '1030years',
-    'More than 30 years': 'morethan30years',
-    
-    // Condition modifiers
-    'Inadequate': 'inadequate',
-    'Poor circulation': 'poorcirculation',
-    'Moderate amount': 'moderateamount',
-    'Minor issues': 'minorissues',
-    'Minor amounts': 'minoramounts',
-    'Limited storage': 'limitedstorage',
-    'Some need repair': 'someneedrepair',
-    'Poor ventilation': 'poorventilation',
-    'Variable pressure': 'variablepressure',
-    'Inconsistent': 'inconsistent',
-    'Some concerns': 'someconcerns',
-    
-    // Frequency options
-    'Weekly or less': 'weeklyorless',
-    'Every few days': 'everyfewdays',
-    'Daily': 'daily',
-    'Constantly': 'constantly',
-    'Only seasonally': 'onlyseasonally',
-    'Outdoors only': 'outdoorsonly',
-    
-    // Additional options
-    'Barely adequate': 'barelyAdequate',
-    'Have some concerns': 'havesomeconcerns'
-  };
+
+const exactMappings: { [key: string]: string } = {
+  // Housing types (VALUES from your checklist data)
+  'apartment': 'apartment',
+  'house': 'house', 
+  'dormitory': 'dormitory',
+  'other': 'other',
+  
+  // Floor levels  
+  'ground': 'groundfloor',
+  '1_3': '1st3rdfloor', 
+  '4_6': '4th6thfloor',
+  'above_6': 'above6thfloor',
+  
+  // Basic responses
+  'yes': 'yes',
+  'no': 'no',
+  'not_sure': 'notsure',
+  'partial': 'partially',           // ← FROM DEBUG: "partial" 
+  'partially': 'partially',
+  'sometimes': 'sometimes',         // ← FROM DEBUG: "sometimes"
+  'occasionally': 'occasionally',
+  
+  // Quality ratings  
+  'excellent': 'excellent',
+  'good': 'good',
+  'fair': 'fair', 
+  'poor': 'poor',
+  
+  // Building age
+  'new': 'lessthan10years',
+  'moderate': '1030years', 
+  'old': 'morethan30years',
+  
+  // Frequency with modifiers
+  'yes_regularly': 'yesregularly',
+  'yes_frequently': 'yesfrequently',
+  
+  // Time frequencies
+  'weekly': 'weekly',
+  'biweekly': 'every2weeks',
+  'monthly': 'monthly',
+  'rarely': 'rarely',
+  
+  // Partial quantities
+  'some': 'someappliances',
+  'some_products': 'someproducts',
+  
+  // Comfort levels
+  'very_comfortable': 'verycomfortable',
+  'comfortable': 'comfortable', 
+  'somewhat_comfortable': 'somewhatcomfortable',
+  'uncomfortable': 'uncomfortable',
+  
+  // Special cases from your debug output
+  'outdoor_only': 'outdoorpetsonly',
+  'no_carpet': 'nocarpetsrugs',
+  'excellent_new': 'excellentnew',
+  'good_condition': 'goodcondition',
+  'fair_condition': 'faircondition', 
+  'poor_old': 'poorold',
+  
+  // Condition modifiers
+  'inadequate': 'inadequate',
+  'poor_circulation': 'poorcirculation',
+  'moderate_amount': 'moderateamount',
+  'minor': 'minorissues',          // ← FROM DEBUG: "minor"
+  'minor_issues': 'minorissues',
+  'minor_amounts': 'minoramounts',
+  'limited': 'limitedstorage',
+  'some_need_repair': 'someneedrepair',
+  'poor_ventilation': 'poorventilation',
+  'variable': 'variablepressure',
+  'inconsistent': 'inconsistent',
+  'concerns': 'someconcerns',
+  
+  // Frequency options
+  'weekly_less': 'weeklyorless',
+  'few_days': 'everyfewdays',
+  'daily': 'daily',
+  'constantly': 'constantly',
+  'seasonal': 'onlyseasonally',
+  'outdoors_only': 'outdoorsonly',
+  
+  // Additional options from debug
+  'barely': 'barelyAdequate',      // ← FROM DEBUG: "barely"
+  'barely_adequate': 'barelyAdequate',
+  'have_concerns': 'havesomeconcerns'
+};
   
   // First try exact mapping
   if (exactMappings[value]) {
