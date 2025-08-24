@@ -1,4 +1,4 @@
-// src/pages/SimpleTest.tsx - Complete Fixed Version with i18n Translations
+// src/pages/SimpleTest.tsx - Section Names + SDOH Logic Fix
 
 import React, { useState } from 'react';
 
@@ -18,49 +18,83 @@ import { SDOH_QUESTIONS } from '../data/sdohChecklist';
 type HomeChecklistType = 'taiwan' | 'us' | null;
 type AssessmentPhase = 'selection' | 'assessment' | 'results';
 
-// Section constants
+// Section constants with translation keys
 const TAIWAN_SECTIONS = [
-  "Layout and Building Structure",
-  "Bedroom Environment", 
-  "Kitchen Environment",
-  "Bathroom Environment",
-  "Living Areas",
-  "General Conditions"
+  "layoutAndBuilding",
+  "bedroomEnvironment", 
+  "kitchenEnvironment",
+  "bathroomEnvironment",
+  "livingAreas",
+  "generalConditions"
 ];
 
 const US_SECTIONS = [
-  "Yard and Exterior",
-  "Exterior Roof, Walls, and Windows", 
-  "Basement and Crawlspace",
-  "HVAC Equipment",
-  "Attic",
-  "Plumbing, Fixtures, and Appliances",
-  "Interior Walls, Ceilings, Windows, and Doors",
-  "Appliances",
-  "Electrical Equipment",
-  "Garage"
+  "yardAndExterior",
+  "exteriorRoof", 
+  "basementCrawlspace",
+  "hvacEquipment",
+  "attic",
+  "plumbingFixtures",
+  "interiorWalls",
+  "appliances",
+  "electricalEquipment",
+  "garage"
 ];
 
 const ELDER_SECTIONS = [
-  "Floors",
-  "Stairs and Steps",
-  "Kitchen",
-  "Bedrooms", 
-  "Bathrooms",
-  "Living Areas",
-  "Fire Safety",
-  "Electrical Safety",
-  "Medications",
-  "General Safety"
+  "floors",
+  "stairsSteps",
+  "kitchen",
+  "bedrooms", 
+  "bathrooms",
+  "livingAreas",
+  "fireSafety",
+  "electricalSafety",
+  "medications",
+  "generalSafety"
 ];
 
 const SDOH_SECTIONS = [
-  "Food Security",
-  "Housing Security",
-  "Transportation",
-  "Social Support",
-  "Stress and Safety"
+  "foodSecurity",
+  "housingSecurity",
+  "transportation",
+  "socialSupport",
+  "stressAndSafety"
 ];
+
+// Section mapping for backwards compatibility with existing questions
+const SECTION_MAPPING: Record<string, string> = {
+  "layoutAndBuilding": "Layout and Building Structure",
+  "bedroomEnvironment": "Bedroom Environment",
+  "kitchenEnvironment": "Kitchen Environment",
+  "bathroomEnvironment": "Bathroom Environment",
+  "livingAreas": "Living Areas",
+  "generalConditions": "General Conditions",
+  "yardAndExterior": "Yard and Exterior",
+  "exteriorRoof": "Exterior Roof, Walls, and Windows",
+  "basementCrawlspace": "Basement and Crawlspace",
+  "hvacEquipment": "HVAC Equipment",
+  "attic": "Attic",
+  "plumbingFixtures": "Plumbing, Fixtures, and Appliances",
+  "interiorWalls": "Interior Walls, Ceilings, Windows, and Doors",
+  "appliances": "Appliances",
+  "electricalEquipment": "Electrical Equipment",
+  "garage": "Garage",
+  "floors": "Floors",
+  "stairsSteps": "Stairs and Steps",
+  "kitchen": "Kitchen",
+  "bedrooms": "Bedrooms",
+  "bathrooms": "Bathrooms",
+  "fireSafety": "Fire Safety",
+  "electricalSafety": "Electrical Safety",
+  "medications": "Medications",
+  "generalSafety": "General Safety",
+  "foodSecurity": "Food Security",
+  "housingSecurity": "Housing Security",
+  "transportation": "Transportation",
+  "socialSupport": "Social Support",
+  "stressAndSafety": "Stress and Safety"
+};
 
 // Helper functions for response options compatibility
 const getResponseOptions = (question: ChecklistItem): string[] => {
@@ -84,9 +118,10 @@ const getResponseLabel = (question: ChecklistItem, value: string): string => {
   }
 };
 
-// Helper function to get questions by section
-const getQuestionsBySection = (questions: ChecklistItem[], section: string): ChecklistItem[] => {
-  return questions.filter(q => q.section === section);
+// Helper function to get questions by section - now handles both key and full name
+const getQuestionsBySection = (questions: ChecklistItem[], sectionKey: string): ChecklistItem[] => {
+  const sectionName = SECTION_MAPPING[sectionKey] || sectionKey;
+  return questions.filter(q => q.section === sectionName);
 };
 
 export default function SimpleTest() {
@@ -151,8 +186,8 @@ export default function SimpleTest() {
 
   const currentQuestions = getCurrentQuestions();
   const currentSections = getCurrentSections();
-  const currentSection = currentSections[currentSectionIndex];
-  const sectionQuestions = getQuestionsBySection(currentQuestions, currentSection);
+  const currentSectionKey = currentSections[currentSectionIndex];
+  const sectionQuestions = getQuestionsBySection(currentQuestions, currentSectionKey);
 
   // Response handling
   const handleResponse = (questionId: string, response: string) => {
@@ -210,9 +245,9 @@ export default function SimpleTest() {
     setSectionNotes({});
   };
 
-  // Start assessment
+  // Start assessment - FIXED: Now allows SDOH alone
   const startAssessment = () => {
-    if (homeChecklistType || includeElderSafety) {
+    if (homeChecklistType || includeElderSafety || includeSDOH) {
       setPhase('assessment');
     }
   };
@@ -222,8 +257,8 @@ export default function SimpleTest() {
     return Object.keys(responses).filter(key => responses[key] !== '').length;
   };
 
-  const getSectionProgress = (section: string) => {
-    const questions = getQuestionsBySection(currentQuestions, section);
+  const getSectionProgress = (sectionKey: string) => {
+    const questions = getQuestionsBySection(currentQuestions, sectionKey);
     const answered = questions.filter(q => responses[q.item_id]).length;
     return { total: questions.length, answered, percentage: Math.round((answered / questions.length) * 100) };
   };
@@ -362,9 +397,9 @@ export default function SimpleTest() {
 
           <button
             onClick={startAssessment}
-            disabled={!homeChecklistType && !includeElderSafety}
+            disabled={!homeChecklistType && !includeElderSafety && !includeSDOH}
             className={`px-8 py-3 rounded-lg font-medium transition-colors ${
-              homeChecklistType || includeElderSafety
+              homeChecklistType || includeElderSafety || includeSDOH
                 ? 'bg-blue-600 text-white hover:bg-blue-700'
                 : 'bg-gray-300 text-gray-500 cursor-not-allowed'
             }`}
@@ -405,14 +440,14 @@ export default function SimpleTest() {
           <div className="bg-white rounded-lg shadow-md p-4 sticky top-6">
             <h2 className="font-semibold text-gray-900 mb-4">{t('sections.progress', { current: currentSectionIndex + 1, total: currentSections.length })}</h2>
             <div className="space-y-2">
-              {currentSections.map((section, index) => {
-                const progress = getSectionProgress(section);
+              {currentSections.map((sectionKey, index) => {
+                const progress = getSectionProgress(sectionKey);
                 const isActive = index === currentSectionIndex;
                 const isComplete = progress.answered === progress.total && progress.total > 0;
                 
                 return (
                   <button
-                    key={section}
+                    key={sectionKey}
                     onClick={() => goToSection(index)}
                     className={`w-full text-left p-3 rounded-lg text-sm transition-colors ${
                       isActive 
@@ -423,7 +458,7 @@ export default function SimpleTest() {
                     }`}
                   >
                     <div className="flex justify-between items-center">
-                      <span className="font-medium">{section}</span>
+                      <span className="font-medium">{t(`sections.names.${sectionKey}`)}</span>
                       {isComplete && <span className="text-green-600">✓</span>}
                     </div>
                     <div className="text-xs text-gray-500 mt-1">
@@ -451,10 +486,10 @@ export default function SimpleTest() {
           <div className="bg-white rounded-lg shadow-md">
             {/* Section Header */}
             <div className="p-6 border-b border-gray-200">
-              <h2 className="text-xl font-bold text-gray-900 mb-2">{currentSection}</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-2">{t(`sections.names.${currentSectionKey}`)}</h2>
               <div className="flex justify-between items-center text-sm text-gray-600">
                 <span>{t('sections.progress', { current: currentSectionIndex + 1, total: currentSections.length })}</span>
-                <span>{t('sections.completed', { answered: getSectionProgress(currentSection).answered, total: sectionQuestions.length })}</span>
+                <span>{t('sections.completed', { answered: getSectionProgress(currentSectionKey).answered, total: sectionQuestions.length })}</span>
               </div>
             </div>
 
@@ -501,15 +536,15 @@ export default function SimpleTest() {
                   {t('sections.sectionNotes')}
                 </label>
                 <textarea
-                  value={sectionNotes[currentSection] || ''}
-                  onChange={(e) => handleSectionNote(currentSection, e.target.value)}
+                  value={sectionNotes[t(`sections.names.${currentSectionKey}`)] || ''}
+                  onChange={(e) => handleSectionNote(t(`sections.names.${currentSectionKey}`), e.target.value)}
                   maxLength={200}
                   rows={3}
                   className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                   placeholder={t('sections.notesPlaceholder')}
                 />
                 <div className="text-xs text-gray-500 mt-1">
-                  {t('sections.charactersRemaining', { remaining: 200 - (sectionNotes[currentSection] || '').length })}
+                  {t('sections.charactersRemaining', { remaining: 200 - (sectionNotes[t(`sections.names.${currentSectionKey}`)] || '').length })}
                 </div>
               </div>
             </div>
