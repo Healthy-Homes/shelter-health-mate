@@ -105,7 +105,15 @@ const ASSESSMENT_TYPE_MAP: Record<string, string> = {
 };
 
 // Helper functions for response options compatibility
-// Update this function in SimpleTest.tsx - Better Response Translation Matching
+const getResponseOptions = (question: ChecklistItem): string[] => {
+  if (Array.isArray(question.response_options)) {
+    // New format: array of objects
+    return question.response_options.map(opt => opt.value);
+  } else {
+    // Old format: comma-separated string
+    return question.response_options.split(',').map(opt => opt.trim());
+  }
+};
 
 const getResponseLabel = (question: ChecklistItem, value: string, t: any): string => {
   if (Array.isArray(question.response_options)) {
