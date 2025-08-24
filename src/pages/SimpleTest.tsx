@@ -1,4 +1,4 @@
-// src/pages/SimpleTest.tsx - Phase 2: Section-Based Navigation with Elder Safety
+// src/pages/SimpleTest.tsx - Complete Fixed Version with Format Compatibility
 
 import React, { useState } from 'react';
 import { ChecklistItem, ResponseMap, SectionNotes } from '../types/checklist';
@@ -8,13 +8,22 @@ import { testScoringConsistency } from '../utils/scoringAnalysis';
 // Import all checklist data
 import { TAIWAN_HALST_QUESTIONS } from '../data/taiwanHalstChecklist';
 import { US_HEALTHY_HOMES_QUESTIONS } from '../data/usHealthyHomesChecklist';
-import { SDOH_QUESTIONS } from '../data/sdohChecklist';
 import { ELDER_SAFETY_QUESTIONS } from '../data/elderSafetyChecklist';
+import { SDOH_QUESTIONS } from '../data/sdohChecklist';
 
 type HomeChecklistType = 'taiwan' | 'us' | null;
 type AssessmentPhase = 'selection' | 'assessment' | 'results';
 
-// US Sections constant
+// Section constants
+const TAIWAN_SECTIONS = [
+  "Layout and Building Structure",
+  "Bedroom Environment", 
+  "Kitchen Environment",
+  "Bathroom Environment",
+  "Living Areas",
+  "General Conditions"
+];
+
 const US_SECTIONS = [
   "Yard and Exterior",
   "Exterior Roof, Walls, and Windows", 
@@ -28,22 +37,11 @@ const US_SECTIONS = [
   "Garage"
 ];
 
-// Taiwan Sections constant
-const TAIWAN_SECTIONS = [
-  "Layout and Building Structure",
-  "Bedroom Environment",
-  "Kitchen Environment",
-  "Bathroom Environment",
-  "Living Areas",
-  "General Conditions"
-];
-
-// Elder Safety Sections constant
 const ELDER_SECTIONS = [
   "Floors",
   "Stairs and Steps",
   "Kitchen",
-  "Bedrooms",
+  "Bedrooms", 
   "Bathrooms",
   "Living Areas",
   "Fire Safety",
@@ -52,20 +50,39 @@ const ELDER_SECTIONS = [
   "General Safety"
 ];
 
-// Helper function to get questions by section
-const getQuestionsBySection = (section: string, checklist: 'us' | 'taiwan' | 'elder' | 'sdoh'): ChecklistItem[] => {
-  switch(checklist) {
-    case 'us':
-      return US_HEALTHY_HOMES_QUESTIONS.filter(q => q.section === section);
-    case 'taiwan':
-      return TAIWAN_HALST_QUESTIONS.filter(q => q.section === section);
-    case 'elder':
-      return ELDER_SAFETY_QUESTIONS.filter(q => q.section === section);
-    case 'sdoh':
-      return SDOH_QUESTIONS;
-    default:
-      return [];
+const SDOH_SECTIONS = [
+  "Food Security",
+  "Housing Security",
+  "Transportation",
+  "Social Support",
+  "Stress and Safety"
+];
+
+// Helper functions for response options compatibility
+const getResponseOptions = (question: ChecklistItem): string[] => {
+  if (Array.isArray(question.response_options)) {
+    // New format: array of objects
+    return question.response_options.map(opt => opt.value);
+  } else {
+    // Old format: comma-separated string
+    return question.response_options.split(',').map(opt => opt.trim());
   }
+};
+
+const getResponseLabel = (question: ChecklistItem, value: string): string => {
+  if (Array.isArray(question.response_options)) {
+    // New format: find the label for this value
+    const option = question.response_options.find(opt => opt.value === value);
+    return option ? option.label : value;
+  } else {
+    // Old format: value is the label (with formatting)
+    return value.replace(/_/g, ' ').charAt(0).toUpperCase() + value.slice(1).replace(/_/g, ' ');
+  }
+};
+
+// Helper function to get questions by section
+const getQuestionsBySection = (questions: ChecklistItem[], section: string): ChecklistItem[] => {
+  return questions.filter(q => q.section === section);
 };
 
 export default function SimpleTest() {
@@ -78,105 +95,104 @@ export default function SimpleTest() {
   const [responses, setResponses] = useState<ResponseMap>({});
   const [sectionNotes, setSectionNotes] = useState<SectionNotes>({});
 
-  // Get current checklist questions and sections
-  const getChecklistData = () => {
+  // Get current questions and sections
+  const getCurrentQuestions = (): ChecklistItem[] => {
     let questions: ChecklistItem[] = [];
-    let sections: string[] = [];
     
-    // Add home inspection questions
+    // Add home checklist questions
     if (homeChecklistType === 'taiwan') {
-      questions = [...TAIWAN_HALST_QUESTIONS];
-      sections = [...TAIWAN_SECTIONS];
+      questions = [...questions, ...TAIWAN_HALST_QUESTIONS];
     } else if (homeChecklistType === 'us') {
-      questions = [...US_HEALTHY_HOMES_QUESTIONS];
-      sections = [...US_SECTIONS];
+      questions = [...questions, ...US_HEALTHY_HOMES_QUESTIONS];
     }
     
-    // Add Elder Safety questions if selected
+    // Add Elder Safety if selected
     if (includeElderSafety) {
       questions = [...questions, ...ELDER_SAFETY_QUESTIONS];
+    }
+    
+    // Add SDOH if selected
+    if (includeSDOH) {
+      questions = [...questions, ...SDOH_QUESTIONS];
+    }
+    
+    return questions;
+  };
+
+  const getCurrentSections = (): string[] => {
+    let sections: string[] = [];
+    
+    // Add home checklist sections
+    if (homeChecklistType === 'taiwan') {
+      sections = [...sections, ...TAIWAN_SECTIONS];
+    } else if (homeChecklistType === 'us') {
+      sections = [...sections, ...US_SECTIONS];
+    }
+    
+    // Add Elder Safety sections if selected
+    if (includeElderSafety) {
       sections = [...sections, ...ELDER_SECTIONS];
     }
     
-    // Add SDOH questions if selected
+    // Add SDOH sections if selected
     if (includeSDOH) {
-      questions = [...questions, ...SDOH_QUESTIONS];
-      sections = [...sections, 'Social Determinants of Health'];
+      sections = [...sections, ...SDOH_SECTIONS];
     }
     
-    return { questions, sections };
+    return sections;
   };
 
-  const { questions: currentQuestions, sections: currentSections } = getChecklistData();
+  const currentQuestions = getCurrentQuestions();
+  const currentSections = getCurrentSections();
   const currentSection = currentSections[currentSectionIndex];
-  const totalSections = currentSections.length;
+  const sectionQuestions = getQuestionsBySection(currentQuestions, currentSection);
 
-  // Get questions for current section
-  const getCurrentSectionQuestions = (): ChecklistItem[] => {
-    if (currentSection === 'Social Determinants of Health') {
-      return SDOH_QUESTIONS;
-    }
-    
-    // Check if it's an Elder Safety section
-    if (ELDER_SECTIONS.includes(currentSection) && includeElderSafety) {
-      return getQuestionsBySection(currentSection, 'elder');
-    }
-    
-    // Check if it's a Taiwan section
-    if (TAIWAN_SECTIONS.includes(currentSection) && homeChecklistType === 'taiwan') {
-      return getQuestionsBySection(currentSection, 'taiwan');
-    }
-    
-    // Check if it's a US section
-    if (US_SECTIONS.includes(currentSection) && homeChecklistType === 'us') {
-      return getQuestionsBySection(currentSection, 'us');
-    }
-    
-    return [];
+  // Response handling
+  const handleResponse = (questionId: string, response: string) => {
+    setResponses(prev => ({
+      ...prev,
+      [questionId]: response
+    }));
   };
 
-  const sectionQuestions = getCurrentSectionQuestions();
-
-  // Handle responses
-  const handleResponse = (itemId: string, value: string) => {
-    setResponses(prev => ({ ...prev, [itemId]: value }));
+  const handleSectionNote = (section: string, note: string) => {
+    const truncatedNote = note.slice(0, 200);
+    setSectionNotes(prev => ({
+      ...prev,
+      [section]: truncatedNote
+    }));
   };
 
-  // Handle section notes
-  const handleSectionNotes = (section: string, notes: string) => {
-    // Limit to 200 characters for QR code inclusion
-    const truncatedNotes = notes.slice(0, 200);
-    setSectionNotes(prev => ({ ...prev, [section]: truncatedNotes }));
-  };
-
-  // Navigation
-  const handleNextSection = () => {
-    if (currentSectionIndex < totalSections - 1) {
-      setCurrentSectionIndex(prev => prev + 1);
+  // Navigation functions
+  const goToNextSection = () => {
+    if (currentSectionIndex < currentSections.length - 1) {
+      setCurrentSectionIndex(currentSectionIndex + 1);
     } else {
       setPhase('results');
     }
   };
 
-  const handlePreviousSection = () => {
+  const goToPreviousSection = () => {
     if (currentSectionIndex > 0) {
-      setCurrentSectionIndex(prev => prev - 1);
+      setCurrentSectionIndex(currentSectionIndex - 1);
     }
   };
 
-  const jumpToSection = (sectionIndex: number) => {
+  const goToSection = (sectionIndex: number) => {
     setCurrentSectionIndex(sectionIndex);
   };
 
-  const startAssessment = () => {
-    if (homeChecklistType || includeSDOH || includeElderSafety) {
-      setPhase('assessment');
-      setCurrentSectionIndex(0);
-      setResponses({});
-      setSectionNotes({});
-    }
+  // Calculate results
+  const calculateResults = () => {
+    const itemRisks = currentQuestions.map(question => {
+      const userResponse = responses[question.item_id] || '';
+      return calculateItemRisk(question, userResponse);
+    });
+    
+    return calculateOverallRisk(itemRisks);
   };
 
+  // Reset assessment
   const resetAssessment = () => {
     setPhase('selection');
     setHomeChecklistType(null);
@@ -187,593 +203,404 @@ export default function SimpleTest() {
     setSectionNotes({});
   };
 
-  // Calculate section progress
+  // Start assessment
+  const startAssessment = () => {
+    if (homeChecklistType || includeElderSafety) {
+      setPhase('assessment');
+    }
+  };
+
+  // Calculate progress
+  const getTotalAnsweredQuestions = () => {
+    return Object.keys(responses).filter(key => responses[key] !== '').length;
+  };
+
   const getSectionProgress = (section: string) => {
-    let questions: ChecklistItem[] = [];
-    
-    if (section === 'Social Determinants of Health') {
-      questions = SDOH_QUESTIONS;
-    } else if (ELDER_SECTIONS.includes(section) && includeElderSafety) {
-      questions = getQuestionsBySection(section, 'elder');
-    } else if (TAIWAN_SECTIONS.includes(section) && homeChecklistType === 'taiwan') {
-      questions = getQuestionsBySection(section, 'taiwan');
-    } else if (US_SECTIONS.includes(section) && homeChecklistType === 'us') {
-      questions = getQuestionsBySection(section, 'us');
-    }
-    
+    const questions = getQuestionsBySection(currentQuestions, section);
     const answered = questions.filter(q => responses[q.item_id]).length;
-    return {
-      total: questions.length,
-      answered,
-      percentage: questions.length > 0 ? Math.round((answered / questions.length) * 100) : 0
-    };
+    return { total: questions.length, answered, percentage: Math.round((answered / questions.length) * 100) };
   };
 
-  // Calculate overall progress
-  const overallProgress = {
-    sections: currentSections.map(section => ({
-      name: section,
-      ...getSectionProgress(section)
-    })),
-    totalQuestions: currentQuestions.length,
-    answeredQuestions: Object.keys(responses).length
-  };
+  // Render functions
+  const renderSelectionPhase = () => (
+    <div className="max-w-4xl mx-auto p-6">
+      <div className="text-center mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-4">Home Health Assessment</h1>
+        <p className="text-lg text-gray-600">Select the assessments you'd like to complete</p>
+      </div>
 
-  // Calculate results
-  const calculateResults = () => {
-    const itemRisks = currentQuestions.map(question => {
-      const userResponse = responses[question.item_id] || '';
-      return calculateItemRisk(question, userResponse);
-    });
-    
-    // === START DEBUG CODE ===
-    console.log('=== SCORING DEBUG ===');
-    itemRisks.forEach(risk => {
-      if (risk.raw_response) {
-        const question = currentQuestions.find(q => q.item_id === risk.item_id);
-        console.log(`${risk.item_id}: "${question?.question_text?.substring(0, 50)}..."
-          Response: ${risk.raw_response}
-          Expected Risk: YES=${question?.risk_score_yes}, NO=${question?.risk_score_no}
-          Calculated: ${risk.risk_score}
-          Has Issue: ${risk.has_issue}`);
-      }
-    });
-    console.log('=== END DEBUG ===');
-    // === END DEBUG CODE ===
-    
-    return calculateOverallRisk(itemRisks);
-  };
-
-  const results = phase === 'results' ? calculateResults() : null;
-
-  // Format display text
-  const formatDisplayText = (text: string) => {
-    return text.replace(/_/g, ' ')
-               .split(' ')
-               .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-               .join(' ');
-  };
-
-  // Render question input based on type
-  const renderQuestionInput = (item: ChecklistItem) => {
-    const options = item.response_options.split(',').map(opt => opt.trim());
-    const currentValue = responses[item.item_id] || '';
-
-    switch (item.response_type) {
-      case 'binary':
-        return (
-          <div className="grid grid-cols-2 gap-3">
-            {options.map(option => (
-              <button
-                key={option}
-                onClick={() => handleResponse(item.item_id, option)}
-                className={`p-4 rounded-lg border-2 transition-all font-medium ${
-                  currentValue === option
-                    ? 'bg-blue-500 text-white border-blue-500 shadow-md'
-                    : 'bg-white text-gray-700 border-gray-300 hover:border-blue-300 hover:bg-blue-50'
-                }`}
-              >
-                {formatDisplayText(option)}
-              </button>
-            ))}
-          </div>
-        );
-
-      case 'scale':
-        return (
-          <div>
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
-              {options.map(option => (
-                <button
-                  key={option}
-                  onClick={() => handleResponse(item.item_id, option)}
-                  className={`p-3 rounded-lg border-2 transition-all text-sm font-medium ${
-                    currentValue === option
-                      ? 'bg-blue-500 text-white border-blue-500 shadow-md'
-                      : 'bg-white text-gray-700 border-gray-300 hover:border-blue-300 hover:bg-blue-50'
-                  }`}
-                >
-                  {formatDisplayText(option)}
-                </button>
-              ))}
-            </div>
-            <div className="mt-3 flex items-center">
-              <span className="text-sm text-green-600 font-medium">Better</span>
-              <div className="flex-1 mx-4 h-2 bg-gradient-to-r from-green-200 via-yellow-200 to-red-200 rounded-full"></div>
-              <span className="text-sm text-red-600 font-medium">Worse</span>
-            </div>
-          </div>
-        );
-
-      case 'multiple_choice':
-        return (
-          <div className="space-y-2">
-            {options.map(option => (
-              <label key={option} className="flex items-center p-3 border-2 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
-                <input
-                  type="radio"
-                  name={item.item_id}
-                  value={option}
-                  checked={currentValue === option}
-                  onChange={() => handleResponse(item.item_id, option)}
-                  className="mr-3 h-4 w-4 text-blue-500 focus:ring-blue-500"
-                />
-                <span className="text-gray-700 font-medium">
-                  {formatDisplayText(option)}
-                </span>
-              </label>
-            ))}
-          </div>
-        );
-
-      case 'numeric':
-        return (
-          <select
-            value={currentValue}
-            onChange={(e) => handleResponse(item.item_id, e.target.value)}
-            className="w-full p-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
-          >
-            <option value="">Select...</option>
-            {options.map(option => (
-              <option key={option} value={option}>
-                {formatDisplayText(option)}
-              </option>
-            ))}
-          </select>
-        );
-
-      default:
-        return (
-          <input
-            type="text"
-            value={currentValue}
-            onChange={(e) => handleResponse(item.item_id, e.target.value)}
-            className="w-full p-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            placeholder="Enter your response..."
-          />
-        );
-    }
-  };
-
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Selection Phase */}
-      {phase === 'selection' && (
-        <div className="max-w-4xl mx-auto p-6">
-          <div className="bg-white rounded-lg shadow-lg p-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-6">
-              🏠 Health Assessment Selection
-            </h1>
-            
-            {/* Home Inspection Section */}
-            <div className="mb-8">
-              <h2 className="text-xl font-semibold text-gray-800 mb-4">
-                1. Home Inspection Assessment (Choose One)
-              </h2>
-              <p className="text-gray-600 mb-4">
-                Choose a home inspection checklist based on your location and needs:
-              </p>
-              
-              <div className="grid md:grid-cols-2 gap-4">
-                <button
-                  onClick={() => setHomeChecklistType('taiwan')}
-                  className={`p-6 rounded-lg border-2 transition-all text-left ${
-                    homeChecklistType === 'taiwan'
-                      ? 'border-blue-500 bg-blue-50'
-                      : 'border-gray-300 hover:border-blue-300'
-                  }`}
-                >
-                  <h3 className="font-bold text-lg text-gray-900 mb-2">
-                    🇹🇼 Taiwan HALST Assessment
-                  </h3>
-                  <p className="text-sm text-gray-600 mb-2">
-                    Hualien home environment assessment focusing on indoor air quality and housing conditions
-                  </p>
-                  <div className="text-xs text-blue-600 font-medium">
-                    48 questions • 6 sections • Air quality focus
-                  </div>
-                </button>
-                
-                <button
-                  onClick={() => setHomeChecklistType('us')}
-                  className={`p-6 rounded-lg border-2 transition-all text-left ${
-                    homeChecklistType === 'us'
-                      ? 'border-blue-500 bg-blue-50'
-                      : 'border-gray-300 hover:border-blue-300'
-                  }`}
-                >
-                  <h3 className="font-bold text-lg text-gray-900 mb-2">
-                    🇺🇸 US Healthy Homes (NCHH)
-                  </h3>
-                  <p className="text-sm text-gray-600 mb-2">
-                    Comprehensive home health and safety inspection based on National Center for Healthy Housing guidelines
-                  </p>
-                  <div className="text-xs text-green-600 font-medium">
-                    45 questions • 10 sections • Safety focus
-                  </div>
-                </button>
+      <div className="space-y-6">
+        {/* Home Inspection Choice */}
+        <div className="bg-white p-6 rounded-lg shadow-md border">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Home Inspection Assessment</h2>
+          <p className="text-gray-600 mb-4">Choose your region's home inspection checklist:</p>
+          
+          <div className="space-y-3">
+            <label className="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
+              <input
+                type="radio"
+                name="homeChecklist"
+                value="taiwan"
+                checked={homeChecklistType === 'taiwan'}
+                onChange={(e) => setHomeChecklistType(e.target.value as HomeChecklistType)}
+                className="mr-3"
+              />
+              <div>
+                <div className="font-medium text-gray-900">Taiwan HALST Assessment</div>
+                <div className="text-sm text-gray-600">Environmental health assessment for Taiwan housing ({TAIWAN_HALST_QUESTIONS.length} questions)</div>
               </div>
-              
-              <button
-                onClick={() => setHomeChecklistType(null)}
-                className={`mt-3 px-4 py-2 rounded-lg border-2 transition-all ${
-                  homeChecklistType === null
-                    ? 'border-gray-500 bg-gray-100'
-                    : 'border-gray-300 hover:border-gray-400'
-                }`}
-              >
-                Skip home inspection
-              </button>
-            </div>
+            </label>
 
-            {/* Optional Add-ons Section */}
-            <div className="mb-8">
-              <h2 className="text-xl font-semibold text-gray-800 mb-4">
-                2. Optional Assessments
-              </h2>
-              <p className="text-gray-600 mb-4">
-                Add supplementary assessments to your evaluation:
-              </p>
-              
-              <div className="space-y-3">
-                {/* Elder Safety Checkbox */}
-                <label className="flex items-center p-4 border-2 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
-                  <input
-                    type="checkbox"
-                    checked={includeElderSafety}
-                    onChange={(e) => setIncludeElderSafety(e.target.checked)}
-                    className="mr-4 h-5 w-5 text-orange-500 focus:ring-orange-500"
-                  />
-                  <div>
-                    <h3 className="font-bold text-gray-900">
-                      👴 Elder Safety Assessment (NIA)
-                    </h3>
-                    <p className="text-sm text-gray-600">
-                      Fall prevention, fire safety, medication management, and accessibility
-                    </p>
-                    <div className="text-xs text-orange-600 font-medium">
-                      40 questions • 10 sections • Safety & fall prevention focus
-                    </div>
-                  </div>
-                </label>
-
-                {/* SDOH Checkbox */}
-                <label className="flex items-center p-4 border-2 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
-                  <input
-                    type="checkbox"
-                    checked={includeSDOH}
-                    onChange={(e) => setIncludeSDOH(e.target.checked)}
-                    className="mr-4 h-5 w-5 text-purple-500 focus:ring-purple-500"
-                  />
-                  <div>
-                    <h3 className="font-bold text-gray-900">
-                      📊 Social Determinants of Health (SDOH)
-                    </h3>
-                    <p className="text-sm text-gray-600">
-                      Food security, housing stability, healthcare access, transportation
-                    </p>
-                    <div className="text-xs text-purple-600 font-medium">
-                      8 questions • 1 section • Social factors focus
-                    </div>
-                  </div>
-                </label>
+            <label className="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
+              <input
+                type="radio"
+                name="homeChecklist"
+                value="us"
+                checked={homeChecklistType === 'us'}
+                onChange={(e) => setHomeChecklistType(e.target.value as HomeChecklistType)}
+                className="mr-3"
+              />
+              <div>
+                <div className="font-medium text-gray-900">US Healthy Homes Assessment</div>
+                <div className="text-sm text-gray-600">Comprehensive home safety evaluation for US housing ({US_HEALTHY_HOMES_QUESTIONS.length} questions)</div>
               </div>
-            </div>
+            </label>
 
-            {/* Selection Summary */}
-            <div className="bg-gray-50 rounded-lg p-4 mb-6">
-              <h3 className="font-semibold text-gray-900 mb-2">Assessment Summary:</h3>
-              <div className="text-sm text-gray-700">
-                {!homeChecklistType && !includeSDOH && !includeElderSafety && (
-                  <p className="text-red-600">Please select at least one assessment type</p>
-                )}
-                {homeChecklistType && (
-                  <p>✓ {homeChecklistType === 'taiwan' ? 'Taiwan HALST' : 'US Healthy Homes'} 
-                     ({homeChecklistType === 'taiwan' ? '48 questions, 6 sections' : '45 questions, 10 sections'})</p>
-                )}
-                {includeElderSafety && (
-                  <p>✓ Elder Safety Assessment (40 questions, 10 sections)</p>
-                )}
-                {includeSDOH && (
-                  <p>✓ Social Determinants of Health (8 questions, 1 section)</p>
-                )}
-                {(homeChecklistType || includeSDOH || includeElderSafety) && (
-                  <p className="font-semibold mt-2">
-                    Total: {getChecklistData().questions.length} questions across {getChecklistData().sections.length} sections
-                  </p>
-                )}
+            <label className="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
+              <input
+                type="radio"
+                name="homeChecklist"
+                value=""
+                checked={homeChecklistType === null}
+                onChange={() => setHomeChecklistType(null)}
+                className="mr-3"
+              />
+              <div>
+                <div className="font-medium text-gray-900">Skip Home Inspection</div>
+                <div className="text-sm text-gray-600">Only complete additional assessments</div>
               </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex justify-between items-center gap-3">
-              <a 
-                href="/"
-                className="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors"
-              >
-                ← Back to Main App
-              </a>
-              
-              {/* Temporary Testing Button - Remove after analysis */}
-              <button
-                onClick={() => {
-                  console.clear();
-                  testScoringConsistency();
-                  alert('Check console for scoring analysis (Press F12)');
-                }}
-                className="bg-purple-500 text-white px-6 py-3 rounded-lg hover:bg-purple-600 transition-colors"
-              >
-                🔬 Run Scoring Analysis
-              </button>
-              
-              <button
-                onClick={startAssessment}
-                disabled={!homeChecklistType && !includeSDOH && !includeElderSafety}
-                className="bg-blue-500 text-white px-8 py-3 rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
-              >
-                Start Assessment →
-              </button>
-            </div>
+            </label>
           </div>
         </div>
-      )}
 
-      {/* Assessment Phase - Section-Based */}
-      {phase === 'assessment' && (
-        <div className="max-w-6xl mx-auto p-6">
-          {/* Section Navigation Header */}
-          <div className="bg-white rounded-lg shadow-md p-4 mb-6">
-            <div className="flex justify-between items-center mb-4">
-              <h1 className="text-2xl font-bold text-gray-900">
-                Section {currentSectionIndex + 1} of {totalSections}: {currentSection}
-              </h1>
-              <span className="text-sm text-gray-500">
-                {Math.round(((currentSectionIndex + 1) / totalSections) * 100)}% Complete
-              </span>
+        {/* Elder Safety Assessment */}
+        <div className="bg-orange-50 p-6 rounded-lg shadow-md border border-orange-200">
+          <label className="flex items-start cursor-pointer">
+            <input
+              type="checkbox"
+              checked={includeElderSafety}
+              onChange={(e) => setIncludeElderSafety(e.target.checked)}
+              className="mt-1 mr-3 text-orange-600"
+            />
+            <div>
+              <div className="font-medium text-gray-900">Elder Safety Assessment (Optional)</div>
+              <div className="text-sm text-gray-600">
+                Home safety evaluation focused on fall prevention and aging-in-place safety ({ELDER_SAFETY_QUESTIONS.length} questions)
+              </div>
             </div>
+          </label>
+        </div>
+
+        {/* SDOH Assessment */}
+        <div className="bg-purple-50 p-6 rounded-lg shadow-md border border-purple-200">
+          <label className="flex items-start cursor-pointer">
+            <input
+              type="checkbox"
+              checked={includeSDOH}
+              onChange={(e) => setIncludeSDOH(e.target.checked)}
+              className="mt-1 mr-3 text-purple-600"
+            />
+            <div>
+              <div className="font-medium text-gray-900">Social Determinants of Health (Optional)</div>
+              <div className="text-sm text-gray-600">
+                Assessment of social factors affecting health outcomes ({SDOH_QUESTIONS.length} questions)
+              </div>
+            </div>
+          </label>
+        </div>
+
+        {/* Assessment Summary */}
+        {(homeChecklistType || includeElderSafety || includeSDOH) && (
+          <div className="bg-blue-50 p-6 rounded-lg border border-blue-200">
+            <h3 className="font-semibold text-gray-900 mb-2">Assessment Summary</h3>
+            <div className="text-sm text-gray-600 space-y-1">
+              <div>Total Questions: <span className="font-medium">{getCurrentQuestions().length}</span></div>
+              <div>Total Sections: <span className="font-medium">{getCurrentSections().length}</span></div>
+              <div>Estimated Time: <span className="font-medium">{Math.ceil(getCurrentQuestions().length / 2)} minutes</span></div>
+            </div>
+          </div>
+        )}
+
+        {/* Action Buttons */}
+        <div className="flex justify-between items-center pt-6">
+          <div className="flex space-x-4">
+            <a 
+              href="/"
+              className="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors"
+            >
+              ← Back to Main App
+            </a>
             
-            {/* Section Progress Bar */}
-            <div className="w-full bg-gray-200 rounded-full h-3 mb-4">
-              <div 
-                className="bg-blue-500 h-3 rounded-full transition-all duration-300"
-                style={{ width: `${((currentSectionIndex + 1) / totalSections) * 100}%` }}
-              />
-            </div>
+            <button
+              onClick={() => testScoringConsistency()}
+              className="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors"
+            >
+              🔬 Run Scoring Analysis
+            </button>
+          </div>
 
-            {/* Section Tabs */}
-            <div className="flex flex-wrap gap-2">
+          <button
+            onClick={startAssessment}
+            disabled={!homeChecklistType && !includeElderSafety}
+            className={`px-8 py-3 rounded-lg font-medium transition-colors ${
+              homeChecklistType || includeElderSafety
+                ? 'bg-blue-600 text-white hover:bg-blue-700'
+                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+            }`}
+          >
+            Start Assessment →
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderAssessmentPhase = () => (
+    <div className="max-w-6xl mx-auto p-6">
+      {/* Header */}
+      <div className="mb-6">
+        <div className="flex justify-between items-center mb-4">
+          <h1 className="text-2xl font-bold text-gray-900">Home Health Assessment</h1>
+          <div className="text-sm text-gray-600">
+            {getTotalAnsweredQuestions()} of {currentQuestions.length} questions answered
+          </div>
+        </div>
+        
+        {/* Progress Bar */}
+        <div className="w-full bg-gray-200 rounded-full h-2">
+          <div 
+            className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+            style={{ width: `${(getTotalAnsweredQuestions() / currentQuestions.length) * 100}%` }}
+          ></div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        {/* Section Navigation */}
+        <div className="lg:col-span-1">
+          <div className="bg-white rounded-lg shadow-md p-4 sticky top-6">
+            <h2 className="font-semibold text-gray-900 mb-4">Sections</h2>
+            <div className="space-y-2">
               {currentSections.map((section, index) => {
-                const sectionProgress = getSectionProgress(section);
+                const progress = getSectionProgress(section);
+                const isActive = index === currentSectionIndex;
+                const isComplete = progress.answered === progress.total && progress.total > 0;
+                
                 return (
                   <button
                     key={section}
-                    onClick={() => jumpToSection(index)}
-                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
-                      index === currentSectionIndex
-                        ? 'bg-blue-500 text-white'
-                        : sectionProgress.percentage === 100
-                        ? 'bg-green-100 text-green-700 hover:bg-green-200'
-                        : sectionProgress.answered > 0
-                        ? 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    onClick={() => goToSection(index)}
+                    className={`w-full text-left p-3 rounded-lg text-sm transition-colors ${
+                      isActive 
+                        ? 'bg-blue-100 border-l-4 border-blue-500 text-blue-900' 
+                        : isComplete
+                        ? 'bg-green-50 text-green-800 hover:bg-green-100'
+                        : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
                     }`}
                   >
-                    {section.length > 20 ? section.substring(0, 17) + '...' : section}
-                    <span className="ml-1 text-xs">
-                      ({sectionProgress.answered}/{sectionProgress.total})
-                    </span>
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium">{section}</span>
+                      {isComplete && <span className="text-green-600">✓</span>}
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1">
+                      {progress.answered}/{progress.total} questions
+                    </div>
+                    {progress.total > 0 && (
+                      <div className="w-full bg-gray-200 rounded-full h-1 mt-2">
+                        <div 
+                          className={`h-1 rounded-full transition-all duration-300 ${
+                            isComplete ? 'bg-green-500' : isActive ? 'bg-blue-500' : 'bg-gray-400'
+                          }`}
+                          style={{ width: `${progress.percentage}%` }}
+                        ></div>
+                      </div>
+                    )}
                   </button>
                 );
               })}
             </div>
           </div>
+        </div>
 
-          {/* Current Section Questions */}
-          <div className="bg-white rounded-lg shadow-lg p-8">
-            <div className="mb-6">
+        {/* Questions Area */}
+        <div className="lg:col-span-3">
+          <div className="bg-white rounded-lg shadow-md">
+            {/* Section Header */}
+            <div className="p-6 border-b border-gray-200">
               <h2 className="text-xl font-bold text-gray-900 mb-2">{currentSection}</h2>
-              <p className="text-gray-600">
-                Complete all questions in this section before proceeding to the next.
-              </p>
+              <div className="flex justify-between items-center text-sm text-gray-600">
+                <span>Section {currentSectionIndex + 1} of {currentSections.length}</span>
+                <span>{getSectionProgress(currentSection).answered} of {sectionQuestions.length} completed</span>
+              </div>
             </div>
 
-            {/* Questions Grid */}
-            <div className="space-y-6">
-              {sectionQuestions.map((question, index) => (
-                <div key={question.item_id} className="border-l-4 border-blue-400 bg-blue-50 p-6 rounded-r-lg">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <span className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
-                          {question.item_id}
-                        </span>
-                        <span className={`text-xs px-2 py-1 rounded-full font-semibold ${
-                          question.priority === 'critical' ? 'bg-red-100 text-red-700' :
-                          question.priority === 'high' ? 'bg-orange-100 text-orange-700' :
-                          question.priority === 'medium' ? 'bg-yellow-100 text-yellow-700' :
-                          'bg-green-100 text-green-700'
-                        }`}>
-                          {question.priority.toUpperCase()}
-                        </span>
-                      </div>
-                      
-                      <h3 className="text-lg font-bold text-gray-900 mb-3">
-                        {question.question_text || question.question_key}
-                      </h3>
+            {/* Questions */}
+            <div className="p-6 space-y-6">
+              {sectionQuestions.map((question) => {
+                const responseOptions = getResponseOptions(question);
+                const currentResponse = responses[question.item_id] || '';
+                
+                return (
+                  <div key={question.item_id} className="border-b border-gray-100 pb-6 last:border-b-0">
+                    <h3 className="text-lg font-medium text-gray-900 mb-3">
+                      {question.question_text}
+                    </h3>
+                    
+                    {question.explanation && (
+                      <p className="text-sm text-gray-600 mb-4">{question.explanation}</p>
+                    )}
+
+                    <div className="space-y-2">
+                      {responseOptions.map((option) => (
+                        <label key={option} className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+                          <input
+                            type="radio"
+                            name={question.item_id}
+                            value={option}
+                            checked={currentResponse === option}
+                            onChange={(e) => handleResponse(question.item_id, e.target.value)}
+                            className="mr-3"
+                          />
+                          <span className="text-gray-800">
+                            {getResponseLabel(question, option)}
+                          </span>
+                        </label>
+                      ))}
                     </div>
                   </div>
+                );
+              })}
 
-                  {/* Question Input */}
-                  <div className="bg-white p-4 rounded-lg">
-                    {renderQuestionInput(question)}
-                  </div>
+              {/* Section Notes */}
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Section Notes (Optional)
+                </label>
+                <textarea
+                  value={sectionNotes[currentSection] || ''}
+                  onChange={(e) => handleSectionNote(currentSection, e.target.value)}
+                  maxLength={200}
+                  rows={3}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                  placeholder="Add any additional notes about this section..."
+                />
+                <div className="text-xs text-gray-500 mt-1">
+                  {(sectionNotes[currentSection] || '').length}/200 characters
                 </div>
-              ))}
-            </div>
-
-            {/* Section Notes */}
-            <div className="mt-8 p-6 bg-gray-50 rounded-lg">
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">
-                Section Notes & Comments
-              </h3>
-              <textarea
-                value={sectionNotes[currentSection] || ''}
-                onChange={(e) => handleSectionNotes(currentSection, e.target.value)}
-                placeholder="Add any additional notes or observations for this section..."
-                className="w-full p-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                rows={3}
-                maxLength={200}
-              />
-              <div className="text-xs text-gray-500 mt-1">
-                {(sectionNotes[currentSection] || '').length}/200 characters
               </div>
             </div>
-          </div>
 
-          {/* Section Navigation */}
-          <div className="flex justify-between items-center mt-6">
-            <button
-              onClick={handlePreviousSection}
-              disabled={currentSectionIndex === 0}
-              className="px-6 py-3 bg-gray-300 text-gray-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-400 transition-colors"
-            >
-              ← Previous Section
-            </button>
-            
-            <button
-              onClick={resetAssessment}
-              className="px-6 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
-            >
-              Start Over
-            </button>
-            
-            <button
-              onClick={handleNextSection}
-              className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-            >
-              {currentSectionIndex === totalSections - 1 ? 'Complete Assessment' : 'Next Section →'}
-            </button>
+            {/* Navigation */}
+            <div className="p-6 border-t border-gray-200 flex justify-between">
+              <button
+                onClick={goToPreviousSection}
+                disabled={currentSectionIndex === 0}
+                className={`px-6 py-2 rounded-lg font-medium ${
+                  currentSectionIndex === 0
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    : 'bg-gray-600 text-white hover:bg-gray-700'
+                }`}
+              >
+                ← Previous Section
+              </button>
+
+              <button
+                onClick={goToNextSection}
+                className="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700"
+              >
+                {currentSectionIndex === currentSections.length - 1 ? 'Complete Assessment' : 'Next Section →'}
+              </button>
+            </div>
           </div>
         </div>
-      )}
+      </div>
+    </div>
+  );
 
-      {/* Results Phase - Enhanced with Completeness */}
-      {phase === 'results' && results && (
-        <div className="max-w-6xl mx-auto p-6">
-          <div className="bg-white rounded-lg shadow-lg p-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-6">
-              📊 Assessment Complete
-            </h1>
-            
-            {/* Completeness Warning */}
-            {results.completeness_flag !== 'complete' && (
-              <div className={`mb-6 p-4 rounded-lg border-l-4 ${
-                results.completeness_flag === 'potentially_deficient' 
-                  ? 'bg-red-50 border-red-400' 
-                  : 'bg-yellow-50 border-yellow-400'
-              }`}>
-                <div className={`font-semibold ${
-                  results.completeness_flag === 'potentially_deficient' 
-                    ? 'text-red-800' 
-                    : 'text-yellow-800'
-                }`}>
-                  ⚠️ Assessment Completeness Notice
-                </div>
-                <p className={`text-sm mt-1 ${
-                  results.completeness_flag === 'potentially_deficient' 
-                    ? 'text-red-700' 
-                    : 'text-yellow-700'
-                }`}>
-                  {getCompletenessMessage(results.completeness_flag, results.na_percentage)}
-                </p>
+  const renderResultsPhase = () => {
+    const results = calculateResults();
+    const answeredQuestions = getTotalAnsweredQuestions();
+    const completionRate = Math.round((answeredQuestions / currentQuestions.length) * 100);
+
+    return (
+      <div className="max-w-4xl mx-auto p-6">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-4">Assessment Results</h1>
+          <p className="text-lg text-gray-600">Your home health assessment is complete</p>
+        </div>
+
+        <div className="bg-white rounded-lg shadow-md">
+          {/* Overall Score */}
+          <div className="p-8 border-b border-gray-200">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+              <div className="p-6 bg-red-50 rounded-lg">
+                <div className="text-3xl font-bold text-red-600">{results.risk_score}</div>
+                <div className="text-red-800">Risk Score</div>
+                <div className="text-sm text-red-600 mt-1">out of 100</div>
               </div>
-            )}
-            
-            {/* Overall Score */}
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
-              <div className="text-center p-6 bg-blue-50 rounded-lg">
-                <div className="text-3xl font-bold text-blue-600">{results.completion_rate}%</div>
+              
+              <div className={`p-6 rounded-lg ${
+                results.risk_level === 'Critical' ? 'bg-red-100' :
+                results.risk_level === 'High' ? 'bg-orange-100' :
+                results.risk_level === 'Elevated' ? 'bg-yellow-100' :
+                results.risk_level === 'Moderate' ? 'bg-blue-100' : 'bg-green-100'
+              }`}>
+                <div className={`text-3xl font-bold ${
+                  results.risk_level === 'Critical' ? 'text-red-600' :
+                  results.risk_level === 'High' ? 'text-orange-600' :
+                  results.risk_level === 'Elevated' ? 'text-yellow-600' :
+                  results.risk_level === 'Moderate' ? 'text-blue-600' : 'text-green-600'
+                }`}>
+                  {results.risk_level}
+                </div>
+                <div className="text-gray-800">Risk Level</div>
+              </div>
+              
+              <div className="p-6 bg-blue-50 rounded-lg">
+                <div className="text-3xl font-bold text-blue-600">{completionRate}%</div>
                 <div className="text-blue-800">Completion Rate</div>
-              </div>
-              <div className="text-center p-6 bg-yellow-50 rounded-lg">
-                <div className="text-3xl font-bold text-yellow-600">{results.overall_risk_score}</div>
-                <div className="text-yellow-800">Overall Risk Score</div>
-              </div>
-              <div className="text-center p-6 bg-red-50 rounded-lg">
-                <div className="text-3xl font-bold text-red-600">{results.issues_found}</div>
-                <div className="text-red-800">Issues Identified</div>
-              </div>
-              <div className="text-center p-6 bg-green-50 rounded-lg">
-                <div className="text-3xl font-bold text-green-600">{results.actions_needed}</div>
-                <div className="text-green-800">Actions Needed</div>
-              </div>
-              <div className="text-center p-6 bg-gray-50 rounded-lg">
-                <div className="text-3xl font-bold text-gray-600">{results.na_count || 0}</div>
-                <div className="text-gray-800">N/A Responses</div>
+                <div className="text-sm text-blue-600 mt-1">{answeredQuestions}/{currentQuestions.length} questions</div>
               </div>
             </div>
+          </div>
 
-            {/* Risk Level Assessment */}
-            <div className="mb-8">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Risk Level Assessment</h2>
-              <div className={`p-6 rounded-lg border-l-4 ${
-                results.risk_level === 'critical' ? 'bg-red-50 border-red-400' :
-                results.risk_level === 'high' ? 'bg-orange-50 border-orange-400' :
-                results.risk_level === 'medium' ? 'bg-yellow-50 border-yellow-400' :
-                'bg-green-50 border-green-400'
-              }`}>
-                <div className={`text-2xl font-bold mb-2 ${
-                  results.risk_level === 'critical' ? 'text-red-700' :
-                  results.risk_level === 'high' ? 'text-orange-700' :
-                  results.risk_level === 'medium' ? 'text-yellow-700' :
-                  'text-green-700'
-                }`}>
-                  {results.risk_level.toUpperCase()} RISK
+          {/* Issues Summary */}
+          {results.questions_with_issues > 0 && (
+            <div className="p-6 border-b border-gray-200">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">Issues Identified</h2>
+              <div className="bg-orange-50 p-4 rounded-lg">
+                <div className="text-orange-800 font-medium">
+                  {results.questions_with_issues} areas need attention out of {answeredQuestions} assessed
                 </div>
-                <p className="text-gray-700">
-                  {results.risk_level === 'critical' && 'Immediate attention required. Contact professionals for critical safety issues.'}
-                  {results.risk_level === 'high' && 'Several issues need prompt attention. Consider professional assessment.'}
-                  {results.risk_level === 'medium' && 'Some areas for improvement identified. Address when convenient.'}
-                  {results.risk_level === 'low' && 'Good overall condition with minimal issues identified.'}
-                </p>
+                <div className="text-sm text-orange-600 mt-1">
+                  Review the priority interventions below for specific actions
+                </div>
               </div>
             </div>
+          )}
 
-            {/* Priority Interventions */}
-            {results.priority_interventions.length > 0 && (
-              <div className="mb-8">
-                <h2 className="text-xl font-bold text-gray-900 mb-4">Priority Actions</h2>
-                <div className="space-y-3">
-                  {results.priority_interventions.map((intervention, index) => (
-                    <div key={intervention.item_id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                      <div>
-                        <span className="font-medium text-gray-900">
-                          {intervention.category.toUpperCase()}: {intervention.subcategory}
-                        </span>
-                        <div className="text-sm text-gray-600">
-                          Response: {formatDisplayText(intervention.raw_response)}
-                        </div>
-                      </div>
+          {/* Priority Interventions */}
+          {results.priority_interventions.length > 0 && (
+            <div className="p-6 border-b border-gray-200">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">Priority Interventions</h2>
+              <div className="space-y-3">
+                {results.priority_interventions.slice(0, 10).map((intervention, index) => (
+                  <div key={intervention.item_id} className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
+                    <div className="flex-1">
+                      <div className="font-medium text-gray-900">{intervention.section}</div>
+                      <div className="text-sm text-gray-600">{intervention.priority} priority</div>
+                    </div>
+                    <div className="text-right">
                       <div className={`text-lg font-bold ${
                         intervention.risk_score > 70 ? 'text-red-600' :
                         intervention.risk_score > 40 ? 'text-yellow-600' :
@@ -782,29 +609,31 @@ export default function SimpleTest() {
                         {intervention.risk_score}/100
                       </div>
                     </div>
-                  ))}
-                </div>
+                  </div>
+                ))}
               </div>
-            )}
+            </div>
+          )}
 
-            {/* Section Notes Summary */}
-            {Object.keys(sectionNotes).length > 0 && (
-              <div className="mb-8">
-                <h2 className="text-xl font-bold text-gray-900 mb-4">Section Notes</h2>
-                <div className="space-y-3">
-                  {Object.entries(sectionNotes).map(([section, notes]) => (
-                    notes && (
-                      <div key={section} className="p-4 bg-gray-50 rounded-lg">
-                        <h3 className="font-semibold text-gray-900">{section}</h3>
-                        <p className="text-gray-700 text-sm">{notes}</p>
-                      </div>
-                    )
-                  ))}
-                </div>
+          {/* Section Notes Summary */}
+          {Object.keys(sectionNotes).length > 0 && (
+            <div className="p-6 border-b border-gray-200">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">Section Notes</h2>
+              <div className="space-y-3">
+                {Object.entries(sectionNotes).map(([section, notes]) => (
+                  notes && (
+                    <div key={section} className="p-4 bg-gray-50 rounded-lg">
+                      <h3 className="font-semibold text-gray-900">{section}</h3>
+                      <p className="text-gray-700 text-sm">{notes}</p>
+                    </div>
+                  )
+                ))}
               </div>
-            )}
+            </div>
+          )}
 
-            {/* Action Buttons */}
+          {/* Action Buttons */}
+          <div className="p-6">
             <div className="flex justify-between items-center">
               <button
                 onClick={resetAssessment}
@@ -822,7 +651,16 @@ export default function SimpleTest() {
             </div>
           </div>
         </div>
-      )}
+      </div>
+    );
+  };
+
+  // Main render
+  return (
+    <div className="min-h-screen bg-gray-100">
+      {phase === 'selection' && renderSelectionPhase()}
+      {phase === 'assessment' && renderAssessmentPhase()}
+      {phase === 'results' && renderResultsPhase()}
     </div>
   );
 }
