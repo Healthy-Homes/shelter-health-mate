@@ -115,8 +115,9 @@ const getResponseOptions = (question: ChecklistItem): string[] => {
   }
 };
 
-// Replace your current getResponseLabel function with this improved version
 const getResponseLabel = (question: ChecklistItem, value: string, t: any): string => {
+  console.log('🔍 DEBUG - getResponseLabel called with:', { value, questionId: question.id });
+  
   if (Array.isArray(question.response_options)) {
     // New format: find the label for this value
     const option = question.response_options.find(opt => opt.value === value);
@@ -216,12 +217,19 @@ const getResponseLabel = (question: ChecklistItem, value: string, t: any): strin
   if (exactMappings[value]) {
     const translationKey = `questions.common.responses.${exactMappings[value]}`;
     const translated = t(translationKey);
+    console.log('🔍 DEBUG - Translation attempt:', { 
+      originalValue: value, 
+      mappedKey: exactMappings[value], 
+      translationKey, 
+      translated 
+    });
     if (translated !== translationKey) {
       return translated;
     }
   }
   
   // Fallback: return original value
+  console.log('🔍 DEBUG - No translation found, returning original:', value);
   return value;
 };
 
