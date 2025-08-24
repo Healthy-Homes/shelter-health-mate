@@ -1,6 +1,10 @@
-// src/pages/SimpleTest.tsx - Complete Fixed Version with Format Compatibility
+// src/pages/SimpleTest.tsx - Complete Fixed Version with i18n Translations
 
 import React, { useState } from 'react';
+
+import { useTranslation } from 'react-i18next';
+import LanguageSwitcher from '../components/LanguageSwitcher';
+
 import { ChecklistItem, ResponseMap, SectionNotes } from '../types/checklist';
 import { calculateItemRisk, calculateOverallRisk, getCompletenessMessage } from '../utils/riskScoring';
 import { testScoringConsistency } from '../utils/scoringAnalysis';
@@ -86,6 +90,9 @@ const getQuestionsBySection = (questions: ChecklistItem[], section: string): Che
 };
 
 export default function SimpleTest() {
+  // Add translation hook
+  const { t } = useTranslation();
+
   // State management
   const [phase, setPhase] = useState<AssessmentPhase>('selection');
   const [homeChecklistType, setHomeChecklistType] = useState<HomeChecklistType>(null);
@@ -224,16 +231,20 @@ export default function SimpleTest() {
   // Render functions
   const renderSelectionPhase = () => (
     <div className="max-w-4xl mx-auto p-6">
-      <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-4">Home Health Assessment</h1>
-        <p className="text-lg text-gray-600">Select the assessments you'd like to complete</p>
+      {/* Header with Language Switcher */}
+      <div className="flex justify-between items-center mb-8">
+        <div className="text-center flex-1">
+          <h1 className="text-3xl font-bold text-gray-900 mb-4">{t('assessment.title')}</h1>
+          <p className="text-lg text-gray-600">{t('assessment.subtitle')}</p>
+        </div>
+        <LanguageSwitcher />
       </div>
 
       <div className="space-y-6">
         {/* Home Inspection Choice */}
         <div className="bg-white p-6 rounded-lg shadow-md border">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Home Inspection Assessment</h2>
-          <p className="text-gray-600 mb-4">Choose your region's home inspection checklist:</p>
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('assessment.homeInspection')}</h2>
+          <p className="text-gray-600 mb-4">{t('assessment.chooseRegion')}</p>
           
           <div className="space-y-3">
             <label className="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
@@ -246,8 +257,8 @@ export default function SimpleTest() {
                 className="mr-3"
               />
               <div>
-                <div className="font-medium text-gray-900">Taiwan HALST Assessment</div>
-                <div className="text-sm text-gray-600">Environmental health assessment for Taiwan housing ({TAIWAN_HALST_QUESTIONS.length} questions)</div>
+                <div className="font-medium text-gray-900">{t('checklists.taiwan.title')}</div>
+                <div className="text-sm text-gray-600">{t('checklists.taiwan.description', { count: TAIWAN_HALST_QUESTIONS.length })}</div>
               </div>
             </label>
 
@@ -261,8 +272,8 @@ export default function SimpleTest() {
                 className="mr-3"
               />
               <div>
-                <div className="font-medium text-gray-900">US Healthy Homes Assessment</div>
-                <div className="text-sm text-gray-600">Comprehensive home safety evaluation for US housing ({US_HEALTHY_HOMES_QUESTIONS.length} questions)</div>
+                <div className="font-medium text-gray-900">{t('checklists.us.title')}</div>
+                <div className="text-sm text-gray-600">{t('checklists.us.description', { count: US_HEALTHY_HOMES_QUESTIONS.length })}</div>
               </div>
             </label>
 
@@ -276,8 +287,8 @@ export default function SimpleTest() {
                 className="mr-3"
               />
               <div>
-                <div className="font-medium text-gray-900">Skip Home Inspection</div>
-                <div className="text-sm text-gray-600">Only complete additional assessments</div>
+                <div className="font-medium text-gray-900">{t('assessment.skipHomeInspection')}</div>
+                <div className="text-sm text-gray-600">{t('assessment.onlyCompleteAdditional')}</div>
               </div>
             </label>
           </div>
@@ -293,9 +304,9 @@ export default function SimpleTest() {
               className="mt-1 mr-3 text-orange-600"
             />
             <div>
-              <div className="font-medium text-gray-900">Elder Safety Assessment (Optional)</div>
+              <div className="font-medium text-gray-900">{t('checklists.elderSafety.title')}</div>
               <div className="text-sm text-gray-600">
-                Home safety evaluation focused on fall prevention and aging-in-place safety ({ELDER_SAFETY_QUESTIONS.length} questions)
+                {t('checklists.elderSafety.description', { count: ELDER_SAFETY_QUESTIONS.length })}
               </div>
             </div>
           </label>
@@ -311,9 +322,9 @@ export default function SimpleTest() {
               className="mt-1 mr-3 text-purple-600"
             />
             <div>
-              <div className="font-medium text-gray-900">Social Determinants of Health (Optional)</div>
+              <div className="font-medium text-gray-900">{t('checklists.sdoh.title')}</div>
               <div className="text-sm text-gray-600">
-                Assessment of social factors affecting health outcomes ({SDOH_QUESTIONS.length} questions)
+                {t('checklists.sdoh.description', { count: SDOH_QUESTIONS.length })}
               </div>
             </div>
           </label>
@@ -322,11 +333,11 @@ export default function SimpleTest() {
         {/* Assessment Summary */}
         {(homeChecklistType || includeElderSafety || includeSDOH) && (
           <div className="bg-blue-50 p-6 rounded-lg border border-blue-200">
-            <h3 className="font-semibold text-gray-900 mb-2">Assessment Summary</h3>
+            <h3 className="font-semibold text-gray-900 mb-2">{t('assessment.assessmentSummary')}</h3>
             <div className="text-sm text-gray-600 space-y-1">
-              <div>Total Questions: <span className="font-medium">{getCurrentQuestions().length}</span></div>
-              <div>Total Sections: <span className="font-medium">{getCurrentSections().length}</span></div>
-              <div>Estimated Time: <span className="font-medium">{Math.ceil(getCurrentQuestions().length / 2)} minutes</span></div>
+              <div>{t('assessment.totalQuestions')}: <span className="font-medium">{getCurrentQuestions().length}</span></div>
+              <div>{t('assessment.totalSections')}: <span className="font-medium">{getCurrentSections().length}</span></div>
+              <div>{t('assessment.estimatedTime')}: <span className="font-medium">{Math.ceil(getCurrentQuestions().length / 2)} {t('assessment.minutes')}</span></div>
             </div>
           </div>
         )}
@@ -338,14 +349,14 @@ export default function SimpleTest() {
               href="/"
               className="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors"
             >
-              ← Back to Main App
+              {t('navigation.backToMain')}
             </a>
             
             <button
               onClick={() => testScoringConsistency()}
               className="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors"
             >
-              🔬 Run Scoring Analysis
+              {t('analysis.runScoringAnalysis')}
             </button>
           </div>
 
@@ -358,7 +369,7 @@ export default function SimpleTest() {
                 : 'bg-gray-300 text-gray-500 cursor-not-allowed'
             }`}
           >
-            Start Assessment →
+            {t('navigation.startAssessment')}
           </button>
         </div>
       </div>
@@ -367,12 +378,15 @@ export default function SimpleTest() {
 
   const renderAssessmentPhase = () => (
     <div className="max-w-6xl mx-auto p-6">
-      {/* Header */}
+      {/* Header with Language Switcher */}
       <div className="mb-6">
         <div className="flex justify-between items-center mb-4">
-          <h1 className="text-2xl font-bold text-gray-900">Home Health Assessment</h1>
-          <div className="text-sm text-gray-600">
-            {getTotalAnsweredQuestions()} of {currentQuestions.length} questions answered
+          <h1 className="text-2xl font-bold text-gray-900">{t('assessment.title')}</h1>
+          <div className="flex items-center space-x-4">
+            <div className="text-sm text-gray-600">
+              {t('assessment.questionsAnswered', { answered: getTotalAnsweredQuestions(), total: currentQuestions.length })}
+            </div>
+            <LanguageSwitcher />
           </div>
         </div>
         
@@ -389,7 +403,7 @@ export default function SimpleTest() {
         {/* Section Navigation */}
         <div className="lg:col-span-1">
           <div className="bg-white rounded-lg shadow-md p-4 sticky top-6">
-            <h2 className="font-semibold text-gray-900 mb-4">Sections</h2>
+            <h2 className="font-semibold text-gray-900 mb-4">{t('sections.progress', { current: currentSectionIndex + 1, total: currentSections.length })}</h2>
             <div className="space-y-2">
               {currentSections.map((section, index) => {
                 const progress = getSectionProgress(section);
@@ -413,7 +427,7 @@ export default function SimpleTest() {
                       {isComplete && <span className="text-green-600">✓</span>}
                     </div>
                     <div className="text-xs text-gray-500 mt-1">
-                      {progress.answered}/{progress.total} questions
+                      {t('sections.completed', { answered: progress.answered, total: progress.total })}
                     </div>
                     {progress.total > 0 && (
                       <div className="w-full bg-gray-200 rounded-full h-1 mt-2">
@@ -439,8 +453,8 @@ export default function SimpleTest() {
             <div className="p-6 border-b border-gray-200">
               <h2 className="text-xl font-bold text-gray-900 mb-2">{currentSection}</h2>
               <div className="flex justify-between items-center text-sm text-gray-600">
-                <span>Section {currentSectionIndex + 1} of {currentSections.length}</span>
-                <span>{getSectionProgress(currentSection).answered} of {sectionQuestions.length} completed</span>
+                <span>{t('sections.progress', { current: currentSectionIndex + 1, total: currentSections.length })}</span>
+                <span>{t('sections.completed', { answered: getSectionProgress(currentSection).answered, total: sectionQuestions.length })}</span>
               </div>
             </div>
 
@@ -484,7 +498,7 @@ export default function SimpleTest() {
               {/* Section Notes */}
               <div className="bg-gray-50 p-4 rounded-lg">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Section Notes (Optional)
+                  {t('sections.sectionNotes')}
                 </label>
                 <textarea
                   value={sectionNotes[currentSection] || ''}
@@ -492,10 +506,10 @@ export default function SimpleTest() {
                   maxLength={200}
                   rows={3}
                   className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-                  placeholder="Add any additional notes about this section..."
+                  placeholder={t('sections.notesPlaceholder')}
                 />
                 <div className="text-xs text-gray-500 mt-1">
-                  {(sectionNotes[currentSection] || '').length}/200 characters
+                  {t('sections.charactersRemaining', { remaining: 200 - (sectionNotes[currentSection] || '').length })}
                 </div>
               </div>
             </div>
@@ -511,14 +525,14 @@ export default function SimpleTest() {
                     : 'bg-gray-600 text-white hover:bg-gray-700'
                 }`}
               >
-                ← Previous Section
+                {t('navigation.previousSection')}
               </button>
 
               <button
                 onClick={goToNextSection}
                 className="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700"
               >
-                {currentSectionIndex === currentSections.length - 1 ? 'Complete Assessment' : 'Next Section →'}
+                {currentSectionIndex === currentSections.length - 1 ? t('navigation.completeAssessment') : t('navigation.nextSection')}
               </button>
             </div>
           </div>
@@ -534,9 +548,13 @@ export default function SimpleTest() {
 
     return (
       <div className="max-w-4xl mx-auto p-6">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">Assessment Results</h1>
-          <p className="text-lg text-gray-600">Your home health assessment is complete</p>
+        {/* Header with Language Switcher */}
+        <div className="flex justify-between items-center mb-8">
+          <div className="text-center flex-1">
+            <h1 className="text-3xl font-bold text-gray-900 mb-4">{t('results.title')}</h1>
+            <p className="text-lg text-gray-600">{t('results.subtitle')}</p>
+          </div>
+          <LanguageSwitcher />
         </div>
 
         <div className="bg-white rounded-lg shadow-md">
@@ -545,8 +563,8 @@ export default function SimpleTest() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
               <div className="p-6 bg-red-50 rounded-lg">
                 <div className="text-3xl font-bold text-red-600">{results.risk_score}</div>
-                <div className="text-red-800">Risk Score</div>
-                <div className="text-sm text-red-600 mt-1">out of 100</div>
+                <div className="text-red-800">{t('results.riskScore')}</div>
+                <div className="text-sm text-red-600 mt-1">{t('results.outOf100')}</div>
               </div>
               
               <div className={`p-6 rounded-lg ${
@@ -561,15 +579,15 @@ export default function SimpleTest() {
                   results.risk_level === 'Elevated' ? 'text-yellow-600' :
                   results.risk_level === 'Moderate' ? 'text-blue-600' : 'text-green-600'
                 }`}>
-                  {results.risk_level}
+                  {t(`results.riskLevels.${results.risk_level.toLowerCase()}`)}
                 </div>
-                <div className="text-gray-800">Risk Level</div>
+                <div className="text-gray-800">{t('results.riskLevel')}</div>
               </div>
               
               <div className="p-6 bg-blue-50 rounded-lg">
                 <div className="text-3xl font-bold text-blue-600">{completionRate}%</div>
-                <div className="text-blue-800">Completion Rate</div>
-                <div className="text-sm text-blue-600 mt-1">{answeredQuestions}/{currentQuestions.length} questions</div>
+                <div className="text-blue-800">{t('results.completionRate')}</div>
+                <div className="text-sm text-blue-600 mt-1">{t('results.questionsAnswered', { answered: answeredQuestions, total: currentQuestions.length })}</div>
               </div>
             </div>
           </div>
@@ -577,13 +595,13 @@ export default function SimpleTest() {
           {/* Issues Summary */}
           {results.questions_with_issues > 0 && (
             <div className="p-6 border-b border-gray-200">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Issues Identified</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-4">{t('results.issuesIdentified')}</h2>
               <div className="bg-orange-50 p-4 rounded-lg">
                 <div className="text-orange-800 font-medium">
-                  {results.questions_with_issues} areas need attention out of {answeredQuestions} assessed
+                  {t('results.areasNeedAttention', { count: results.questions_with_issues, total: answeredQuestions })}
                 </div>
                 <div className="text-sm text-orange-600 mt-1">
-                  Review the priority interventions below for specific actions
+                  {t('results.reviewInterventions')}
                 </div>
               </div>
             </div>
@@ -592,13 +610,13 @@ export default function SimpleTest() {
           {/* Priority Interventions */}
           {results.priority_interventions.length > 0 && (
             <div className="p-6 border-b border-gray-200">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Priority Interventions</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-4">{t('results.priorityInterventions')}</h2>
               <div className="space-y-3">
                 {results.priority_interventions.slice(0, 10).map((intervention, index) => (
                   <div key={intervention.item_id} className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
                     <div className="flex-1">
                       <div className="font-medium text-gray-900">{intervention.section}</div>
-                      <div className="text-sm text-gray-600">{intervention.priority} priority</div>
+                      <div className="text-sm text-gray-600">{t(`results.priorities.${intervention.priority}`)}</div>
                     </div>
                     <div className="text-right">
                       <div className={`text-lg font-bold ${
@@ -618,7 +636,7 @@ export default function SimpleTest() {
           {/* Section Notes Summary */}
           {Object.keys(sectionNotes).length > 0 && (
             <div className="p-6 border-b border-gray-200">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Section Notes</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-4">{t('results.sectionNotes')}</h2>
               <div className="space-y-3">
                 {Object.entries(sectionNotes).map(([section, notes]) => (
                   notes && (
@@ -639,14 +657,14 @@ export default function SimpleTest() {
                 onClick={resetAssessment}
                 className="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors"
               >
-                🔄 Take New Assessment
+                {t('results.takeNewAssessment')}
               </button>
               
               <a 
                 href="/"
                 className="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors"
               >
-                ← Back to Main App
+                {t('navigation.backToMain')}
               </a>
             </div>
           </div>
