@@ -118,110 +118,101 @@ const getResponseOptions = (question: ChecklistItem): string[] => {
 const getResponseLabel = (question: ChecklistItem, value: string, t: any): string => {
   console.log('🔍 DEBUG - getResponseLabel called with:', { value, questionId: question.item_id });
   
-  if (Array.isArray(question.response_options)) {
-    // New format: find the label for this value
-    const option = question.response_options.find(opt => opt.value === value);
-    if (option) {
-      return option.label;
-    }
-  }
+  // Exact mappings based on VALUES from Taiwan HALST response data
+  const exactMappings: { [key: string]: string } = {
+    // Housing types (VALUES from your checklist data)
+    'apartment': 'apartment',
+    'house': 'house', 
+    'dormitory': 'dormitory',
+    'other': 'other',
+    
+    // Floor levels  
+    'ground': 'groundfloor',
+    '1_3': '1st3rdfloor', 
+    '4_6': '4th6thfloor',
+    'above_6': 'above6thfloor',
+    
+    // Basic responses
+    'yes': 'yes',
+    'no': 'no',
+    'not_sure': 'notsure',
+    'partial': 'partially',           // ← FROM DEBUG: "partial" 
+    'partially': 'partially',
+    'sometimes': 'sometimes',         // ← FROM DEBUG: "sometimes"
+    'occasionally': 'occasionally',
+    
+    // Quality ratings  
+    'excellent': 'excellent',
+    'good': 'good',
+    'fair': 'fair', 
+    'poor': 'poor',
+    
+    // Building age
+    'new': 'lessthan10years',
+    'moderate': '1030years', 
+    'old': 'morethan30years',
+    
+    // Frequency with modifiers
+    'yes_regularly': 'yesregularly',
+    'yes_frequently': 'yesfrequently',
+    
+    // Time frequencies
+    'weekly': 'weekly',
+    'biweekly': 'every2weeks',
+    'monthly': 'monthly',
+    'rarely': 'rarely',
+    
+    // Partial quantities
+    'some': 'someappliances',
+    'some_products': 'someproducts',
+    
+    // Comfort levels
+    'very_comfortable': 'verycomfortable',
+    'comfortable': 'comfortable', 
+    'somewhat_comfortable': 'somewhatcomfortable',
+    'uncomfortable': 'uncomfortable',
+    
+    // Special cases from your debug output
+    'outdoor_only': 'outdoorpetsonly',
+    'no_carpet': 'nocarpetsrugs',
+    'excellent_new': 'excellentnew',
+    'good_condition': 'goodcondition',
+    'fair_condition': 'faircondition', 
+    'poor_old': 'poorold',
+    
+    // Condition modifiers
+    'inadequate': 'inadequate',
+    'poor_circulation': 'poorcirculation',
+    'moderate_amount': 'moderateamount',
+    'minor': 'minorissues',          // ← FROM DEBUG: "minor"
+    'minor_issues': 'minorissues',
+    'minor_amounts': 'minoramounts',
+    'limited': 'limitedstorage',
+    'some_need_repair': 'someneedrepair',
+    'poor_ventilation': 'poorventilation',
+    'variable': 'variablepressure',
+    'inconsistent': 'inconsistent',
+    'concerns': 'someconcerns',
+    
+    // Frequency options
+    'weekly_less': 'weeklyorless',
+    'few_days': 'everyfewdays',
+    'daily': 'daily',
+    'constantly': 'constantly',
+    'seasonal': 'onlyseasonally',
+    'outdoors_only': 'outdoorsonly',
+    
+    // Additional options from debug
+    'barely': 'barelyAdequate',      // ← FROM DEBUG: "barely"
+    'barely_adequate': 'barelyAdequate',
+    'have_concerns': 'havesomeconcerns'
+  };
   
-  // Exact mappings based on Taiwan HALST response labels
-
-const exactMappings: { [key: string]: string } = {
-  // Housing types (VALUES from your checklist data)
-  'apartment': 'apartment',
-  'house': 'house', 
-  'dormitory': 'dormitory',
-  'other': 'other',
-  
-  // Floor levels  
-  'ground': 'groundfloor',
-  '1_3': '1st3rdfloor', 
-  '4_6': '4th6thfloor',
-  'above_6': 'above6thfloor',
-  
-  // Basic responses
-  'yes': 'yes',
-  'no': 'no',
-  'not_sure': 'notsure',
-  'partial': 'partially',           // ← FROM DEBUG: "partial" 
-  'partially': 'partially',
-  'sometimes': 'sometimes',         // ← FROM DEBUG: "sometimes"
-  'occasionally': 'occasionally',
-  
-  // Quality ratings  
-  'excellent': 'excellent',
-  'good': 'good',
-  'fair': 'fair', 
-  'poor': 'poor',
-  
-  // Building age
-  'new': 'lessthan10years',
-  'moderate': '1030years', 
-  'old': 'morethan30years',
-  
-  // Frequency with modifiers
-  'yes_regularly': 'yesregularly',
-  'yes_frequently': 'yesfrequently',
-  
-  // Time frequencies
-  'weekly': 'weekly',
-  'biweekly': 'every2weeks',
-  'monthly': 'monthly',
-  'rarely': 'rarely',
-  
-  // Partial quantities
-  'some': 'someappliances',
-  'some_products': 'someproducts',
-  
-  // Comfort levels
-  'very_comfortable': 'verycomfortable',
-  'comfortable': 'comfortable', 
-  'somewhat_comfortable': 'somewhatcomfortable',
-  'uncomfortable': 'uncomfortable',
-  
-  // Special cases from your debug output
-  'outdoor_only': 'outdoorpetsonly',
-  'no_carpet': 'nocarpetsrugs',
-  'excellent_new': 'excellentnew',
-  'good_condition': 'goodcondition',
-  'fair_condition': 'faircondition', 
-  'poor_old': 'poorold',
-  
-  // Condition modifiers
-  'inadequate': 'inadequate',
-  'poor_circulation': 'poorcirculation',
-  'moderate_amount': 'moderateamount',
-  'minor': 'minorissues',          // ← FROM DEBUG: "minor"
-  'minor_issues': 'minorissues',
-  'minor_amounts': 'minoramounts',
-  'limited': 'limitedstorage',
-  'some_need_repair': 'someneedrepair',
-  'poor_ventilation': 'poorventilation',
-  'variable': 'variablepressure',
-  'inconsistent': 'inconsistent',
-  'concerns': 'someconcerns',
-  
-  // Frequency options
-  'weekly_less': 'weeklyorless',
-  'few_days': 'everyfewdays',
-  'daily': 'daily',
-  'constantly': 'constantly',
-  'seasonal': 'onlyseasonally',
-  'outdoors_only': 'outdoorsonly',
-  
-  // Additional options from debug
-  'barely': 'barelyAdequate',      // ← FROM DEBUG: "barely"
-  'barely_adequate': 'barelyAdequate',
-  'have_concerns': 'havesomeconcerns'
-};
-  
-  // First try exact mapping
+  // First try direct translation of the value
   if (exactMappings[value]) {
     const translationKey = `questions.common.responses.${exactMappings[value]}`;
     const translated = t(translationKey);
-    console.log('🔍 DEBUG - Translation attempt:', { 
+    console.log('🔍 DEBUG - Translation attempt (direct value):', { 
       originalValue: value, 
       mappedKey: exactMappings[value], 
       translationKey, 
@@ -232,8 +223,64 @@ const exactMappings: { [key: string]: string } = {
     }
   }
   
-  // Fallback: return original value
-  console.log('🔍 DEBUG - No translation found, returning original:', value);
+  // If we have response_options array, get the label and try to translate it
+  if (Array.isArray(question.response_options)) {
+    const option = question.response_options.find(opt => opt.value === value);
+    if (option) {
+      // Try to find translation mapping for the label
+      const labelMappings: { [key: string]: string } = {
+        'Apartment': 'apartment',
+        'House': 'house',
+        'Dormitory': 'dormitory', 
+        'Other': 'other',
+        'Ground floor': 'groundfloor',
+        '1st-3rd floor': '1st3rdfloor',
+        '4th-6th floor': '4th6thfloor',
+        'Above 6th floor': 'above6thfloor',
+        'Yes': 'yes',
+        'No': 'no',
+        'Not sure': 'notsure',
+        'Partially': 'partially',
+        'Sometimes': 'sometimes',
+        'Occasionally': 'occasionally',
+        'Excellent': 'excellent',
+        'Good': 'good',
+        'Fair': 'fair',
+        'Poor': 'poor',
+        'Less than 10 years': 'lessthan10years',
+        '10-30 years': '1030years',
+        'More than 30 years': 'morethan30years',
+        'Very comfortable': 'verycomfortable',
+        'Comfortable': 'comfortable',
+        'Somewhat comfortable': 'somewhatcomfortable', 
+        'Uncomfortable': 'uncomfortable',
+        'Barely adequate': 'barelyAdequate',
+        'Minor issues': 'minorissues',
+        'Minor amounts': 'minoramounts'
+      };
+      
+      if (labelMappings[option.label]) {
+        const translationKey = `questions.common.responses.${labelMappings[option.label]}`;
+        const translated = t(translationKey);
+        console.log('🔍 DEBUG - Translation attempt (label):', { 
+          originalLabel: option.label, 
+          mappedKey: labelMappings[option.label], 
+          translationKey, 
+          translated 
+        });
+        if (translated !== translationKey) {
+          return translated;
+        }
+      }
+      
+      // Fallback to original label if no translation found
+      console.log('🔍 DEBUG - No translation found for label, returning original:', option.label);
+      return option.label;
+    }
+  }
+  
+  // Final fallback: return original value
+  console.log('🔍 DEBUG - No translation found, returning original value:', value);
   return value;
 };
 
