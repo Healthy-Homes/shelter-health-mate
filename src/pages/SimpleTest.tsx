@@ -354,8 +354,6 @@ const getQuestionText = (question: ChecklistItem, t: any): string => {
   console.log('🔍 DEBUG - Using fallback text for:', question.item_id);
   return question.question;
 };
-  
- 
 
 // Helper function to get translated explanation
 const getQuestionExplanation = (question: ChecklistItem, t: any): string => {
@@ -384,6 +382,19 @@ const getQuestionExplanation = (question: ChecklistItem, t: any): string => {
 const getQuestionsBySection = (questions: ChecklistItem[], sectionKey: string): ChecklistItem[] => {
   const sectionName = SECTION_MAPPING[sectionKey] || sectionKey;
   return questions.filter(q => q.section === sectionName);
+};
+
+// Helper function to get translated section names in results
+const getSectionDisplayName = (sectionName: string, t: any): string => {
+  // Find the section key that matches the English name
+  const sectionKey = Object.keys(SECTION_MAPPING).find(key => SECTION_MAPPING[key] === sectionName);
+  
+  if (sectionKey) {
+    return t(`sections.names.${sectionKey}`);
+  }
+  
+  // Fallback to original name if no translation found
+  return sectionName;
 };
 
 export default function SimpleTest() {
@@ -906,45 +917,31 @@ export default function SimpleTest() {
             </div>
           )}
 
-        // Add this helper function near your other helper functions at the top of the component
-const getSectionDisplayName = (sectionName: string, t: any): string => {
-  // Find the section key that matches the English name
-  const sectionKey = Object.keys(SECTION_MAPPING).find(key => SECTION_MAPPING[key] === sectionName);
-  
-  if (sectionKey) {
-    return t(`sections.names.${sectionKey}`);
-  }
-  
-  // Fallback to original name if no translation found
-  return sectionName;
-};
-
-// Replace your existing Priority Interventions section with this:
-{/* Priority Interventions */}
-{results.priority_interventions.length > 0 && (
-  <div className="p-6 border-b border-gray-200">
-    <h2 className="text-xl font-bold text-gray-900 mb-4">{t('results.priorityInterventions')}</h2>
-    <div className="space-y-3">
-      {results.priority_interventions.slice(0, 10).map((intervention, index) => (
-        <div key={intervention.item_id} className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
-          <div className="flex-1">
-            <div className="font-medium text-gray-900">{getSectionDisplayName(intervention.section, t)}</div>
-            <div className="text-sm text-gray-600">{t(`results.priorities.${intervention.priority}`)}</div>
-          </div>
-          <div className="text-right">
-            <div className={`text-lg font-bold ${
-              intervention.risk_score > 70 ? 'text-red-600' :
-              intervention.risk_score > 40 ? 'text-yellow-600' :
-              'text-green-600'
-            }`}>
-              {intervention.risk_score}/100
+          {/* Priority Interventions */}
+          {results.priority_interventions.length > 0 && (
+            <div className="p-6 border-b border-gray-200">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">{t('results.priorityInterventions')}</h2>
+              <div className="space-y-3">
+                {results.priority_interventions.slice(0, 10).map((intervention, index) => (
+                  <div key={intervention.item_id} className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
+                    <div className="flex-1">
+                      <div className="font-medium text-gray-900">{getSectionDisplayName(intervention.section, t)}</div>
+                      <div className="text-sm text-gray-600">{t(`results.priorities.${intervention.priority}`)}</div>
+                    </div>
+                    <div className="text-right">
+                      <div className={`text-lg font-bold ${
+                        intervention.risk_score > 70 ? 'text-red-600' :
+                        intervention.risk_score > 40 ? 'text-yellow-600' :
+                        'text-green-600'
+                      }`}>
+                        {intervention.risk_score}/100
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        </div>
-      ))}
-    </div>
-  </div>
-)}
+          )}
 
           {/* Section Notes Summary */}
           {Object.keys(sectionNotes).length > 0 && (
