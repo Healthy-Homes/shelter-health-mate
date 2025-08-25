@@ -239,29 +239,24 @@
         "goodcondition": "Good condition",
         "faircondition": "Fair condition",
         "poorold": "Poor/Old",
-         "someneedrepair": "Some need repair",
-
         "notworking": "Not working",
-"none": "None", 
-"severe": "Severe",
-        
-  "needhelp": "Need help",
-  "yesrecently": "Yes, recently",
-  "yeslongago": "Yes, but long ago",
-  "notapplicable": "Not applicable",
-  "afewconcerns": "A few concerns",
-  "onemainconcern": "One main concern",
-  "yesactivelyplanning": "Yes, actively planning",
-  "yesforthefuture": "Yes, for the future",
-  "wantbutunable": "Want to but unable",
-  "noplans": "No plans",
-  "yesmajorvarations": "Yes, major variations",
-  "yesminorvarations": "Yes, minor variations",
-  "verysatisfied": "Very satisfied",
-  "satisfied": "Satisfied",
-  "neutral": "Neutral",
-  "dissatisfied": "Dissatisfied",
-  "verydissatisfied": "Very dissatisfied"      }
+        "needhelp": "Need help",
+        "yesrecently": "Yes, recently",
+        "yeslongago": "Yes, but long ago",
+        "afewconcerns": "A few concerns",
+        "onemainconcern": "One main concern",
+        "yesactivelyplanning": "Yes, actively planning",
+        "yesforthefuture": "Yes, for the future",
+        "wantbutunable": "Want to but unable",
+        "noplans": "No plans",
+        "yesmajorvarations": "Yes, major variations",
+        "yesminorvarations": "Yes, minor variations",
+        "verysatisfied": "Very satisfied",
+        "satisfied": "Satisfied",
+        "neutral": "Neutral",
+        "dissatisfied": "Dissatisfied",
+        "verydissatisfied": "Very dissatisfied"
+      }
     },
     "taiwan": {
       "HALST_1": {
@@ -451,12 +446,192 @@
       "HALST_47": {
         "question": "Do you have any major concerns about your housing?",
         "explanation": "Identifying housing concerns helps prioritize health and safety improvements"
+      },
+      "HALST_48": {
+        "question": "Overall, how satisfied are you with your home's environmental health?",
+        "explanation": "Overall satisfaction with environmental health may indicate multiple health risks"
       }
     },
     "us": {
-      "US_1": {
+      "US001": {
         "question": "Is water draining away from the house?",
-        "explanation": "Water should drain away from the foundation to prevent moisture problems"
+        "explanation": "Water should drain away from foundation to prevent moisture problems"
+      },
+      "US002": {
+        "question": "Is the ground sloped away from the foundation?",
+        "explanation": "Proper grading prevents water from pooling near the foundation"
+      },
+      "US003": {
+        "question": "Are there areas of standing water near the house?",
+        "explanation": "Standing water can lead to pest problems and foundation issues"
+      },
+      "US004": {
+        "question": "Are walkways and driveways in good condition (no major cracks, level)?",
+        "explanation": "Uneven walkways pose trip hazards and safety risks"
+      },
+      "US005": {
+        "question": "Are trees and large branches a safe distance from the house?",
+        "explanation": "Trees too close to the house can cause damage during storms"
+      },
+      "US006": {
+        "question": "Is the roof in good condition (no missing shingles, sagging)?",
+        "explanation": "Roof damage can lead to water infiltration and structural problems"
+      },
+      "US007": {
+        "question": "Are gutters and downspouts clean and functioning properly?",
+        "explanation": "Blocked gutters can cause water damage and foundation problems"
+      },
+      "US008": {
+        "question": "Is exterior siding/walls in good condition (no cracks, holes)?",
+        "explanation": "Damaged exterior walls allow moisture and pests to enter"
+      },
+      "US009": {
+        "question": "Are windows properly sealed and caulked?",
+        "explanation": "Poor window sealing leads to drafts and energy loss"
+      },
+      "US010": {
+        "question": "Is the chimney in good condition (if applicable)?",
+        "explanation": "Damaged chimneys pose fire and carbon monoxide risks"
+      },
+      "US011": {
+        "question": "Are there signs of moisture, water damage, or flooding?",
+        "explanation": "Moisture in basements leads to mold and structural damage"
+      },
+      "US012": {
+        "question": "Are there visible cracks in the foundation walls?",
+        "explanation": "Foundation cracks can indicate serious structural problems"
+      },
+      "US013": {
+        "question": "Is there adequate ventilation in basement/crawlspace?",
+        "explanation": "Poor ventilation leads to moisture buildup and mold growth"
+      },
+      "US014": {
+        "question": "Are there signs of pests, rodents, or termites?",
+        "explanation": "Pests can spread disease and cause structural damage"
+      },
+      "US015": {
+        "question": "Has the home been tested for radon?",
+        "explanation": "Radon is a leading cause of lung cancer in non-smokers"
+      },
+      "US016": {
+        "question": "Is the heating system working properly?",
+        "explanation": "Faulty heating systems pose safety risks and health concerns"
+      },
+      "US017": {
+        "question": "Is the cooling/AC system working properly?",
+        "explanation": "Inadequate cooling can lead to heat-related health problems"
+      },
+      "US018": {
+        "question": "Are HVAC filters changed regularly (every 1-3 months)?",
+        "explanation": "Dirty filters reduce air quality and system efficiency"
+      },
+      "US019": {
+        "question": "Are carbon monoxide detectors installed near heating equipment?",
+        "explanation": "CO detectors prevent deadly carbon monoxide poisoning"
+      },
+      "US020": {
+        "question": "Are exhaust vents clear and functioning properly?",
+        "explanation": "Blocked vents can cause dangerous gas buildup indoors"
+      },
+      "US021": {
+        "question": "Is there adequate insulation in the attic?",
+        "explanation": "Poor insulation increases energy costs and comfort issues"
+      },
+      "US022": {
+        "question": "Is the attic properly ventilated?",
+        "explanation": "Attic ventilation prevents moisture buildup and ice dams"
+      },
+      "US023": {
+        "question": "Are there signs of roof leaks or water damage in attic?",
+        "explanation": "Attic water damage indicates roof problems requiring repair"
+      },
+      "US024": {
+        "question": "Are there signs of pests or animals in the attic?",
+        "explanation": "Attic pests can damage insulation and spread disease"
+      },
+      "US025": {
+        "question": "Is water pressure adequate throughout the home?",
+        "explanation": "Poor water pressure may indicate plumbing problems"
+      },
+      "US026": {
+        "question": "Are there visible leaks under sinks or around toilets?",
+        "explanation": "Water leaks can cause damage and promote mold growth"
+      },
+      "US027": {
+        "question": "Is the hot water heater functioning properly?",
+        "explanation": "Faulty water heaters can be dangerous and inefficient"
+      },
+      "US028": {
+        "question": "Is water heater temperature set at 120°F or below?",
+        "explanation": "High water temperature poses scalding risk, especially for children"
+      },
+      "US029": {
+        "question": "Do all drains empty quickly without backing up?",
+        "explanation": "Slow drains may indicate blockages or plumbing issues"
+      },
+      "US030": {
+        "question": "Are interior walls free from major cracks, holes, or water damage?",
+        "explanation": "Interior wall damage can indicate structural or moisture problems"
+      },
+      "US031": {
+        "question": "Are ceilings in good condition (no stains, sagging)?",
+        "explanation": "Ceiling problems often indicate roof leaks or structural issues"
+      },
+      "US032": {
+        "question": "Is the home free from peeling/chipping paint (lead hazard if pre-1978)?",
+        "explanation": "Lead paint poses serious health risks, especially to children"
+      },
+      "US033": {
+        "question": "Do all windows open, close, and lock properly?",
+        "explanation": "Window function affects security, ventilation, and emergency egress"
+      },
+      "US034": {
+        "question": "Do all doors open, close, and lock properly?",
+        "explanation": "Door function affects security and emergency evacuation"
+      },
+      "US035": {
+        "question": "Is there visible mold on walls, ceilings, or around windows?",
+        "explanation": "Visible mold indicates moisture problems and health risks"
+      },
+      "US036": {
+        "question": "Is the stove/oven working safely and properly?",
+        "explanation": "Faulty cooking equipment poses fire and gas leak risks"
+      },
+      "US037": {
+        "question": "Is the refrigerator maintaining proper temperature?",
+        "explanation": "Improper refrigeration can lead to foodborne illness"
+      },
+      "US038": {
+        "question": "Are washer and dryer properly installed and vented?",
+        "explanation": "Improper appliance installation poses fire and moisture risks"
+      },
+      "US039": {
+        "question": "Are all appliance electrical cords in good condition?",
+        "explanation": "Damaged electrical cords pose fire and shock hazards"
+      },
+      "US040": {
+        "question": "Are GFCI outlets installed in bathrooms and kitchen?",
+        "explanation": "GFCI outlets prevent electrical shock in wet areas"
+      },
+      "US041": {
+        "question": "Are all electrical outlets working and properly covered?",
+        "explanation": "Faulty outlets pose electrical shock and fire risks"
+      },
+      "US042": {
+        "question": "Is the electrical panel accessible and properly labeled?",
+        "explanation": "Proper electrical panel access is important for safety and maintenance"
+      },
+      "US043": {
+        "question": "Are smoke detectors installed on every level and tested monthly?",
+        "explanation": "Working smoke detectors are critical for fire safety"
+      },
+      "US044": {
+        "question": "Does garage door open/close properly with safety features working?",
+        "explanation": "Garage door safety features prevent injury and property damage"
+      },
+      "US045": {
+        "question": "Is there proper fire separation between garage and living space?",
+        "explanation": "Fire separation prevents garage fires from spreading to living areas"
       }
     },
     "elder": {
