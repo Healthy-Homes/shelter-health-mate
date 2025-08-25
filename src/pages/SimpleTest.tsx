@@ -251,7 +251,8 @@ const getResponseLabel = (question: ChecklistItem, value: string, t: any): strin
 'dont_use_these': 'dontusethese',
 'no_medications': 'nomedications',
 'no_gas_appliances': 'nogasappliances',
-'no_hvac_system': 'nohvacsystem'
+'no_hvac_system': 'nohvacsystem',
+    'somewhat': 'somewhat'
   };
   
   // First try direct translation of the value
