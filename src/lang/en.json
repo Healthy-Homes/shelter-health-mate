@@ -240,6 +240,11 @@
         "faircondition": "Fair condition",
         "poorold": "Poor/Old",
          "someneedrepair": "Some need repair",
+
+        "notworking": "Not working",
+"none": "None", 
+"severe": "Severe",
+        
   "needhelp": "Need help",
   "yesrecently": "Yes, recently",
   "yeslongago": "Yes, but long ago",
