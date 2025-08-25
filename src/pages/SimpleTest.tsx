@@ -310,18 +310,30 @@ const getResponseLabel = (question: ChecklistItem, value: string, t: any): strin
 
 // Helper function to get translated question text
 const getQuestionText = (question: ChecklistItem, t: any): string => {
-  // Extract assessment type from question ID (e.g., "HALST_1" -> "HALST")
-  const idParts = question.item_id.split('_');
-  const assessmentType = idParts[0];
+  // Handle different ID formats
+  let assessmentType: string;
   
-  // Map to translation namespace
-  const translationNamespace = ASSESSMENT_TYPE_MAP[assessmentType];
+  if (question.item_id.includes('_')) {
+    // Format: "HALST_1" -> "HALST"
+    assessmentType = question.item_id.split('_')[0];
+  } else {
+    // Format: "US001" -> "US"  
+    assessmentType = question.item_id.match(/^[A-Z]+/)?.[0] || '';
+  }
   
   console.log('🔍 DEBUG - getQuestionText called:', {
     questionId: question.item_id,
     assessmentType,
+    hasUnderscore: question.item_id.includes('_')
+  });
+  
+  // Map to translation namespace
+  const translationNamespace = ASSESSMENT_TYPE_MAP[assessmentType];
+  
+  console.log('🔍 DEBUG - Translation namespace lookup:', {
+    assessmentType,
     translationNamespace,
-    idParts
+    ASSESSMENT_TYPE_MAP
   });
   
   if (translationNamespace) {
@@ -330,21 +342,20 @@ const getQuestionText = (question: ChecklistItem, t: any): string => {
     
     console.log('🔍 DEBUG - Question translation attempt:', {
       translationKey,
-      translated,
-      fallbackText: question.question,
+      translated: translated.substring(0, 50) + '...',
       isTranslated: translated !== translationKey
     });
     
-    // If translation exists and is different from the key, use it
     if (translated !== translationKey) {
       return translated;
     }
   }
   
-  // Fallback to original question text
   console.log('🔍 DEBUG - Using fallback text for:', question.item_id);
   return question.question;
 };
+  
+ 
 
 // Helper function to get translated explanation
 const getQuestionExplanation = (question: ChecklistItem, t: any): string => {
