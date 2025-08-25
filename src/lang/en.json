@@ -634,17 +634,201 @@
         "explanation": "Fire separation prevents garage fires from spreading to living areas"
       }
     },
-    "elder": {
-      "ELDER_1": {
-        "question": "Are there papers, books, shoes, or other objects on floors?",
-        "explanation": "Objects on floors create tripping hazards for seniors"
-      }
-    },
-    "sdoh": {
-      "SDOH_1": {
-        "question": "Within the past 12 months, did you worry that your food would run out before you got money to buy more?",
-        "explanation": "Food security is a key social determinant of health"
-      }
-    }
+"elder": {
+  "ELDER_1": {
+    "question": "Are there papers, shoes, books, or other objects on the floors?",
+    "explanation": "Objects on floors are major fall hazards for older adults"
+  },
+  "ELDER_2": {
+    "question": "Do you have scatter rugs on the floor?",
+    "explanation": "Scatter rugs can cause trips and falls"
+  },
+  "ELDER_3": {
+    "question": "Are your rugs anchored down and do they lie flat?",
+    "explanation": "Unsecured rugs are trip hazards"
+  },
+  "ELDER_4": {
+    "question": "Are your floors in good condition (no broken or uneven areas)?",
+    "explanation": "Broken or uneven floors pose serious fall risks"
+  },
+  "ELDER_5": {
+    "question": "Are handrails installed on both sides of the stairs?",
+    "explanation": "Handrails are essential fall prevention on stairs"
+  },
+  "ELDER_6": {
+    "question": "Are the handrails sturdy and in good repair?",
+    "explanation": "Damaged handrails cannot provide safe support"
+  },
+  "ELDER_7": {
+    "question": "Are the steps broken or uneven?",
+    "explanation": "Broken or uneven steps are extremely dangerous fall hazards"
+  },
+  "ELDER_8": {
+    "question": "Are there papers, shoes, books, or other objects on the stairs?",
+    "explanation": "Objects on stairs create severe fall risks"
+  },
+  "ELDER_9": {
+    "question": "Do you have good lighting on the stairs?",
+    "explanation": "Poor stair lighting increases fall risk"
+  },
+  "ELDER_10": {
+    "question": "Do you have light switches at both the top and bottom of the stairs?",
+    "explanation": "Accessible light switches improve stair safety"
+  },
+  "ELDER_11": {
+    "question": "Can you clearly see the edges of the steps?",
+    "explanation": "Visible step edges are crucial for safe navigation"
+  },
+  "ELDER_12": {
+    "question": "Are spills wiped up right away?",
+    "explanation": "Kitchen spills create serious slip hazards"
+  },
+  "ELDER_13": {
+    "question": "Are the things you use often within easy reach?",
+    "explanation": "Items stored too high require unsafe reaching or climbing"
+  },
+  "ELDER_14": {
+    "question": "Is there a lamp or light switch within reach of your bed?",
+    "explanation": "Accessible lighting prevents falls when getting up at night"
+  },
+  "ELDER_15": {
+    "question": "Is the path from your bed to the bathroom clear?",
+    "explanation": "Clear bathroom path is essential for nighttime safety"
+  },
+  "ELDER_16": {
+    "question": "Do you have a phone next to your bed?",
+    "explanation": "Bedside phone enables emergency calls without movement"
+  },
+  "ELDER_17": {
+    "question": "Are there grab bars in your tub or shower?",
+    "explanation": "Grab bars are essential for bathroom safety"
+  },
+  "ELDER_18": {
+    "question": "Is the tub or shower floor slippery?",
+    "explanation": "Slippery bathroom surfaces cause serious falls"
+  },
+  "ELDER_19": {
+    "question": "Are the chairs and sofas the right height (not too low or too high)?",
+    "explanation": "Proper furniture height makes sitting and standing safer"
+  },
+  "ELDER_20": {
+    "question": "Do you have to walk over or around wires or cords?",
+    "explanation": "Electrical cords create dangerous trip hazards"
+  },
+  "ELDER_21": {
+    "question": "Do you have smoke alarms on every level of your home?",
+    "explanation": "Smoke alarms are essential for fire safety and survival"
+  },
+  "ELDER_22": {
+    "question": "Have you tested the batteries in your smoke alarms in the past year?",
+    "explanation": "Smoke alarm maintenance is critical for fire safety"
+  },
+  "ELDER_23": {
+    "question": "Do you have a fire escape plan?",
+    "explanation": "Fire escape plans save lives in emergencies"
+  },
+  "ELDER_24": {
+    "question": "Are space heaters and fireplaces used safely (clear of flammable items)?",
+    "explanation": "Unsafe heating equipment is a major fire risk"
+  },
+  "ELDER_25": {
+    "question": "Are electrical outlets overloaded with too many plugs?",
+    "explanation": "Overloaded outlets can cause fires"
+  },
+  "ELDER_26": {
+    "question": "Are electrical cords in good condition (not frayed or damaged)?",
+    "explanation": "Damaged electrical cords pose fire and shock risks"
+  },
+  "ELDER_27": {
+    "question": "Do you have GFCI outlets in bathrooms and kitchen areas?",
+    "explanation": "GFCI protection prevents electrical shock in wet areas"
+  },
+  "ELDER_28": {
+    "question": "Are your medications stored safely and securely?",
+    "explanation": "Secure medication storage prevents accidental poisoning"
+  },
+  "ELDER_29": {
+    "question": "Do you have good lighting when taking medications?",
+    "explanation": "Good lighting prevents medication errors"
+  },
+  "ELDER_30": {
+    "question": "Do you regularly check medication expiration dates?",
+    "explanation": "Expired medications can be ineffective or harmful"
+  },
+  "ELDER_31": {
+    "question": "Do you use a pill organizer or system to track medications?",
+    "explanation": "Medication organization prevents dosing errors"
+  },
+  "ELDER_32": {
+    "question": "Do you have carbon monoxide detectors in your home?",
+    "explanation": "Carbon monoxide detectors prevent deadly poisoning"
+  },
+  "ELDER_33": {
+    "question": "Do you have emergency phone numbers posted where you can easily see them?",
+    "explanation": "Accessible emergency numbers enable quick response"
+  },
+  "ELDER_34": {
+    "question": "Do you have working flashlights and extra batteries?",
+    "explanation": "Flashlights are essential during power outages"
+  },
+  "ELDER_35": {
+    "question": "Do you have a well-stocked first aid kit?",
+    "explanation": "First aid supplies enable response to minor injuries"
+  },
+  "ELDER_36": {
+    "question": "Are your door locks in good working condition?",
+    "explanation": "Working locks provide security and safety"
+  },
+  "ELDER_37": {
+    "question": "Can you maintain a comfortable temperature in your home year-round?",
+    "explanation": "Temperature extremes pose health risks for older adults"
+  },
+  "ELDER_38": {
+    "question": "Is your home's heating and cooling system regularly maintained?",
+    "explanation": "HVAC maintenance ensures safe and efficient operation"
+  },
+  "ELDER_39": {
+    "question": "Is your water heater temperature set to 120°F (49°C) or below?",
+    "explanation": "High water temperature can cause serious burns"
+  },
+  "ELDER_40": {
+    "question": "Do you feel safe and secure in your home?",
+    "explanation": "Feeling unsafe indicates security or environmental concerns"
+  }
+},
+"sdoh": {
+  "SDOH_1": {
+    "question": "Within the past 12 months, you worried whether your food would run out before you got money to buy more.",
+    "explanation": "Food insecurity affects health outcomes and medication adherence"
+  },
+  "SDOH_2": {
+    "question": "Within the past 12 months, the food you bought just didn't last and you didn't have money to get more.",
+    "explanation": "Indicates severe food insecurity requiring immediate intervention"
+  },
+  "SDOH_3": {
+    "question": "What is your housing situation today?",
+    "explanation": "Housing instability significantly impacts health and safety"
+  },
+  "SDOH_4": {
+    "question": "In the past 12 months, has lack of reliable transportation kept you from medical appointments, meetings, work, or from getting things needed for daily living?",
+    "explanation": "Transportation barriers can prevent access to healthcare and essential services"
+  },
+  "SDOH_5": {
+    "question": "How often do you see or talk to people that you care about and feel close to? (For example: talking to friends on the phone, visiting friends or family, going to church or club meetings)",
+    "explanation": "Social isolation linked to depression, anxiety, and poor health outcomes"
+  },
+  "SDOH_6": {
+    "question": "Stress is when someone feels tense, nervous, anxious or can't sleep at night because their mind is troubled. How stressed are you?",
+    "explanation": "Chronic stress contributes to multiple health conditions"
+  },
+  "SDOH_7": {
+    "question": "Do you feel safe in your home?",
+    "explanation": "Personal safety concerns require immediate attention and resources"
+  },
+  "SDOH_8": {
+    "question": "Do you feel safe in your neighborhood?",
+    "explanation": "Neighborhood safety affects mental health and ability to access services"
+  }
+}
   }
 }
