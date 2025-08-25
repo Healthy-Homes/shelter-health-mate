@@ -317,9 +317,23 @@ const getQuestionText = (question: ChecklistItem, t: any): string => {
   // Map to translation namespace
   const translationNamespace = ASSESSMENT_TYPE_MAP[assessmentType];
   
+  console.log('🔍 DEBUG - getQuestionText called:', {
+    questionId: question.item_id,
+    assessmentType,
+    translationNamespace,
+    idParts
+  });
+  
   if (translationNamespace) {
     const translationKey = `questions.${translationNamespace}.${question.item_id}.question`;
     const translated = t(translationKey);
+    
+    console.log('🔍 DEBUG - Question translation attempt:', {
+      translationKey,
+      translated,
+      fallbackText: question.question,
+      isTranslated: translated !== translationKey
+    });
     
     // If translation exists and is different from the key, use it
     if (translated !== translationKey) {
@@ -327,8 +341,9 @@ const getQuestionText = (question: ChecklistItem, t: any): string => {
     }
   }
   
-  // Fallback to original text
-  return question.question_text;
+  // Fallback to original question text
+  console.log('🔍 DEBUG - Using fallback text for:', question.item_id);
+  return question.question;
 };
 
 // Helper function to get translated explanation
