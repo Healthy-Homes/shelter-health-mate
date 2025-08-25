@@ -230,6 +230,28 @@ const getResponseLabel = (question: ChecklistItem, value: string, t: any): strin
 'not_working': 'notworking',
 'none': 'none',
 'severe': 'severe'
+    // Add these to your existing exactMappings object:
+'often_true': 'oftentrue',
+'sometimes_true': 'sometimestrue', 
+'never_true': 'nevertrue',
+'own': 'own',
+'temporary': 'temporary',
+'transitional': 'transitional',
+'less_than_once_week': 'lessthanoceweek',
+'1_2_times_week': '12timesweek',
+'3_5_times_week': '35timesweek',
+'5_or_more_times_week': '5ormoretimesweek',
+'not_at_all': 'notatall',
+'a_little_bit': 'alittlebit',
+'quite_a_bit': 'quiteabit',
+'very_much': 'verymuch',
+'no_stairs': 'nostairs',
+'no_tub_shower': 'notubshower',
+'no_smoke_alarms': 'nosmokealarms',
+'dont_use_these': 'dontusethese',
+'no_medications': 'nomedications',
+'no_gas_appliances': 'nogasappliances',
+'no_hvac_system': 'nohvacsystem'
   };
   
   // First try direct translation of the value
