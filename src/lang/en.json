@@ -255,7 +255,25 @@
         "satisfied": "Satisfied",
         "neutral": "Neutral",
         "dissatisfied": "Dissatisfied",
-        "verydissatisfied": "Very dissatisfied"
+"verydissatisfied": "Very dissatisfied",
+"own": "I have housing",
+"temporary": "I have housing, but I am worried about losing it in the future",
+"transitional": "I do not have housing (staying with others, in a hotel, in a shelter, living outside on the street, on a beach, in a car, or in a park)",
+"lessthanoceweek": "Less than once a week",
+"12timesweek": "1 or 2 times a week",
+"35timesweek": "3 to 5 times a week",
+"5ormoretimesweek": "5 or more times a week",
+"notatall": "Not at all",
+"alittlebit": "A little bit",
+"quiteabit": "Quite a bit",
+"verymuch": "Very much",
+"nostairs": "No stairs",
+"notubshower": "No tub/shower",
+"nosmokealarms": "No smoke alarms",
+"dontusethese": "Don't use these",
+"nomedications": "No medications",
+"nogasappliances": "No gas appliances",
+"nohvacsystem": "No HVAC system"        
       }
     },
     "taiwan": {
