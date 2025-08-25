@@ -273,7 +273,9 @@
 "dontusethese": "不使用這些",
 "nomedications": "沒有藥物",
 "nogasappliances": "沒有燃氣設備",
-"nohvacsystem": "沒有暖通空調系統"      }
+"nohvacsystem": "沒有暖通空調系統",
+      "somewhat": "有些"
+      }
     },
     "taiwan": {
       "HALST_1": {
