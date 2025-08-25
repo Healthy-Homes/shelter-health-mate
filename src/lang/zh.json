@@ -256,7 +256,11 @@
         "satisfied": "滿意",
         "neutral": "中性",
         "dissatisfied": "不滿意",
-        "verydissatisfied": "非常不滿意"
+        "verydissatisfied": "非常不滿意",
+"notworking": "無法運作",
+"none": "無",
+"severe": "嚴重",
+        
       }
     },
     "taiwan": {
