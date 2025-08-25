@@ -229,7 +229,7 @@ const getResponseLabel = (question: ChecklistItem, value: string, t: any): strin
 'very_poor': 'verypoor',
 'not_working': 'notworking',
 'none': 'none',
-'severe': 'severe'
+'severe': 'severe',
     // Add these to your existing exactMappings object:
 'often_true': 'oftentrue',
 'sometimes_true': 'sometimestrue', 
