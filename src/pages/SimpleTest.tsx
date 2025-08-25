@@ -215,7 +215,7 @@ const getResponseLabel = (question: ChecklistItem, value: string, t: any): strin
   'one': 'onemainconcern',
   'yes_active': 'yesactivelyplanning',
   'yes_future': 'yesforthefuture',
-  'want_but_unable': 'wantbutunbale',
+  'want_but_unable': 'wantbutunable',
   'no_plans': 'noplans',
   'yes_major': 'yesmajorvarations',
   'yes_minor': 'yesminorvarations', 
@@ -223,7 +223,13 @@ const getResponseLabel = (question: ChecklistItem, value: string, t: any): strin
   'satisfied': 'satisfied',
   'neutral': 'neutral',
   'dissatisfied': 'dissatisfied',
-  'very_dissatisfied': 'verydissatisfied'
+  'very_dissatisfied': 'verydissatisfied',
+    // US-specific mappings (add these, remove duplicate not_applicable):
+'unsure': 'notsure', 
+'very_poor': 'verypoor',
+'not_working': 'notworking',
+'none': 'none',
+'severe': 'severe'
   };
   
   // First try direct translation of the value
