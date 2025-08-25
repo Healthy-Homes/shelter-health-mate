@@ -255,8 +255,25 @@
         "satisfied": "滿意",
         "neutral": "中性",
         "dissatisfied": "不滿意",
-        "verydissatisfied": "非常不滿意"
-      }
+"verydissatisfied": "非常不滿意",
+"own": "我有住房",
+"temporary": "我有住房，但擔心將來會失去",
+"transitional": "我沒有住房（與他人同住、住酒店、住收容所、露宿街頭、海灘、車內或公園）",
+"lessthanoceweek": "每週少於一次",
+"12timesweek": "每週1到2次",
+"35timesweek": "每週3到5次",
+"5ormoretimesweek": "每週5次或以上",
+"notatall": "完全沒有",
+"alittlebit": "一點點",
+"quiteabit": "相當多",
+"verymuch": "非常多",
+"nostairs": "沒有樓梯",
+"notubshower": "沒有浴缸/淋浴",
+"nosmokealarms": "沒有煙霧警報器",
+"dontusethese": "不使用這些",
+"nomedications": "沒有藥物",
+"nogasappliances": "沒有燃氣設備",
+"nohvacsystem": "沒有暖通空調系統"      }
     },
     "taiwan": {
       "HALST_1": {
