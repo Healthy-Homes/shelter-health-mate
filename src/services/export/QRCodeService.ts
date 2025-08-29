@@ -89,30 +89,22 @@ export class QRCodeService {
       // Generate access token
       const accessToken = EncryptionService.generateAccessToken(expirationMinutes);
 
-      // Check if data needs chunking
-      const estimatedSize = EncryptionService.estimateEncryptedSize(dataPayload);
-      const maxSingleQRSize = 2000; // Conservative limit for reliable scanning
+      // Always use chunking for assessment data to avoid size issues
+      const maxSingleQRSize = 1500; // More conservative limit
+      const chunks = EncryptionService.chunkDataForQR(dataPayload, maxSingleQRSize);
+      const qrCodes: QRCodeResult[] = [];
 
-      if (estimatedSize <= maxSingleQRSize) {
-        // Single QR code
-        return [await this.createSingleQRCode(dataPayload, accessToken, 1, 1)];
-      } else {
-        // Multiple QR codes
-        const chunks = EncryptionService.chunkDataForQR(dataPayload, maxSingleQRSize);
-        const qrCodes: QRCodeResult[] = [];
-
-        for (const chunk of chunks) {
-          const qrCode = await this.createSingleQRCode(
-            chunk.chunk, 
-            accessToken, 
-            chunk.index, 
-            chunk.total
-          );
-          qrCodes.push(qrCode);
-        }
-
-        return qrCodes;
+      for (const chunk of chunks) {
+        const qrCode = await this.createSingleQRCode(
+          chunk.chunk, 
+          accessToken, 
+          chunk.index, 
+          chunk.total
+        );
+        qrCodes.push(qrCode);
       }
+
+      return qrCodes;
     } catch (error) {
       console.error('QR code generation failed:', error);
       throw new Error('Failed to generate QR codes');
