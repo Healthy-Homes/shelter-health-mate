@@ -124,7 +124,8 @@ const ExportModal: React.FC<ExportModalProps> = ({
   };
 
   const generateFHIRExport = async () => {
-    const fhirBundle = FHIRMappingService.createFHIRBundle(
+    // Use full FHIR payload for JSON export
+    const fhirBundle = await QRCodeService.prepareFullFHIRPayload(
       results,
       responses,
       questions
@@ -434,5 +435,4 @@ const ExportModal: React.FC<ExportModalProps> = ({
   );
 };
 
-export { ExportModal };
 export default ExportModal;
