@@ -83,7 +83,7 @@ const ExportModal: React.FC<ExportModalProps> = ({
   };
 
   const generateClinicalReport = async () => {
-    // Generate QR codes with FHIR data
+    // Generate QR codes with minimal summary data
     const qrResults = await QRCodeService.generateDownloadableQRCodes(
       results,
       responses,
@@ -229,10 +229,10 @@ const ExportModal: React.FC<ExportModalProps> = ({
               onClick={() => setSelectedFormat('clinical-pdf')}
             >
               <div className="font-semibold text-blue-600 dark:text-blue-400">
-                📄 Clinical Report (PDF + QR)
+                📄 Clinical Report (PDF + QR Summary)
               </div>
               <div className="text-sm text-gray-600 dark:text-gray-300 mt-1">
-                Human-readable report with embedded FHIR QR codes for healthcare providers
+                Human-readable report with QR code containing assessment summary
               </div>
             </div>
 
@@ -249,7 +249,7 @@ const ExportModal: React.FC<ExportModalProps> = ({
                 🏥 FHIR Bundle (JSON)
               </div>
               <div className="text-sm text-gray-600 dark:text-gray-300 mt-1">
-                Direct EHR integration format with US Core and Gravity SDOH compliance
+                Complete clinical documentation with US Core and Gravity SDOH compliance
               </div>
             </div>
 
@@ -379,7 +379,7 @@ const ExportModal: React.FC<ExportModalProps> = ({
                   />
                   <div className="text-center mt-2">
                     <div className="font-medium">
-                      {t('export.qrPart', { current: qrCode.index, total: qrCode.total })}
+                      Assessment Summary QR Code
                     </div>
                     <div className="text-sm text-gray-500">Size: {qrCode.size}</div>
                     <button
@@ -393,11 +393,9 @@ const ExportModal: React.FC<ExportModalProps> = ({
               ))}
             </div>
             
-            {qrCodes.length > 1 && (
-              <div className="text-sm text-blue-600 dark:text-blue-400 text-center">
-                {t('export.qrInstructions')}
-              </div>
-            )}
+            <div className="text-sm text-blue-600 dark:text-blue-400 text-center">
+              QR code contains assessment summary with risk scores and key findings. Full clinical data available in FHIR export.
+            </div>
           </div>
         )}
 
