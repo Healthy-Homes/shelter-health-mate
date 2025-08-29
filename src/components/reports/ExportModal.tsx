@@ -147,55 +147,40 @@ const ExportModal: React.FC<ExportModalProps> = ({
   };
 
   const generateResearchCSV = async () => {
-    const csvData = this.generateCSVData();
-    const blob = new Blob([csvData], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'health-assessment-research-data.csv';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    const { CSVExportService } = await import('../../services/export/CSVExportService');
+    
+    const csvOptions = {
+      includePersonalInfo,
+      anonymizeSensitiveData: anonymizeResearch,
+      includeRiskScores: true,
+      includeMetadata: true,
+      includeBilingualText: true
+    };
 
-    setSuccessMessage('Research CSV downloaded successfully!');
-  };
+    const { csv, summary, filename } = CSVExportService.generateBulkExport(
+      results,
+      responses,
+      questions,
+      csvOptions
+    );
 
-  const generateCSVData = (): string => {
-    const headers = [
-      'QuestionID',
-      'QuestionText_EN',
-      'QuestionText_ZH',
-      'Response_EN',
-      'Response_ZH',
-      'ResponseValue',
-      'RiskScore',
-      'Category',
-      'Timestamp',
-      'AssessmentType'
-    ];
+    // Download the CSV file
+    CSVExportService.downloadCSV(csv, filename);
 
-    const rows = questions.map(question => {
-      const responseKey = question.item_id;
-      const response = responses[responseKey];
-      
-      return [
-        question.item_id,
-        question.question_text,
-        question.question_text_zh || '',
-        response || '',
-        '', // Response_ZH would need translation logic
-        response || '',
-        results.sectionScores?.[question.section] || 0,
-        question.section,
-        new Date().toISOString(),
-        results.assessmentType || 'unknown'
-      ];
-    });
+    // Optionally download summary report
+    if (summary) {
+      const summaryBlob = new Blob([summary], { type: 'text/plain' });
+      const summaryUrl = URL.createObjectURL(summaryBlob);
+      const summaryLink = document.createElement('a');
+      summaryLink.href = summaryUrl;
+      summaryLink.download = filename.replace('.csv', '-summary.txt');
+      document.body.appendChild(summaryLink);
+      summaryLink.click();
+      document.body.removeChild(summaryLink);
+      URL.revokeObjectURL(summaryUrl);
+    }
 
-    return [headers, ...rows]
-      .map(row => row.map(field => `"${field}"`).join(','))
-      .join('\n');
+    setSuccessMessage('Research CSV and summary report downloaded successfully!');
   };
 
   const handleDownloadQR = (qrResult: QRCodeResult) => {
