@@ -1,10 +1,9 @@
 // src/components/reports/ExportModal.tsx
-// Enhanced modal component with downloadable QR codes and streamlined export options
+// Enhanced modal component with QR functionality temporarily disabled
 
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PDFReportService } from '../../services/export/PDFReportService';
-import { FHIRMappingService } from '../../services/export/FHIRMappingService';
 import { QRCodeService, QRCodeResult } from '../../services/export/QRCodeService';
 import { AssessmentResults, ResponseMap, ChecklistItem } from '../../types/checklist';
 
@@ -31,9 +30,9 @@ const ExportModal: React.FC<ExportModalProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   
-  // QR Code specific state
+  // QR Code specific state - DISABLED FOR NOW
   const [qrCodes, setQrCodes] = useState<QRCodeResult[]>([]);
-  const [qrExpiration, setQrExpiration] = useState<number>(60); // minutes
+  const [qrExpiration, setQrExpiration] = useState<number>(60);
   const [showNeverExpireWarning, setShowNeverExpireWarning] = useState(false);
   const [neverExpireConsent, setNeverExpireConsent] = useState(false);
   
@@ -83,44 +82,46 @@ const ExportModal: React.FC<ExportModalProps> = ({
   };
 
   const generateClinicalReport = async () => {
-    // Generate QR codes with minimal summary data
-    const qrResults = await QRCodeService.generateDownloadableQRCodes(
-      results,
-      responses,
-      questions,
-      {
-        includeRawData,
-        includePersonalInfo,
-        expirationMinutes: qrExpiration,
-        format: 'FHIR'
-      }
-    );
-    setQrCodes(qrResults);
+    // QR CODE FUNCTIONALITY TEMPORARILY DISABLED
+    // Uncomment the following lines to re-enable QR generation:
+    
+    // const qrResults = await QRCodeService.generateDownloadableQRCodes(
+    //   results,
+    //   responses,
+    //   questions,
+    //   {
+    //     includeRawData,
+    //     includePersonalInfo,
+    //     expirationMinutes: qrExpiration,
+    //     format: 'FHIR'
+    //   }
+    // );
+    // setQrCodes(qrResults);
 
-    // Generate PDF with embedded QR codes
-    const pdfEmbeddableQRs = await QRCodeService.generatePDFEmbeddableQRCodes(
-      results,
-      responses,
-      questions,
-      {
-        includeRawData,
-        includePersonalInfo,
-        expirationMinutes: qrExpiration
-      }
-    );
+    // const pdfEmbeddableQRs = await QRCodeService.generatePDFEmbeddableQRCodes(
+    //   results,
+    //   responses,
+    //   questions,
+    //   {
+    //     includeRawData,
+    //     includePersonalInfo,
+    //     expirationMinutes: qrExpiration
+    //   }
+    // );
 
+    // Generate PDF without QR codes
     await PDFReportService.generateReport(
       results,
       responses,
       questions,
       {
-        includeQRCodes: true,
-        qrCodes: pdfEmbeddableQRs,
-        language: 'en' // Could be dynamic based on current language
+        includeQRCodes: false, // QR functionality disabled
+        // qrCodes: pdfEmbeddableQRs, // Commented out
+        language: 'en'
       }
     );
 
-    setSuccessMessage('Clinical report with QR codes generated successfully!');
+    setSuccessMessage('Clinical report generated successfully!');
   };
 
   const generateFHIRExport = async () => {
@@ -168,7 +169,7 @@ const ExportModal: React.FC<ExportModalProps> = ({
     // Download the CSV file
     CSVExportService.downloadCSV(csv, filename);
 
-    // Optionally download summary report
+    // Download summary report
     if (summary) {
       const summaryBlob = new Blob([summary], { type: 'text/plain' });
       const summaryUrl = URL.createObjectURL(summaryBlob);
@@ -184,6 +185,7 @@ const ExportModal: React.FC<ExportModalProps> = ({
     setSuccessMessage('Research CSV and summary report downloaded successfully!');
   };
 
+  // QR-related functions preserved but not used
   const handleDownloadQR = (qrResult: QRCodeResult) => {
     QRCodeService.downloadQRCode(qrResult);
   };
@@ -219,7 +221,7 @@ const ExportModal: React.FC<ExportModalProps> = ({
           <h3 className="text-lg font-semibold mb-3">{t('export.selectFormat')}</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             
-            {/* Clinical Report Option */}
+            {/* Clinical Report Option - QR functionality removed from UI */}
             <div
               className={`border-2 rounded-lg p-4 cursor-pointer transition-all ${
                 selectedFormat === 'clinical-pdf'
@@ -229,10 +231,10 @@ const ExportModal: React.FC<ExportModalProps> = ({
               onClick={() => setSelectedFormat('clinical-pdf')}
             >
               <div className="font-semibold text-blue-600 dark:text-blue-400">
-                📄 Clinical Report (PDF + QR Summary)
+                📄 Clinical Report (PDF)
               </div>
               <div className="text-sm text-gray-600 dark:text-gray-300 mt-1">
-                Human-readable report with QR code containing assessment summary
+                Professional clinical report for healthcare providers
               </div>
             </div>
 
@@ -249,7 +251,7 @@ const ExportModal: React.FC<ExportModalProps> = ({
                 🏥 FHIR Bundle (JSON)
               </div>
               <div className="text-sm text-gray-600 dark:text-gray-300 mt-1">
-                Complete clinical documentation with US Core and Gravity SDOH compliance
+                Complete clinical documentation with US Core and Gravity SDOH compliance for EHR integration
               </div>
             </div>
 
@@ -272,7 +274,7 @@ const ExportModal: React.FC<ExportModalProps> = ({
           </div>
         </div>
 
-        {/* Export Options */}
+        {/* Export Options - QR-related options hidden */}
         <div className="mb-6">
           <h3 className="text-lg font-semibold mb-3">{t('export.options')}</h3>
           <div className="space-y-3">
@@ -308,6 +310,7 @@ const ExportModal: React.FC<ExportModalProps> = ({
               </label>
             )}
 
+            {/* QR expiration options hidden when QR functionality is disabled
             {selectedFormat === 'clinical-pdf' && (
               <div>
                 <label className="block text-sm font-medium mb-2">
@@ -326,10 +329,11 @@ const ExportModal: React.FC<ExportModalProps> = ({
                 </select>
               </div>
             )}
+            */}
           </div>
         </div>
 
-        {/* Never Expire Consent */}
+        {/* Never Expire Consent - Hidden when QR disabled
         {showNeverExpireWarning && (
           <div className="mb-6 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-lg">
             <div className="font-semibold text-yellow-800 dark:text-yellow-200 mb-2">
@@ -353,8 +357,9 @@ const ExportModal: React.FC<ExportModalProps> = ({
             </label>
           </div>
         )}
+        */}
 
-        {/* Generated QR Codes Display */}
+        {/* Generated QR Codes Display - Hidden when QR disabled
         {qrCodes.length > 0 && (
           <div className="mb-6">
             <div className="flex justify-between items-center mb-3">
@@ -398,6 +403,7 @@ const ExportModal: React.FC<ExportModalProps> = ({
             </div>
           </div>
         )}
+        */}
 
         {/* Status Messages */}
         {error && (
@@ -422,7 +428,7 @@ const ExportModal: React.FC<ExportModalProps> = ({
           </button>
           <button
             onClick={handleGenerateExport}
-            disabled={isGenerating || (showNeverExpireWarning && !neverExpireConsent)}
+            disabled={isGenerating}
             className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {isGenerating ? t('export.generating') : t('export.generate')}
