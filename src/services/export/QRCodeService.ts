@@ -1,23 +1,52 @@
 // src/services/export/QRCodeService.ts
-// Generates secure QR codes for health assessment data portability
+// Enhanced QR code service with download and PDF integration capabilities
 
 import QRCode from 'qrcode';
 import { EncryptionService } from '../security/EncryptionService';
 import { 
   AssessmentResults, 
-  ResponseMap, 
-  ChecklistItem, 
-  QRCodeData 
-} from '../../types/export/fhirTypes';
+  ResponseMap,
+  ChecklistItem 
+} from '../../types/checklist';
+
+export interface QRCodeResult {
+  dataUrl: string;
+  downloadUrl: string;
+  filename: string;
+  index: number;
+  total: number;
+  size: string;
+}
+
+export interface QRCodeOptions {
+  errorCorrectionLevel?: 'L' | 'M' | 'Q' | 'H';
+  type?: 'image/png' | 'image/jpeg';
+  quality?: number;
+  margin?: number;
+  color?: {
+    dark?: string;
+    light?: string;
+  };
+  width?: number;
+}
 
 export class QRCodeService {
-  private static readonly MAX_QR_SIZE = 2000; // Typical QR code data limit
-  private static readonly QR_VERSION = '1.0';
+  private static readonly DEFAULT_OPTIONS: QRCodeOptions = {
+    errorCorrectionLevel: 'H', // High error correction for healthcare
+    type: 'image/png',
+    quality: 0.92,
+    margin: 4,
+    color: {
+      dark: '#000000',
+      light: '#FFFFFF'
+    },
+    width: 512 // High resolution for printing
+  };
 
   /**
-   * Generates secure QR codes containing assessment data
+   * Generates downloadable QR codes with enhanced options
    */
-  static async generateReportQR(
+  static async generateDownloadableQRCodes(
     results: AssessmentResults,
     responses: ResponseMap,
     questions: ChecklistItem[],
@@ -25,40 +54,65 @@ export class QRCodeService {
       includeRawData?: boolean;
       includePersonalInfo?: boolean;
       expirationMinutes?: number;
-      compressionLevel?: 'low' | 'medium' | 'high';
+      format?: 'FHIR' | 'JSON';
     } = {}
-  ): Promise<string[]> {
-    
+  ): Promise<QRCodeResult[]> {
     try {
-      // Set defaults
-      const config = {
-        includeRawData: options.includeRawData ?? false,
-        includePersonalInfo: options.includePersonalInfo ?? false,
-        expirationMinutes: options.expirationMinutes ?? 60,
-        compressionLevel: options.compressionLevel ?? 'medium'
-      };
+      const { includeRawData = true, includePersonalInfo = false, expirationMinutes = 60, format = 'FHIR' } = options;
 
-      // Build QR data payload
-      const qrData = this.buildQRDataPayload(
-        results, 
-        responses, 
-        questions, 
-        config
-      );
+      // Prepare data payload based on format
+      let dataPayload;
+      if (format === 'FHIR') {
+        // Use FHIR mapping service (would need to import)
+        dataPayload = await this.prepareFHIRPayload(results, responses, questions);
+      } else {
+        dataPayload = {
+          results,
+          responses: includeRawData ? responses : {},
+          questions: includeRawData ? questions : [],
+          metadata: {
+            exportDate: new Date().toISOString(),
+            format: 'JSON',
+            version: '1.0'
+          }
+        };
+      }
 
-      // Encrypt and compress the data
-      const encryptedData = EncryptionService.encryptData(qrData);
+      // Sanitize data if needed
+      if (!includePersonalInfo) {
+        dataPayload = EncryptionService.sanitizeForExport(dataPayload, {
+          anonymizeIds: true,
+          removeSensitiveResponses: true
+        });
+      }
 
-      // Split into chunks if data is too large
-      const chunks = this.chunkData(encryptedData, this.MAX_QR_SIZE);
+      // Generate access token
+      const accessToken = EncryptionService.generateAccessToken(expirationMinutes);
 
-      // Generate QR codes for each chunk
-      const qrCodes = await Promise.all(
-        chunks.map((chunk, index) => this.generateQRCode(chunk, index, chunks.length))
-      );
+      // Check if data needs chunking
+      const estimatedSize = EncryptionService.estimateEncryptedSize(dataPayload);
+      const maxSingleQRSize = 2000; // Conservative limit for reliable scanning
 
-      return qrCodes;
+      if (estimatedSize <= maxSingleQRSize) {
+        // Single QR code
+        return [await this.createSingleQRCode(dataPayload, accessToken, 1, 1)];
+      } else {
+        // Multiple QR codes
+        const chunks = EncryptionService.chunkDataForQR(dataPayload, maxSingleQRSize);
+        const qrCodes: QRCodeResult[] = [];
 
+        for (const chunk of chunks) {
+          const qrCode = await this.createSingleQRCode(
+            chunk.chunk, 
+            accessToken, 
+            chunk.index, 
+            chunk.total
+          );
+          qrCodes.push(qrCode);
+        }
+
+        return qrCodes;
+      }
     } catch (error) {
       console.error('QR code generation failed:', error);
       throw new Error('Failed to generate QR codes');
@@ -66,189 +120,158 @@ export class QRCodeService {
   }
 
   /**
-   * Builds the data payload for QR codes
+   * Creates a single downloadable QR code
    */
-  private static buildQRDataPayload(
+  private static async createSingleQRCode(
+    data: any, 
+    accessToken: string, 
+    index: number, 
+    total: number
+  ): Promise<QRCodeResult> {
+    const payload = {
+      data: EncryptionService.encryptData(data),
+      token: accessToken,
+      metadata: {
+        part: index,
+        total: total,
+        timestamp: Date.now(),
+        version: '2.1'
+      }
+    };
+
+    const qrData = JSON.stringify(payload);
+    
+    // Generate QR code as data URL
+    const dataUrl = await QRCode.toDataURL(qrData, this.DEFAULT_OPTIONS);
+    
+    // Create downloadable blob URL
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
+    
+    return new Promise((resolve, reject) => {
+      img.onload = () => {
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx?.drawImage(img, 0, 0);
+        
+        canvas.toBlob((blob) => {
+          if (blob) {
+            const downloadUrl = URL.createObjectURL(blob);
+            const filename = total > 1 
+              ? `health-assessment-qr-part${index}-of-${total}.png`
+              : 'health-assessment-qr.png';
+
+            resolve({
+              dataUrl,
+              downloadUrl,
+              filename,
+              index,
+              total,
+              size: this.formatFileSize(blob.size)
+            });
+          } else {
+            reject(new Error('Failed to create blob'));
+          }
+        }, 'image/png', 0.92);
+      };
+      
+      img.onerror = () => reject(new Error('Failed to load QR image'));
+      img.src = dataUrl;
+    });
+  }
+
+  /**
+   * Downloads a QR code file
+   */
+  static downloadQRCode(qrResult: QRCodeResult): void {
+    const link = document.createElement('a');
+    link.href = qrResult.downloadUrl;
+    link.download = qrResult.filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  /**
+   * Downloads all QR codes as a ZIP file (simplified version)
+   */
+  static async downloadAllQRCodes(qrResults: QRCodeResult[]): Promise<void> {
+    // For now, download individually
+    // In production, you might want to use a ZIP library
+    for (const qr of qrResults) {
+      this.downloadQRCode(qr);
+      // Small delay to prevent browser blocking multiple downloads
+      await new Promise(resolve => setTimeout(resolve, 500));
+    }
+  }
+
+  /**
+   * Generates QR codes for PDF embedding
+   */
+  static async generatePDFEmbeddableQRCodes(
     results: AssessmentResults,
     responses: ResponseMap,
     questions: ChecklistItem[],
-    config: any
-  ): QRCodeData {
-    
-    // Generate access token if including sensitive data
-    const accessToken = (config.includeRawData || config.includePersonalInfo) 
-      ? EncryptionService.generateAccessToken(config.expirationMinutes)
-      : undefined;
-
-    // Build assessment types list
-    const assessmentTypes = this.getAssessmentTypes(questions);
-
-    const qrData: QRCodeData = {
-      version: this.QR_VERSION,
-      timestamp: new Date().toISOString(),
-      accessToken,
-      data: {
-        riskScore: results.risk_score,
-        riskLevel: results.risk_level,
-        completionRate: Object.keys(responses).length / questions.length,
-        priorityInterventions: results.priority_interventions.slice(0, 5), // Limit to top 5
-        ...(config.includeRawData && { 
-          responses: this.sanitizeResponses(responses, questions) 
-        }),
-        ...(config.includePersonalInfo && {
-          patientInfo: {
-            id: EncryptionService.generateSecureId('patient'),
-            language: 'en' // Could be passed as parameter
-          }
-        })
-      },
-      metadata: {
-        exportFormat: 'qr-encrypted',
-        questionCount: questions.length,
-        assessmentTypes
-      }
-    };
-
-    return qrData;
-  }
-
-  /**
-   * Sanitizes response data for QR code inclusion
-   */
-  private static sanitizeResponses(
-    responses: ResponseMap, 
-    questions: ChecklistItem[]
-  ): ResponseMap {
-    const sanitized: ResponseMap = {};
-    const sensitiveKeywords = ['income', 'financial', 'abuse', 'violence', 'personal'];
-
-    Object.entries(responses).forEach(([questionId, response]) => {
-      const question = questions.find(q => q.item_id === questionId);
-      
-      if (question) {
-        const questionText = question.question_text.toLowerCase();
-        const isSensitive = sensitiveKeywords.some(keyword => 
-          questionText.includes(keyword)
-        );
-
-        if (!isSensitive) {
-          sanitized[questionId] = response;
-        } else {
-          // Replace sensitive responses with anonymized indicator
-          sanitized[questionId] = 'REDACTED_FOR_PRIVACY';
-        }
-      }
+    options: {
+      includeRawData?: boolean;
+      includePersonalInfo?: boolean;
+      expirationMinutes?: number;
+    } = {}
+  ): Promise<{ dataUrl: string; width: number; height: number }[]> {
+    const qrResults = await this.generateDownloadableQRCodes(results, responses, questions, {
+      ...options,
+      format: 'FHIR' // Always use FHIR for PDF embedding
     });
 
-    return sanitized;
+    return qrResults.map(qr => ({
+      dataUrl: qr.dataUrl,
+      width: this.DEFAULT_OPTIONS.width || 512,
+      height: this.DEFAULT_OPTIONS.width || 512
+    }));
   }
 
   /**
-   * Determines assessment types from question list
+   * Validates and reconstructs data from multiple QR codes
    */
-  private static getAssessmentTypes(questions: ChecklistItem[]): string[] {
-    const types = new Set<string>();
-
-    questions.forEach(question => {
-      if (question.item_id.startsWith('HALST_')) {
-        types.add('Taiwan HALST');
-      } else if (question.item_id.startsWith('US')) {
-        types.add('US Healthy Homes');
-      } else if (question.item_id.startsWith('ELDER_')) {
-        types.add('Elder Safety');
-      } else if (question.item_id.startsWith('SDOH_')) {
-        types.add('Social Determinants');
-      }
-    });
-
-    return Array.from(types);
-  }
-
-  /**
-   * Splits data into manageable chunks for QR codes
-   */
-  private static chunkData(data: string, chunkSize: number): string[] {
-    const chunks: string[] = [];
-    
-    for (let i = 0; i < data.length; i += chunkSize) {
-      chunks.push(data.slice(i, i + chunkSize));
-    }
-    
-    return chunks;
-  }
-
-  /**
-   * Generates a single QR code for a data chunk
-   */
-  private static async generateQRCode(
-    chunk: string, 
-    index: number, 
-    total: number
-  ): Promise<string> {
-    
-    const chunkData = {
-      part: index + 1,
-      total: total,
-      data: chunk,
-      checksum: this.calculateChecksum(chunk)
-    };
-
-    const qrOptions = {
-      errorCorrectionLevel: 'M' as const,
-      margin: 2,
-      width: 400,
-      color: {
-        dark: '#000000',
-        light: '#FFFFFF'
-      }
-    };
-
-    return await QRCode.toDataURL(JSON.stringify(chunkData), qrOptions);
-  }
-
-  /**
-   * Calculates checksum for data integrity
-   */
-  private static calculateChecksum(data: string): string {
-    let checksum = 0;
-    for (let i = 0; i < data.length; i++) {
-      checksum += data.charCodeAt(i);
-    }
-    return checksum.toString(16);
-  }
-
-  /**
-   * Reconstructs data from multiple QR code chunks
-   */
-  static reconstructDataFromQRs(qrChunks: any[]): string {
+  static async reconstructFromQRCodes(qrDataArray: string[]): Promise<any> {
     try {
-      // Sort chunks by part number
-      const sortedChunks = qrChunks.sort((a, b) => a.part - b.part);
+      const chunks: Array<{data: any, metadata: any}> = [];
 
-      // Verify all parts are present
-      const expectedTotal = sortedChunks[0]?.total || 1;
-      if (sortedChunks.length !== expectedTotal) {
-        throw new Error('Missing QR code parts');
+      // Parse and decrypt each QR code
+      for (const qrData of qrDataArray) {
+        const payload = JSON.parse(qrData);
+        
+        // Validate access token
+        if (!EncryptionService.validateAccessToken(payload.token)) {
+          throw new Error('Invalid or expired access token');
+        }
+
+        // Decrypt data
+        const decryptedData = EncryptionService.decryptData(payload.data);
+        chunks.push({
+          data: decryptedData,
+          metadata: payload.metadata
+        });
       }
 
-      // Verify checksums and reconstruct data
-      let reconstructedData = '';
-      
-      sortedChunks.forEach((chunk, index) => {
-        if (chunk.part !== index + 1) {
-          throw new Error(`QR code part ${index + 1} is missing or out of order`);
-        }
+      // Sort chunks by part number
+      chunks.sort((a, b) => a.metadata.part - b.metadata.part);
 
-        const expectedChecksum = this.calculateChecksum(chunk.data);
-        if (chunk.checksum !== expectedChecksum) {
-          throw new Error(`QR code part ${chunk.part} failed checksum verification`);
-        }
+      // Validate we have all parts
+      const totalParts = chunks[0].metadata.total;
+      if (chunks.length !== totalParts) {
+        throw new Error(`Missing QR code parts. Expected ${totalParts}, got ${chunks.length}`);
+      }
 
-        reconstructedData += chunk.data;
-      });
-
-      return reconstructedData;
-
+      // Reconstruct original data
+      if (totalParts === 1) {
+        return chunks[0].data;
+      } else {
+        // Reconstruct from chunks
+        const reconstructedJson = chunks.map(chunk => chunk.data.data).join('');
+        return JSON.parse(reconstructedJson);
+      }
     } catch (error) {
       console.error('QR reconstruction failed:', error);
       throw new Error('Failed to reconstruct data from QR codes');
@@ -256,98 +279,62 @@ export class QRCodeService {
   }
 
   /**
-   * Decodes and decrypts QR code data
+   * Prepares FHIR payload for QR codes
    */
-  static decodeQRData(encryptedData: string): QRCodeData {
-    try {
-      const decryptedData = EncryptionService.decryptData(encryptedData);
-      
-      // Validate data structure
-      if (!decryptedData.version || !decryptedData.data) {
-        throw new Error('Invalid QR data structure');
-      }
-
-      // Check version compatibility
-      if (decryptedData.version !== this.QR_VERSION) {
-        console.warn(`QR data version mismatch: expected ${this.QR_VERSION}, got ${decryptedData.version}`);
-      }
-
-      return decryptedData as QRCodeData;
-
-    } catch (error) {
-      console.error('QR decoding failed:', error);
-      throw new Error('Failed to decode QR data');
-    }
-  }
-
-  /**
-   * Generates summary QR code with basic risk information only
-   */
-  static async generateSummaryQR(results: AssessmentResults): Promise<string> {
-    const summaryData = {
-      version: this.QR_VERSION,
-      timestamp: new Date().toISOString(),
-      summary: {
-        riskScore: results.risk_score,
-        riskLevel: results.risk_level,
-        interventionsCount: results.priority_interventions.length,
-        issuesCount: results.questions_with_issues
-      }
-    };
-
-    const qrOptions = {
-      errorCorrectionLevel: 'M' as const,
-      margin: 2,
-      width: 300,
-      color: {
-        dark: '#1f2937',
-        light: '#ffffff'
-      }
-    };
-
-    return await QRCode.toDataURL(JSON.stringify(summaryData), qrOptions);
-  }
-
-  /**
-   * Validates QR code data integrity
-   */
-  static validateQRData(qrData: QRCodeData): { isValid: boolean; errors: string[] } {
-    const errors: string[] = [];
-
-    if (!qrData.version) {
-      errors.push('Missing version information');
-    }
-
-    if (!qrData.timestamp) {
-      errors.push('Missing timestamp');
-    }
-
-    if (!qrData.data) {
-      errors.push('Missing data payload');
-    } else {
-      if (typeof qrData.data.riskScore !== 'number') {
-        errors.push('Invalid risk score');
-      }
-
-      if (!qrData.data.riskLevel) {
-        errors.push('Missing risk level');
-      }
-
-      if (typeof qrData.data.completionRate !== 'number' || 
-          qrData.data.completionRate < 0 || 
-          qrData.data.completionRate > 1) {
-        errors.push('Invalid completion rate');
-      }
-    }
-
-    // Validate access token if present
-    if (qrData.accessToken && !EncryptionService.validateAccessToken(qrData.accessToken)) {
-      errors.push('Invalid or expired access token');
-    }
-
+  private static async prepareFHIRPayload(
+    results: AssessmentResults,
+    responses: ResponseMap,
+    questions: ChecklistItem[]
+  ): Promise<any> {
+    // This would integrate with your FHIR mapping service
+    // For now, return a simplified structure
     return {
-      isValid: errors.length === 0,
-      errors
+      resourceType: 'Bundle',
+      type: 'collection',
+      timestamp: new Date().toISOString(),
+      entry: [
+        {
+          resource: {
+            resourceType: 'Patient',
+            id: 'anonymous-patient',
+            active: true
+          }
+        },
+        {
+          resource: {
+            resourceType: 'DiagnosticReport',
+            id: 'health-assessment-report',
+            status: 'final',
+            subject: { reference: 'Patient/anonymous-patient' },
+            effectiveDateTime: new Date().toISOString(),
+            result: Object.keys(responses).map(questionId => ({
+              reference: `Observation/${questionId}`
+            }))
+          }
+        }
+      ]
     };
+  }
+
+  /**
+   * Formats file size for display
+   */
+  private static formatFileSize(bytes: number): string {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  }
+
+  /**
+   * Cleanup blob URLs to prevent memory leaks
+   */
+  static cleanupBlobUrls(qrResults: QRCodeResult[]): void {
+    qrResults.forEach(qr => {
+      if (qr.downloadUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(qr.downloadUrl);
+      }
+    });
   }
 }
