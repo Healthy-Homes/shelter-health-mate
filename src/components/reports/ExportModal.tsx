@@ -435,4 +435,5 @@ const ExportModal: React.FC<ExportModalProps> = ({
   );
 };
 
+export { ExportModal };
 export default ExportModal;
