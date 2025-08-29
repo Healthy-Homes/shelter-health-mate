@@ -266,41 +266,62 @@ export class QRCodeService {
   }
 
   /**
-   * Prepares FHIR payload for QR codes
+   * Prepares optimized payload for QR codes - minimal data only
    */
   private static async prepareFHIRPayload(
     results: AssessmentResults,
     responses: ResponseMap,
     questions: ChecklistItem[]
   ): Promise<any> {
-    // This would integrate with your FHIR mapping service
-    // For now, return a simplified structure
+    // Create minimal QR-optimized payload
     return {
-      resourceType: 'Bundle',
-      type: 'collection',
+      // Essential assessment data only
+      assessmentId: results.assessmentId || 'unknown',
+      assessmentType: results.assessmentType || 'health-assessment',
       timestamp: new Date().toISOString(),
-      entry: [
-        {
-          resource: {
-            resourceType: 'Patient',
-            id: 'anonymous-patient',
-            active: true
-          }
-        },
-        {
-          resource: {
-            resourceType: 'DiagnosticReport',
-            id: 'health-assessment-report',
-            status: 'final',
-            subject: { reference: 'Patient/anonymous-patient' },
-            effectiveDateTime: new Date().toISOString(),
-            result: Object.keys(responses).map(questionId => ({
-              reference: `Observation/${questionId}`
-            }))
-          }
-        }
-      ]
+      
+      // Compact responses - question ID and answer only
+      responses: Object.entries(responses).map(([questionId, answer]) => ({
+        q: questionId,
+        a: answer
+      })),
+      
+      // Summary data only
+      summary: {
+        totalQuestions: questions.length,
+        answeredQuestions: Object.keys(responses).length,
+        riskScore: results.risk_score,
+        riskLevel: results.risk_level,
+        issueCount: results.questions_with_issues,
+        priorityInterventions: results.priority_interventions?.slice(0, 3) || [] // Top 3 only
+      },
+      
+      // Section scores without detailed breakdown
+      sectionScores: results.sectionScores,
+      
+      // Minimal metadata
+      meta: {
+        version: '1.0',
+        format: 'qr-optimized',
+        language: 'en', // Could be dynamic
+        exportType: 'assessment-summary'
+      }
     };
+  }
+
+  /**
+   * Prepares comprehensive FHIR payload for JSON export
+   */
+  static async prepareFullFHIRPayload(
+    results: AssessmentResults,
+    responses: ResponseMap,
+    questions: ChecklistItem[]
+  ): Promise<any> {
+    // Import FHIR mapping service dynamically to avoid circular dependencies
+    const { FHIRMappingService } = await import('./FHIRMappingService');
+    
+    // Use the full FHIR bundle creation
+    return FHIRMappingService.createFHIRBundle(results, responses, questions);
   }
 
   /**
