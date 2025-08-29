@@ -241,29 +241,24 @@ export class QRCodeService {
 
         // Decrypt data
         const decryptedData = EncryptionService.decryptData(payload.data);
-        chunks.push({
-          data: decryptedData,
-          metadata: payload.metadata
-        });
+        
+        // Extract chunk data and metadata
+        if (decryptedData.data && decryptedData.metadata) {
+          chunks.push({
+            data: decryptedData.data,
+            metadata: decryptedData.metadata
+          });
+        } else {
+          // Single chunk case
+          chunks.push({
+            data: decryptedData,
+            metadata: { chunkIndex: 1, totalChunks: 1 }
+          });
+        }
       }
 
-      // Sort chunks by part number
-      chunks.sort((a, b) => a.metadata.part - b.metadata.part);
-
-      // Validate we have all parts
-      const totalParts = chunks[0].metadata.total;
-      if (chunks.length !== totalParts) {
-        throw new Error(`Missing QR code parts. Expected ${totalParts}, got ${chunks.length}`);
-      }
-
-      // Reconstruct original data
-      if (totalParts === 1) {
-        return chunks[0].data;
-      } else {
-        // Reconstruct from chunks
-        const reconstructedJson = chunks.map(chunk => chunk.data.data).join('');
-        return JSON.parse(reconstructedJson);
-      }
+      // Use EncryptionService reconstruction method
+      return EncryptionService.reconstructFromChunks(chunks);
     } catch (error) {
       console.error('QR reconstruction failed:', error);
       throw new Error('Failed to reconstruct data from QR codes');
