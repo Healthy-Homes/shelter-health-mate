@@ -38,33 +38,31 @@ export class EncryptionService {
       // Sanitize data first
       const sanitizedData = this.sanitizeForEncryption(data);
       
-      // Convert to JSON string with proper Unicode handling
+      // Convert to JSON string
       const jsonString = JSON.stringify(sanitizedData);
       
-      // Convert to UTF-8 bytes for consistent encoding
-      const utf8Bytes = CryptoJS.enc.Utf8.parse(jsonString);
+      // Skip compression and use direct encryption to avoid encoding issues
+      // Convert string to WordArray for CryptoJS
+      const message = CryptoJS.enc.Utf8.parse(jsonString);
       
-      // Compress using base64 representation to avoid encoding issues
-      const base64String = CryptoJS.enc.Base64.stringify(utf8Bytes);
-      const compressed = LZString.compress(base64String);
+      // Encrypt directly
+      const encrypted = CryptoJS.AES.encrypt(message, this.SECRET_KEY, {
+        mode: CryptoJS.mode.CBC,
+        padding: CryptoJS.pad.Pkcs7
+      });
       
-      if (!compressed) {
-        throw new Error('Data compression failed');
-      }
+      const encryptedString = encrypted.toString();
       
-      // Encrypt the compressed data
-      const encrypted = CryptoJS.AES.encrypt(compressed, this.SECRET_KEY).toString();
-      
-      // Add timestamp and hash for integrity check
+      // Create simple payload without compression
       const payload = {
-        data: encrypted,
+        data: encryptedString,
         timestamp: Date.now(),
-        hash: CryptoJS.SHA256(compressed).toString(),
-        version: '2.0' // Track encoding version
+        version: '2.1' // Updated version
       };
       
-      // Use safe base64 encoding for final payload
-      return btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+      // Simple base64 encoding
+      const payloadString = JSON.stringify(payload);
+      return btoa(payloadString);
     } catch (error) {
       console.error('Encryption failed:', error);
       throw new Error('Failed to encrypt data');
@@ -76,47 +74,30 @@ export class EncryptionService {
    */
   static decryptData(encryptedPayload: string): any {
     try {
-      // Decode base64 with Unicode support
-      const payloadJson = decodeURIComponent(escape(atob(encryptedPayload)));
+      // Decode base64
+      const payloadJson = atob(encryptedPayload);
       const payload = JSON.parse(payloadJson);
       
       // Check version for compatibility
-      if (payload.version && payload.version !== '2.0') {
-        console.warn('Payload version mismatch, attempting legacy decode');
+      if (payload.version === '2.1') {
+        // New simplified decryption
+        const decrypted = CryptoJS.AES.decrypt(payload.data, this.SECRET_KEY, {
+          mode: CryptoJS.mode.CBC,
+          padding: CryptoJS.pad.Pkcs7
+        });
+        
+        const decryptedString = decrypted.toString(CryptoJS.enc.Utf8);
+        
+        if (!decryptedString) {
+          throw new Error('Decryption failed - invalid key or corrupted data');
+        }
+        
+        return JSON.parse(decryptedString);
+      } else {
+        // Legacy version handling
+        console.warn('Using legacy decryption method');
+        throw new Error('Legacy payload format no longer supported');
       }
-      
-      // Check if data is too old (configurable expiration)
-      const maxAge = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
-      if (Date.now() - payload.timestamp > maxAge) {
-        throw new Error('Data has expired');
-      }
-      
-      // Decrypt the data
-      const decryptedBytes = CryptoJS.AES.decrypt(payload.data, this.SECRET_KEY);
-      const compressed = decryptedBytes.toString(CryptoJS.enc.Utf8);
-      
-      if (!compressed) {
-        throw new Error('Decryption failed - invalid key or corrupted data');
-      }
-      
-      // Verify integrity
-      const expectedHash = CryptoJS.SHA256(compressed).toString();
-      if (expectedHash !== payload.hash) {
-        throw new Error('Data integrity check failed');
-      }
-      
-      // Decompress the data
-      const base64String = LZString.decompress(compressed);
-      
-      if (!base64String) {
-        throw new Error('Data decompression failed');
-      }
-      
-      // Convert back from base64 to UTF-8
-      const utf8Bytes = CryptoJS.enc.Base64.parse(base64String);
-      const jsonString = CryptoJS.enc.Utf8.stringify(utf8Bytes);
-      
-      return JSON.parse(jsonString);
     } catch (error) {
       console.error('Decryption failed:', error);
       throw new Error('Failed to decrypt data');
