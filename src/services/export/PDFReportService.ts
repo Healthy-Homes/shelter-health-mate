@@ -453,7 +453,7 @@ export class PDFReportService {
   /**
    * Downloads the PDF with a specific filename - FIXED VERSION
    */
-  static downloadReport(blob: Blob, filename?: string): void {
+ static downloadReport(blob: Blob, filename?: string): void {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     
@@ -467,5 +467,15 @@ export class PDFReportService {
     
     // Clean up blob URL to prevent memory leaks
     setTimeout(() => URL.revokeObjectURL(url), 100);
+  }
+
+  /**
+   * Simple test method to verify PDF generation works
+   */
+  static async generateSimpleTestPDF(): Promise<Blob> {
+    const pdf = new jsPDF();
+    pdf.text('Hello World - Test PDF', 10, 10);
+    pdf.text('This is a test to verify basic PDF functionality', 10, 20);
+    return pdf.output('blob');
   }
 }
