@@ -147,6 +147,36 @@
   "analysis": {
     "runScoringAnalysis": "🔬 Run Scoring Analysis"
   },
+  "export": {
+    "title": "Export Report",
+    "selectFormat": "Select Export Format",
+    "generating": "Generating...",
+    "generate": "Generate Export",
+    "success": "Export completed successfully!",
+    "error": "Export failed. Please try again.",
+    "options": "Export Options",
+    "includeRawData": "Include Raw Response Data",
+    "includeRawDataDesc": "Include all question responses in export",
+    "includePersonalInfo": "Include Personal Information",
+    "includePersonalInfoDesc": "Include identifiers and personal data",
+    "qrExpiration": "QR Code Expiration",
+    "minutes": "minutes",
+    "hour": "hour",
+    "hours": "hours",
+    "qrCodes": "Generated QR Codes",
+    "qrPart": "Part {{current}} of {{total}}",
+    "qrInstructions": "Scan all QR codes in order to reconstruct the complete data.",
+    "formats": {
+      "pdf": "PDF Report",
+      "pdfDesc": "Human-readable report with charts and recommendations",
+      "fhir": "FHIR Bundle",
+      "fhirDesc": "HL7 FHIR R4 compatible medical data for EHR integration",
+      "json": "JSON Data",
+      "jsonDesc": "Structured data export for analysis and integration",
+      "qr": "QR Codes",
+      "qrDesc": "Secure QR codes for data portability and sharing"
+    }
+  },
   "questions": {
     "common": {
       "responses": {
