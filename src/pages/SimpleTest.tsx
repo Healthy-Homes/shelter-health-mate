@@ -1,9 +1,10 @@
-// src/pages/SimpleTest.tsx - With Question Translation Supports
+// src/pages/SimpleTest.tsx - With Question Translation Supports and Export Modal
 
 import React, { useState } from 'react';
 
 import { useTranslation } from 'react-i18next';
 import LanguageSwitcher from '../components/LanguageSwitcher';
+import { ExportModal } from '../components/reports/ExportModal';
 
 import { ChecklistItem, ResponseMap, SectionNotes } from '../types/checklist';
 import { calculateItemRisk, calculateOverallRisk, getCompletenessMessage } from '../utils/riskScoring';
@@ -432,6 +433,7 @@ export default function SimpleTest() {
   const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
   const [responses, setResponses] = useState<ResponseMap>({});
   const [sectionNotes, setSectionNotes] = useState<SectionNotes>({});
+  const [showExportModal, setShowExportModal] = useState(false);
 
   // Get current questions and sections
   const getCurrentQuestions = (): ChecklistItem[] => {
@@ -993,12 +995,21 @@ export default function SimpleTest() {
                 {t('results.takeNewAssessment')}
               </button>
               
-              <a 
-                href="/"
-                className="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors"
-              >
-                {t('navigation.backToMain')}
-              </a>
+              <div className="flex space-x-3">
+                <button
+                  onClick={() => setShowExportModal(true)}
+                  className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors"
+                >
+                  {t('export.title')}
+                </button>
+                
+                <a 
+                  href="/"
+                  className="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors"
+                >
+                  {t('navigation.backToMain')}
+                </a>
+              </div>
             </div>
           </div>
         </div>
@@ -1012,6 +1023,15 @@ export default function SimpleTest() {
       {phase === 'selection' && renderSelectionPhase()}
       {phase === 'assessment' && renderAssessmentPhase()}
       {phase === 'results' && renderResultsPhase()}
+      
+      {/* Export Modal */}
+      <ExportModal
+        isOpen={showExportModal}
+        onClose={() => setShowExportModal(false)}
+        results={calculateResults()}
+        responses={responses}
+        questions={currentQuestions}
+      />
     </div>
   );
 }
