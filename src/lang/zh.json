@@ -147,6 +147,36 @@
   "analysis": {
     "runScoringAnalysis": "🔬 執行評分分析"
   },
+  "export": {
+    "title": "匯出報告",
+    "selectFormat": "選擇匯出格式",
+    "generating": "生成中...",
+    "generate": "生成匯出",
+    "success": "匯出成功完成！",
+    "error": "匯出失敗。請重試。",
+    "options": "匯出選項",
+    "includeRawData": "包含原始回應資料",
+    "includeRawDataDesc": "在匯出中包含所有問題回應",
+    "includePersonalInfo": "包含個人資訊",
+    "includePersonalInfoDesc": "包含識別符和個人資料",
+    "qrExpiration": "QR碼到期時間",
+    "minutes": "分鐘",
+    "hour": "小時",
+    "hours": "小時",
+    "qrCodes": "生成的QR碼",
+    "qrPart": "第{{current}}部分，共{{total}}部分",
+    "qrInstructions": "按順序掃描所有QR碼以重構完整資料。",
+    "formats": {
+      "pdf": "PDF報告",
+      "pdfDesc": "包含圖表和建議的人類可讀報告",
+      "fhir": "FHIR資料包",
+      "fhirDesc": "與電子健康記錄系統整合的HL7 FHIR R4相容醫療資料",
+      "json": "JSON資料",
+      "jsonDesc": "用於分析和整合的結構化資料匯出",
+      "qr": "QR碼",
+      "qrDesc": "用於資料可攜性和分享的安全QR碼"
+    }
+  },
   "questions": {
     "common": {
       "responses": {
