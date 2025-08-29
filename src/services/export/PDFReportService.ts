@@ -451,7 +451,7 @@ export class PDFReportService {
   }
 
   /**
-   * Downloads the PDF with a specific filename
+   * Downloads the PDF with a specific filename - FIXED VERSION
    */
   static downloadReport(blob: Blob, filename?: string): void {
     const url = URL.createObjectURL(blob);
@@ -459,8 +459,13 @@ export class PDFReportService {
     
     link.href = url;
     link.download = filename || `health-assessment-report-${new Date().toISOString().split('T')[0]}.pdf`;
-    link.click();
     
-    URL.revokeObjectURL(url);
+    // Critical fix: Must append to DOM for Firefox/Safari compatibility
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    // Clean up blob URL to prevent memory leaks
+    setTimeout(() => URL.revokeObjectURL(url), 100);
   }
 }
