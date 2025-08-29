@@ -17,6 +17,24 @@ export class FHIRMappingService {
   private static readonly SYSTEM_BASE_URL = 'https://shelter-health-assessment.org/fhir';
 
   /**
+   * Creates FHIR Bundle - method expected by ExportModal
+   */
+  static createFHIRBundle(
+    results: AssessmentResults,
+    responses: ResponseMap,
+    questions: ChecklistItem[]
+  ): FHIRBundle {
+    // Use the existing mapAssessmentToFHIR method with default parameters
+    return this.mapAssessmentToFHIR(
+      responses,
+      questions,
+      results,
+      'anonymous-patient',
+      'en'
+    );
+  }
+
+  /**
    * Main method to convert assessment data to FHIR Bundle
    */
   static mapAssessmentToFHIR(
