@@ -1,327 +1,380 @@
-// src/services/export/QRCodeService.ts
-// Enhanced QR code service with download and PDF integration capabilities
+// src/services/security/EncryptionService.ts
+// Security service for encrypting health assessment data
 
-import QRCode from 'qrcode';
-import { EncryptionService } from '../security/EncryptionService';
-import { 
-  AssessmentResults, 
-  ResponseMap,
-  ChecklistItem 
-} from '../../types/checklist';
+import CryptoJS from 'crypto-js';
+import LZString from 'lz-string';
 
-export interface QRCodeResult {
-  dataUrl: string;
-  downloadUrl: string;
-  filename: string;
-  index: number;
-  total: number;
-  size: string;
-}
-
-export interface QRCodeOptions {
-  errorCorrectionLevel?: 'L' | 'M' | 'Q' | 'H';
-  type?: 'image/png' | 'image/jpeg';
-  quality?: number;
-  margin?: number;
-  color?: {
-    dark?: string;
-    light?: string;
-  };
-  width?: number;
-}
-
-export class QRCodeService {
-  private static readonly DEFAULT_OPTIONS: QRCodeOptions = {
-    errorCorrectionLevel: 'H', // High error correction for healthcare
-    type: 'image/png',
-    quality: 0.92,
-    margin: 4,
-    color: {
-      dark: '#000000',
-      light: '#FFFFFF'
-    },
-    width: 512 // High resolution for printing
-  };
+export class EncryptionService {
+  // In production, this should be an environment variable
+  private static readonly SECRET_KEY = 'health-assessment-2025-key';
+  private static readonly SALT = 'shelter-health-salt';
 
   /**
-   * Generates downloadable QR codes with enhanced options
+   * Sanitizes data before encryption to handle Unicode and special characters
    */
-  static async generateDownloadableQRCodes(
-    results: AssessmentResults,
-    responses: ResponseMap,
-    questions: ChecklistItem[],
-    options: {
-      includeRawData?: boolean;
-      includePersonalInfo?: boolean;
-      expirationMinutes?: number;
-      format?: 'FHIR' | 'JSON';
-    } = {}
-  ): Promise<QRCodeResult[]> {
-    try {
-      const { includeRawData = true, includePersonalInfo = false, expirationMinutes = 60, format = 'FHIR' } = options;
-
-      // Prepare data payload based on format
-      let dataPayload;
-      if (format === 'FHIR') {
-        // Use FHIR mapping service (would need to import)
-        dataPayload = await this.prepareFHIRPayload(results, responses, questions);
-      } else {
-        dataPayload = {
-          results,
-          responses: includeRawData ? responses : {},
-          questions: includeRawData ? questions : [],
-          metadata: {
-            exportDate: new Date().toISOString(),
-            format: 'JSON',
-            version: '1.0'
-          }
-        };
+  private static sanitizeForEncryption(data: any): any {
+    return JSON.parse(JSON.stringify(data, (key, value) => {
+      if (value === null || value === undefined) {
+        return '';
       }
-
-      // Sanitize data if needed
-      if (!includePersonalInfo) {
-        dataPayload = EncryptionService.sanitizeForExport(dataPayload, {
-          anonymizeIds: true,
-          removeSensitiveResponses: true
-        });
-      }
-
-      // Generate access token
-      const accessToken = EncryptionService.generateAccessToken(expirationMinutes);
-
-      // Always use chunking for assessment data to avoid size issues
-      const maxSingleQRSize = 1500; // More conservative limit
-      const chunks = EncryptionService.chunkDataForQR(dataPayload, maxSingleQRSize);
-      const qrCodes: QRCodeResult[] = [];
-
-      for (const chunk of chunks) {
-        const qrCode = await this.createSingleQRCode(
-          chunk.chunk, 
-          accessToken, 
-          chunk.index, 
-          chunk.total
-        );
-        qrCodes.push(qrCode);
-      }
-
-      return qrCodes;
-    } catch (error) {
-      console.error('QR code generation failed:', error);
-      throw new Error('Failed to generate QR codes');
-    }
-  }
-
-  /**
-   * Creates a single downloadable QR code
-   */
-  private static async createSingleQRCode(
-    data: any, 
-    accessToken: string, 
-    index: number, 
-    total: number
-  ): Promise<QRCodeResult> {
-    const payload = {
-      data: EncryptionService.encryptData(data),
-      token: accessToken,
-      metadata: {
-        part: index,
-        total: total,
-        timestamp: Date.now(),
-        version: '2.1'
-      }
-    };
-
-    const qrData = JSON.stringify(payload);
-    
-    // Generate QR code as data URL
-    const dataUrl = await QRCode.toDataURL(qrData, this.DEFAULT_OPTIONS);
-    
-    // Create downloadable blob URL
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    const img = new Image();
-    
-    return new Promise((resolve, reject) => {
-      img.onload = () => {
-        canvas.width = img.width;
-        canvas.height = img.height;
-        ctx?.drawImage(img, 0, 0);
-        
-        canvas.toBlob((blob) => {
-          if (blob) {
-            const downloadUrl = URL.createObjectURL(blob);
-            const filename = total > 1 
-              ? `health-assessment-qr-part${index}-of-${total}.png`
-              : 'health-assessment-qr.png';
-
-            resolve({
-              dataUrl,
-              downloadUrl,
-              filename,
-              index,
-              total,
-              size: this.formatFileSize(blob.size)
-            });
-          } else {
-            reject(new Error('Failed to create blob'));
-          }
-        }, 'image/png', 0.92);
-      };
       
-      img.onerror = () => reject(new Error('Failed to load QR image'));
-      img.src = dataUrl;
-    });
-  }
-
-  /**
-   * Downloads a QR code file
-   */
-  static downloadQRCode(qrResult: QRCodeResult): void {
-    const link = document.createElement('a');
-    link.href = qrResult.downloadUrl;
-    link.download = qrResult.filename;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  }
-
-  /**
-   * Downloads all QR codes as a ZIP file (simplified version)
-   */
-  static async downloadAllQRCodes(qrResults: QRCodeResult[]): Promise<void> {
-    // For now, download individually
-    // In production, you might want to use a ZIP library
-    for (const qr of qrResults) {
-      this.downloadQRCode(qr);
-      // Small delay to prevent browser blocking multiple downloads
-      await new Promise(resolve => setTimeout(resolve, 500));
-    }
-  }
-
-  /**
-   * Generates QR codes for PDF embedding
-   */
-  static async generatePDFEmbeddableQRCodes(
-    results: AssessmentResults,
-    responses: ResponseMap,
-    questions: ChecklistItem[],
-    options: {
-      includeRawData?: boolean;
-      includePersonalInfo?: boolean;
-      expirationMinutes?: number;
-    } = {}
-  ): Promise<{ dataUrl: string; width: number; height: number }[]> {
-    const qrResults = await this.generateDownloadableQRCodes(results, responses, questions, {
-      ...options,
-      format: 'FHIR' // Always use FHIR for PDF embedding
-    });
-
-    return qrResults.map(qr => ({
-      dataUrl: qr.dataUrl,
-      width: this.DEFAULT_OPTIONS.width || 512,
-      height: this.DEFAULT_OPTIONS.width || 512
+      if (typeof value === 'string') {
+        // Handle Unicode characters and normalize
+        return value
+          .replace(/[\u0000-\u001F\u007F-\u009F]/g, '') // Remove control characters
+          .replace(/[\uFFFD]/g, '') // Remove replacement characters
+          .trim();
+      }
+      
+      return value;
     }));
   }
 
   /**
-   * Validates and reconstructs data from multiple QR codes
+   * Encrypts and compresses data for secure storage/transmission
    */
-  static async reconstructFromQRCodes(qrDataArray: string[]): Promise<any> {
+  static encryptData(data: any): string {
     try {
-      const chunks: Array<{data: any, metadata: any}> = [];
-
-      // Parse and decrypt each QR code
-      for (const qrData of qrDataArray) {
-        const payload = JSON.parse(qrData);
-        
-        // Validate access token
-        if (!EncryptionService.validateAccessToken(payload.token)) {
-          throw new Error('Invalid or expired access token');
-        }
-
-        // Decrypt data
-        const decryptedData = EncryptionService.decryptData(payload.data);
-        
-        // Extract chunk data and metadata
-        if (decryptedData.data && decryptedData.metadata) {
-          chunks.push({
-            data: decryptedData.data,
-            metadata: decryptedData.metadata
-          });
-        } else {
-          // Single chunk case
-          chunks.push({
-            data: decryptedData,
-            metadata: { chunkIndex: 1, totalChunks: 1 }
-          });
-        }
-      }
-
-      // Use EncryptionService reconstruction method
-      return EncryptionService.reconstructFromChunks(chunks);
+      // Sanitize data first
+      const sanitizedData = this.sanitizeForEncryption(data);
+      
+      // Convert to JSON string
+      const jsonString = JSON.stringify(sanitizedData);
+      
+      // Skip compression and use direct encryption to avoid encoding issues
+      // Convert string to WordArray for CryptoJS
+      const message = CryptoJS.enc.Utf8.parse(jsonString);
+      
+      // Encrypt directly
+      const encrypted = CryptoJS.AES.encrypt(message, this.SECRET_KEY, {
+        mode: CryptoJS.mode.CBC,
+        padding: CryptoJS.pad.Pkcs7
+      });
+      
+      const encryptedString = encrypted.toString();
+      
+      // Create simple payload without compression
+      const payload = {
+        data: encryptedString,
+        timestamp: Date.now(),
+        version: '2.1' // Updated version
+      };
+      
+      // Simple base64 encoding
+      const payloadString = JSON.stringify(payload);
+      return btoa(payloadString);
     } catch (error) {
-      console.error('QR reconstruction failed:', error);
-      throw new Error('Failed to reconstruct data from QR codes');
+      console.error('Encryption failed:', error);
+      throw new Error('Failed to encrypt data');
     }
   }
 
   /**
-   * Prepares FHIR payload for QR codes
+   * Decrypts and decompresses data with proper Unicode handling
    */
-  private static async prepareFHIRPayload(
-    results: AssessmentResults,
-    responses: ResponseMap,
-    questions: ChecklistItem[]
-  ): Promise<any> {
-    // This would integrate with your FHIR mapping service
-    // For now, return a simplified structure
-    return {
-      resourceType: 'Bundle',
-      type: 'collection',
-      timestamp: new Date().toISOString(),
-      entry: [
-        {
-          resource: {
-            resourceType: 'Patient',
-            id: 'anonymous-patient',
-            active: true
-          }
-        },
-        {
-          resource: {
-            resourceType: 'DiagnosticReport',
-            id: 'health-assessment-report',
-            status: 'final',
-            subject: { reference: 'Patient/anonymous-patient' },
-            effectiveDateTime: new Date().toISOString(),
-            result: Object.keys(responses).map(questionId => ({
-              reference: `Observation/${questionId}`
-            }))
+  static decryptData(encryptedPayload: string): any {
+    try {
+      // Decode base64
+      const payloadJson = atob(encryptedPayload);
+      const payload = JSON.parse(payloadJson);
+      
+      // Check version for compatibility
+      if (payload.version === '2.1') {
+        // New simplified decryption
+        const decrypted = CryptoJS.AES.decrypt(payload.data, this.SECRET_KEY, {
+          mode: CryptoJS.mode.CBC,
+          padding: CryptoJS.pad.Pkcs7
+        });
+        
+        const decryptedString = decrypted.toString(CryptoJS.enc.Utf8);
+        
+        if (!decryptedString) {
+          throw new Error('Decryption failed - invalid key or corrupted data');
+        }
+        
+        return JSON.parse(decryptedString);
+      } else {
+        // Legacy version handling
+        console.warn('Using legacy decryption method');
+        throw new Error('Legacy payload format no longer supported');
+      }
+    } catch (error) {
+      console.error('Decryption failed:', error);
+      throw new Error('Failed to decrypt data');
+    }
+  }
+
+  /**
+   * Generates a secure access token with configurable expiration
+   */
+  static generateAccessToken(expirationMinutes: number = 60): string {
+    // Handle "never expire" case
+    const expirationTime = expirationMinutes === 0 
+      ? Date.now() + (100 * 365 * 24 * 60 * 60 * 1000) // 100 years from now
+      : Date.now() + (expirationMinutes * 60 * 1000);
+    
+    const randomValue = Math.random().toString(36).substring(2);
+    
+    const tokenData = {
+      exp: expirationTime,
+      rand: randomValue,
+      salt: this.SALT,
+      neverExpire: expirationMinutes === 0
+    };
+    
+    return this.encryptData(tokenData);
+  }
+
+  /**
+   * Validates an access token
+   */
+  static validateAccessToken(token: string): boolean {
+    try {
+      const tokenData = this.decryptData(token);
+      
+      // Check if token is set to never expire
+      if (tokenData.neverExpire) {
+        return tokenData.salt === this.SALT;
+      }
+      
+      // Check expiration for normal tokens
+      if (tokenData.exp <= Date.now()) {
+        return false;
+      }
+      
+      // Check salt
+      if (tokenData.salt !== this.SALT) {
+        return false;
+      }
+      
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Creates a secure hash of sensitive data for anonymization
+   */
+  static anonymizeData(sensitiveValue: string): string {
+    // Handle Unicode properly in hashing
+    const utf8Value = CryptoJS.enc.Utf8.parse(sensitiveValue + this.SALT);
+    return CryptoJS.SHA256(utf8Value).toString().substring(0, 16);
+  }
+
+  /**
+   * Generates a secure random ID
+   */
+  static generateSecureId(prefix: string = 'assessment'): string {
+    const timestamp = Date.now().toString(36);
+    const random = Math.random().toString(36).substring(2);
+    const combinedValue = timestamp + random + this.SALT;
+    const utf8Value = CryptoJS.enc.Utf8.parse(combinedValue);
+    const hash = CryptoJS.SHA256(utf8Value).toString().substring(0, 8);
+    
+    return `${prefix}-${timestamp}-${hash}`;
+  }
+
+  /**
+   * Enhanced data sanitization for export with research options
+   */
+  static sanitizeForExport(data: any, options: {
+    anonymizeIds?: boolean;
+    removeTimestamps?: boolean;
+    removeSensitiveResponses?: boolean;
+    researchMode?: boolean;
+  } = {}): any {
+    const sanitized = JSON.parse(JSON.stringify(data)); // Deep clone
+    
+    if (options.anonymizeIds && sanitized.patientId) {
+      sanitized.patientId = this.anonymizeData(sanitized.patientId);
+    }
+    
+    if (options.removeTimestamps) {
+      delete sanitized.timestamp;
+      delete sanitized.createdAt;
+      delete sanitized.modifiedAt;
+    }
+    
+    if (options.removeSensitiveResponses && sanitized.responses) {
+      // Remove responses to potentially sensitive questions
+      const sensitivePatterns = ['income', 'financial', 'abuse', 'violence', 'substance'];
+      
+      Object.keys(sanitized.responses).forEach(questionId => {
+        const question = data.questions?.find((q: any) => q.item_id === questionId);
+        if (question) {
+          const questionText = question.question_text.toLowerCase();
+          if (sensitivePatterns.some(pattern => questionText.includes(pattern))) {
+            if (options.researchMode) {
+              // For research, replace with anonymized response
+              sanitized.responses[questionId] = '[REDACTED_FOR_RESEARCH]';
+            } else {
+              delete sanitized.responses[questionId];
+            }
           }
         }
-      ]
-    };
+      });
+    }
+    
+    return sanitized;
   }
 
   /**
-   * Formats file size for display
+   * Generates a cryptographic signature for data integrity
    */
-  private static formatFileSize(bytes: number): string {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  static signData(data: any): string {
+    const dataString = JSON.stringify(data);
+    const utf8Data = CryptoJS.enc.Utf8.parse(dataString);
+    return CryptoJS.HmacSHA256(utf8Data, this.SECRET_KEY).toString();
   }
 
   /**
-   * Cleanup blob URLs to prevent memory leaks
+   * Verifies a cryptographic signature
    */
-  static cleanupBlobUrls(qrResults: QRCodeResult[]): void {
-    qrResults.forEach(qr => {
-      if (qr.downloadUrl.startsWith('blob:')) {
-        URL.revokeObjectURL(qr.downloadUrl);
+  static verifySignature(data: any, signature: string): boolean {
+    const expectedSignature = this.signData(data);
+    return expectedSignature === signature;
+  }
+
+  /**
+   * Estimates encrypted payload size for QR code planning
+   */
+  static estimateEncryptedSize(data: any): number {
+    try {
+      const encrypted = this.encryptData(data);
+      return encrypted.length;
+    } catch {
+      // Fallback estimation
+      const jsonSize = JSON.stringify(data).length;
+      return Math.ceil(jsonSize * 1.4); // Rough encryption overhead estimate
+    }
+  }
+
+  /**
+   * Splits large data into chunks for multi-QR code generation
+   */
+  static chunkDataForQR(data: any, maxChunkSize: number = 2000): Array<{chunk: any, index: number, total: number}> {
+    const sanitizedData = this.sanitizeForEncryption(data);
+    const jsonString = JSON.stringify(sanitizedData);
+    
+    // If data is small enough for single QR
+    if (jsonString.length <= maxChunkSize) {
+      return [{
+        chunk: sanitizedData,
+        index: 1,
+        total: 1
+      }];
+    }
+    
+    // Split into chunks
+    const chunks = [];
+    const chunkCount = Math.ceil(jsonString.length / maxChunkSize);
+    const originalChecksum = CryptoJS.SHA256(jsonString).toString();
+    
+    for (let i = 0; i < chunkCount; i++) {
+      const start = i * maxChunkSize;
+      const end = Math.min(start + maxChunkSize, jsonString.length);
+      const chunkData = jsonString.slice(start, end);
+      
+      chunks.push({
+        chunk: {
+          data: chunkData,
+          metadata: {
+            chunkIndex: i + 1,
+            totalChunks: chunkCount,
+            originalSize: jsonString.length,
+            chunkSize: chunkData.length,
+            originalChecksum: originalChecksum,
+            chunkChecksum: CryptoJS.SHA256(chunkData).toString(),
+            encoding: 'utf8',
+            format: 'json-string',
+            timestamp: Date.now()
+          }
+        },
+        index: i + 1,
+        total: chunkCount
+      });
+    }
+    
+    return chunks;
+  }
+
+  /**
+   * Reconstructs original data from QR code chunks
+   */
+  static reconstructFromChunks(chunks: Array<{data: string, metadata: any}>): any {
+    // Validate all chunks are present
+    const totalChunks = chunks[0]?.metadata?.totalChunks;
+    if (!totalChunks || chunks.length !== totalChunks) {
+      throw new Error(`Missing chunks. Expected ${totalChunks}, got ${chunks.length}`);
+    }
+
+    // Sort chunks by index
+    const sortedChunks = chunks.sort((a, b) => a.metadata.chunkIndex - b.metadata.chunkIndex);
+
+    // Validate chunk integrity
+    const expectedChecksum = sortedChunks[0].metadata.originalChecksum;
+    for (const chunk of sortedChunks) {
+      const actualChunkChecksum = CryptoJS.SHA256(chunk.data).toString();
+      if (actualChunkChecksum !== chunk.metadata.chunkChecksum) {
+        throw new Error(`Chunk ${chunk.metadata.chunkIndex} integrity check failed`);
       }
-    });
+    }
+
+    // Reconstruct original JSON string
+    const reconstructedJson = sortedChunks.map(chunk => chunk.data).join('');
+    
+    // Verify overall integrity
+    const actualChecksum = CryptoJS.SHA256(reconstructedJson).toString();
+    if (actualChecksum !== expectedChecksum) {
+      throw new Error('Reconstructed data integrity check failed');
+    }
+
+    // Parse and return original data
+    try {
+      return JSON.parse(reconstructedJson);
+    } catch (error) {
+      throw new Error('Failed to parse reconstructed JSON data');
+    }
+  }
+
+  /**
+   * Estimates payload size for QR planning
+   */
+  static estimateQRPayloadSize(data: any): { 
+    rawSize: number; 
+    compressedSize: number; 
+    estimatedQRCount: number; 
+    recommended: string 
+  } {
+    const jsonString = JSON.stringify(data);
+    const compressed = LZString.compress(jsonString);
+    const rawSize = jsonString.length;
+    const compressedSize = compressed ? compressed.length : rawSize * 1.1;
+    
+    // Conservative QR code capacity estimates
+    const qrCapacity = {
+      conservative: 1200, // Very safe for reliable scanning
+      standard: 1800,     // Good balance
+      aggressive: 2500    // Maximum recommended
+    };
+
+    const estimatedQRCount = Math.ceil(compressedSize / qrCapacity.standard);
+    
+    let recommendation = 'single';
+    if (estimatedQRCount > 1 && estimatedQRCount <= 3) {
+      recommendation = 'chunked-small';
+    } else if (estimatedQRCount > 3 && estimatedQRCount <= 10) {
+      recommendation = 'chunked-medium';
+    } else if (estimatedQRCount > 10) {
+      recommendation = 'chunked-large';
+    }
+
+    return {
+      rawSize,
+      compressedSize,
+      estimatedQRCount,
+      recommended: recommendation
+    };
   }
 }
