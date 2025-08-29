@@ -1,16 +1,12 @@
 // src/components/reports/ExportModal.tsx
-// Modal component for exporting health assessment data in various formats
+// Enhanced modal component with downloadable QR codes and streamlined export options
 
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PDFReportService } from '../../services/export/PDFReportService';
 import { FHIRMappingService } from '../../services/export/FHIRMappingService';
-import { QRCodeService } from '../../services/export/QRCodeService';
-import { 
-  AssessmentResults, 
-  ResponseMap, 
-  ChecklistItem 
-} from '../../types/export/fhirTypes';
+import { QRCodeService, QRCodeResult } from '../../services/export/QRCodeService';
+import { AssessmentResults, ResponseMap, ChecklistItem } from '../../types/checklist';
 
 interface ExportModalProps {
   isOpen: boolean;
@@ -20,121 +16,89 @@ interface ExportModalProps {
   questions: ChecklistItem[];
 }
 
-type ExportFormat = 'pdf' | 'json' | 'fhir' | 'qr';
+type ExportFormat = 'clinical-pdf' | 'fhir-json' | 'research-csv';
 
-export const ExportModal: React.FC<ExportModalProps> = ({
+const ExportModal: React.FC<ExportModalProps> = ({
   isOpen,
   onClose,
   results,
   responses,
   questions
 }) => {
-  const { t, i18n } = useTranslation();
-  const [exportFormat, setExportFormat] = useState<ExportFormat>('pdf');
-  const [isExporting, setIsExporting] = useState(false);
-  const [exportComplete, setExportComplete] = useState(false);
-  const [qrCodes, setQRCodes] = useState<string[]>([]);
+  const { t } = useTranslation();
+  const [selectedFormat, setSelectedFormat] = useState<ExportFormat>('clinical-pdf');
+  const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  
+  // QR Code specific state
+  const [qrCodes, setQrCodes] = useState<QRCodeResult[]>([]);
+  const [qrExpiration, setQrExpiration] = useState<number>(60); // minutes
+  const [showNeverExpireWarning, setShowNeverExpireWarning] = useState(false);
+  const [neverExpireConsent, setNeverExpireConsent] = useState(false);
   
   // Export options
-  const [includeRawData, setIncludeRawData] = useState(false);
+  const [includeRawData, setIncludeRawData] = useState(true);
   const [includePersonalInfo, setIncludePersonalInfo] = useState(false);
-  const [qrExpiration, setQRExpiration] = useState(60);
+  const [anonymizeResearch, setAnonymizeResearch] = useState(true);
 
   if (!isOpen) return null;
 
-  const handleExport = async () => {
-    setIsExporting(true);
-    setError(null);
-    setQRCodes([]);
-    
-    try {
-      switch (exportFormat) {
-        case 'pdf':
-          await handlePDFExport();
-          break;
-        case 'json':
-          await handleJSONExport();
-          break;
-        case 'fhir':
-          await handleFHIRExport();
-          break;
-        case 'qr':
-          await handleQRExport();
-          break;
-      }
-      setExportComplete(true);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Export failed');
+  const handleExpirationChange = (value: string) => {
+    const numValue = parseInt(value);
+    if (numValue === 0) {
+      setShowNeverExpireWarning(true);
+      setNeverExpireConsent(false);
+    } else {
+      setShowNeverExpireWarning(false);
+      setNeverExpireConsent(false);
     }
-    
-    setIsExporting(false);
+    setQrExpiration(numValue);
   };
 
-  const handlePDFExport = async () => {
-    const pdfBlob = await PDFReportService.generateReport(
+  const handleGenerateExport = async () => {
+    setIsGenerating(true);
+    setError(null);
+    setSuccessMessage(null);
+    setQrCodes([]);
+
+    try {
+      switch (selectedFormat) {
+        case 'clinical-pdf':
+          await generateClinicalReport();
+          break;
+        case 'fhir-json':
+          await generateFHIRExport();
+          break;
+        case 'research-csv':
+          await generateResearchCSV();
+          break;
+      }
+    } catch (err) {
+      console.error('Export failed:', err);
+      setError(t('export.error'));
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const generateClinicalReport = async () => {
+    // Generate QR codes with FHIR data
+    const qrResults = await QRCodeService.generateDownloadableQRCodes(
       results,
       responses,
       questions,
-      i18n.language,
       {
         includeRawData,
-        includeQRCode: false,
-        watermark: 'CONFIDENTIAL'
+        includePersonalInfo,
+        expirationMinutes: qrExpiration,
+        format: 'FHIR'
       }
     );
-    
-    PDFReportService.downloadReport(
-      pdfBlob,
-      `health-assessment-${new Date().toISOString().split('T')[0]}.pdf`
-    );
-  };
+    setQrCodes(qrResults);
 
-  const handleJSONExport = async () => {
-    const jsonData = {
-      assessment: {
-        results,
-        responses: includeRawData ? responses : {},
-        summary: {
-          riskScore: results.risk_score,
-          riskLevel: results.risk_level,
-          completionRate: Object.keys(responses).length / questions.length,
-          priorityInterventions: results.priority_interventions.slice(0, 5)
-        }
-      },
-      metadata: {
-        language: i18n.language,
-        timestamp: new Date().toISOString(),
-        version: '1.0',
-        exportFormat: 'json',
-        questionCount: questions.length
-      }
-    };
-
-    downloadJSON(jsonData, 'health-assessment-data.json');
-  };
-
-  const handleFHIRExport = async () => {
-    const fhirBundle = FHIRMappingService.mapAssessmentToFHIR(
-      responses,
-      questions,
-      results,
-      'patient-001',
-      i18n.language
-    );
-
-    // Validate bundle before export
-    const validation = FHIRMappingService.validateBundle(fhirBundle);
-    if (!validation.isValid) {
-      throw new Error(`FHIR validation failed: ${validation.errors.join(', ')}`);
-    }
-
-    const fhirJSON = FHIRMappingService.exportBundleAsJSON(fhirBundle, true);
-    downloadJSONString(fhirJSON, 'health-assessment-fhir-bundle.json');
-  };
-
-  const handleQRExport = async () => {
-    const codes = await QRCodeService.generateReportQR(
+    // Generate PDF with embedded QR codes
+    const pdfEmbeddableQRs = await QRCodeService.generatePDFEmbeddableQRCodes(
       results,
       responses,
       questions,
@@ -144,345 +108,345 @@ export const ExportModal: React.FC<ExportModalProps> = ({
         expirationMinutes: qrExpiration
       }
     );
-    setQRCodes(codes);
+
+    await PDFReportService.generateReport(
+      results,
+      responses,
+      questions,
+      {
+        includeQRCodes: true,
+        qrCodes: pdfEmbeddableQRs,
+        language: 'en' // Could be dynamic based on current language
+      }
+    );
+
+    setSuccessMessage('Clinical report with QR codes generated successfully!');
   };
 
-  const downloadJSON = (data: any, filename: string) => {
-    const jsonString = JSON.stringify(data, null, 2);
-    downloadJSONString(jsonString, filename);
-  };
+  const generateFHIRExport = async () => {
+    const fhirBundle = FHIRMappingService.createFHIRBundle(
+      results,
+      responses,
+      questions
+    );
 
-  const downloadJSONString = (jsonString: string, filename: string) => {
-    const blob = new Blob([jsonString], { type: 'application/json' });
+    // Download as JSON file
+    const blob = new Blob([JSON.stringify(fhirBundle, null, 2)], {
+      type: 'application/json'
+    });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = filename;
+    link.download = 'health-assessment-fhir-bundle.json';
+    document.body.appendChild(link);
     link.click();
+    document.body.removeChild(link);
     URL.revokeObjectURL(url);
+
+    setSuccessMessage('FHIR bundle downloaded successfully!');
   };
 
-  const resetModal = () => {
-    setExportFormat('pdf');
-    setIsExporting(false);
-    setExportComplete(false);
-    setQRCodes([]);
-    setError(null);
-    setIncludeRawData(false);
-    setIncludePersonalInfo(false);
-    setQRExpiration(60);
+  const generateResearchCSV = async () => {
+    const csvData = this.generateCSVData();
+    const blob = new Blob([csvData], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'health-assessment-research-data.csv';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    setSuccessMessage('Research CSV downloaded successfully!');
+  };
+
+  const generateCSVData = (): string => {
+    const headers = [
+      'QuestionID',
+      'QuestionText_EN',
+      'QuestionText_ZH',
+      'Response_EN',
+      'Response_ZH',
+      'ResponseValue',
+      'RiskScore',
+      'Category',
+      'Timestamp',
+      'AssessmentType'
+    ];
+
+    const rows = questions.map(question => {
+      const responseKey = question.item_id;
+      const response = responses[responseKey];
+      
+      return [
+        question.item_id,
+        question.question_text,
+        question.question_text_zh || '',
+        response || '',
+        '', // Response_ZH would need translation logic
+        response || '',
+        results.sectionScores?.[question.section] || 0,
+        question.section,
+        new Date().toISOString(),
+        results.assessmentType || 'unknown'
+      ];
+    });
+
+    return [headers, ...rows]
+      .map(row => row.map(field => `"${field}"`).join(','))
+      .join('\n');
+  };
+
+  const handleDownloadQR = (qrResult: QRCodeResult) => {
+    QRCodeService.downloadQRCode(qrResult);
+  };
+
+  const handleDownloadAllQRs = async () => {
+    await QRCodeService.downloadAllQRCodes(qrCodes);
   };
 
   const handleClose = () => {
-    resetModal();
+    // Cleanup blob URLs
+    QRCodeService.cleanupBlobUrls(qrCodes);
+    setQrCodes([]);
     onClose();
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="p-6">
-          {/* Header */}
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-bold text-gray-900">
-              {t('export.title')}
-            </h2>
-            <button
-              onClick={handleClose}
-              className="text-gray-400 hover:text-gray-600 text-xl"
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold text-gray-800 dark:text-white">
+            {t('export.title')}
+          </h2>
+          <button
+            onClick={handleClose}
+            className="text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-gray-100"
+          >
+            ✕
+          </button>
+        </div>
+
+        {/* Format Selection */}
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold mb-3">{t('export.selectFormat')}</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            
+            {/* Clinical Report Option */}
+            <div
+              className={`border-2 rounded-lg p-4 cursor-pointer transition-all ${
+                selectedFormat === 'clinical-pdf'
+                  ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                  : 'border-gray-200 dark:border-gray-600 hover:border-gray-300'
+              }`}
+              onClick={() => setSelectedFormat('clinical-pdf')}
             >
-              ×
-            </button>
-          </div>
-
-          {/* Success Message */}
-          {exportComplete && !qrCodes.length && (
-            <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-              <div className="flex items-center">
-                <div className="text-green-600 mr-3">✓</div>
-                <div className="text-green-800">
-                  {t('export.success')}
-                </div>
+              <div className="font-semibold text-blue-600 dark:text-blue-400">
+                📄 Clinical Report (PDF + QR)
+              </div>
+              <div className="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                Human-readable report with embedded FHIR QR codes for healthcare providers
               </div>
             </div>
-          )}
 
-          {/* Error Message */}
-          {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-              <div className="flex items-center">
-                <div className="text-red-600 mr-3">⚠</div>
-                <div className="text-red-800">{error}</div>
+            {/* FHIR Export Option */}
+            <div
+              className={`border-2 rounded-lg p-4 cursor-pointer transition-all ${
+                selectedFormat === 'fhir-json'
+                  ? 'border-green-500 bg-green-50 dark:bg-green-900/20'
+                  : 'border-gray-200 dark:border-gray-600 hover:border-gray-300'
+              }`}
+              onClick={() => setSelectedFormat('fhir-json')}
+            >
+              <div className="font-semibold text-green-600 dark:text-green-400">
+                🏥 FHIR Bundle (JSON)
+              </div>
+              <div className="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                Direct EHR integration format with US Core and Gravity SDOH compliance
               </div>
             </div>
-          )}
 
-          {/* Format Selection */}
-          <div className="space-y-4 mb-6">
-            <h3 className="text-lg font-medium text-gray-900">
-              {t('export.selectFormat')}
-            </h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* PDF Option */}
-              <label className={`p-4 border rounded-lg cursor-pointer transition-all ${
-                exportFormat === 'pdf' 
-                  ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-200' 
-                  : 'border-gray-200 hover:border-gray-300'
-              }`}>
-                <input
-                  type="radio"
-                  value="pdf"
-                  checked={exportFormat === 'pdf'}
-                  onChange={(e) => setExportFormat(e.target.value as ExportFormat)}
-                  className="sr-only"
-                />
-                <div className="flex items-start">
-                  <div className={`w-5 h-5 rounded-full border-2 mr-3 mt-0.5 ${
-                    exportFormat === 'pdf'
-                      ? 'border-blue-500 bg-blue-500'
-                      : 'border-gray-300'
-                  }`}>
-                    {exportFormat === 'pdf' && (
-                      <div className="w-full h-full bg-white rounded-full scale-50"></div>
-                    )}
-                  </div>
-                  <div>
-                    <div className="font-medium text-gray-900">
-                      {t('export.formats.pdf')}
-                    </div>
-                    <div className="text-sm text-gray-600">
-                      {t('export.formats.pdfDesc')}
-                    </div>
-                  </div>
-                </div>
-              </label>
-
-              {/* FHIR Option */}
-              <label className={`p-4 border rounded-lg cursor-pointer transition-all ${
-                exportFormat === 'fhir' 
-                  ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-200' 
-                  : 'border-gray-200 hover:border-gray-300'
-              }`}>
-                <input
-                  type="radio"
-                  value="fhir"
-                  checked={exportFormat === 'fhir'}
-                  onChange={(e) => setExportFormat(e.target.value as ExportFormat)}
-                  className="sr-only"
-                />
-                <div className="flex items-start">
-                  <div className={`w-5 h-5 rounded-full border-2 mr-3 mt-0.5 ${
-                    exportFormat === 'fhir'
-                      ? 'border-blue-500 bg-blue-500'
-                      : 'border-gray-300'
-                  }`}>
-                    {exportFormat === 'fhir' && (
-                      <div className="w-full h-full bg-white rounded-full scale-50"></div>
-                    )}
-                  </div>
-                  <div>
-                    <div className="font-medium text-gray-900">
-                      {t('export.formats.fhir')}
-                    </div>
-                    <div className="text-sm text-gray-600">
-                      {t('export.formats.fhirDesc')}
-                    </div>
-                  </div>
-                </div>
-              </label>
-
-              {/* JSON Option */}
-              <label className={`p-4 border rounded-lg cursor-pointer transition-all ${
-                exportFormat === 'json' 
-                  ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-200' 
-                  : 'border-gray-200 hover:border-gray-300'
-              }`}>
-                <input
-                  type="radio"
-                  value="json"
-                  checked={exportFormat === 'json'}
-                  onChange={(e) => setExportFormat(e.target.value as ExportFormat)}
-                  className="sr-only"
-                />
-                <div className="flex items-start">
-                  <div className={`w-5 h-5 rounded-full border-2 mr-3 mt-0.5 ${
-                    exportFormat === 'json'
-                      ? 'border-blue-500 bg-blue-500'
-                      : 'border-gray-300'
-                  }`}>
-                    {exportFormat === 'json' && (
-                      <div className="w-full h-full bg-white rounded-full scale-50"></div>
-                    )}
-                  </div>
-                  <div>
-                    <div className="font-medium text-gray-900">
-                      {t('export.formats.json')}
-                    </div>
-                    <div className="text-sm text-gray-600">
-                      {t('export.formats.jsonDesc')}
-                    </div>
-                  </div>
-                </div>
-              </label>
-
-              {/* QR Code Option */}
-              <label className={`p-4 border rounded-lg cursor-pointer transition-all ${
-                exportFormat === 'qr' 
-                  ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-200' 
-                  : 'border-gray-200 hover:border-gray-300'
-              }`}>
-                <input
-                  type="radio"
-                  value="qr"
-                  checked={exportFormat === 'qr'}
-                  onChange={(e) => setExportFormat(e.target.value as ExportFormat)}
-                  className="sr-only"
-                />
-                <div className="flex items-start">
-                  <div className={`w-5 h-5 rounded-full border-2 mr-3 mt-0.5 ${
-                    exportFormat === 'qr'
-                      ? 'border-blue-500 bg-blue-500'
-                      : 'border-gray-300'
-                  }`}>
-                    {exportFormat === 'qr' && (
-                      <div className="w-full h-full bg-white rounded-full scale-50"></div>
-                    )}
-                  </div>
-                  <div>
-                    <div className="font-medium text-gray-900">
-                      {t('export.formats.qr')}
-                    </div>
-                    <div className="text-sm text-gray-600">
-                      {t('export.formats.qrDesc')}
-                    </div>
-                  </div>
-                </div>
-              </label>
+            {/* Research CSV Option */}
+            <div
+              className={`border-2 rounded-lg p-4 cursor-pointer transition-all ${
+                selectedFormat === 'research-csv'
+                  ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20'
+                  : 'border-gray-200 dark:border-gray-600 hover:border-gray-300'
+              }`}
+              onClick={() => setSelectedFormat('research-csv')}
+            >
+              <div className="font-semibold text-purple-600 dark:text-purple-400">
+                📊 Research Data (CSV)
+              </div>
+              <div className="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                Complete bilingual dataset for research analysis and statistics
+              </div>
             </div>
           </div>
+        </div>
 
-          {/* Export Options */}
-          <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-            <h3 className="text-md font-medium text-gray-900 mb-3">
-              {t('export.options')}
-            </h3>
-            
-            <div className="space-y-3">
-              <label className="flex items-center">
+        {/* Export Options */}
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold mb-3">{t('export.options')}</h3>
+          <div className="space-y-3">
+            <label className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                checked={includeRawData}
+                onChange={(e) => setIncludeRawData(e.target.checked)}
+                className="rounded"
+              />
+              <span className="text-sm">{t('export.includeRawData')}</span>
+            </label>
+
+            <label className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                checked={includePersonalInfo}
+                onChange={(e) => setIncludePersonalInfo(e.target.checked)}
+                className="rounded"
+              />
+              <span className="text-sm">{t('export.includePersonalInfo')}</span>
+            </label>
+
+            {selectedFormat === 'research-csv' && (
+              <label className="flex items-center space-x-2">
                 <input
                   type="checkbox"
-                  checked={includeRawData}
-                  onChange={(e) => setIncludeRawData(e.target.checked)}
-                  className="mr-3 rounded border-gray-300"
+                  checked={anonymizeResearch}
+                  onChange={(e) => setAnonymizeResearch(e.target.checked)}
+                  className="rounded"
                 />
-                <div>
-                  <div className="text-sm font-medium text-gray-900">
-                    {t('export.includeRawData')}
-                  </div>
-                  <div className="text-xs text-gray-600">
-                    {t('export.includeRawDataDesc')}
-                  </div>
-                </div>
+                <span className="text-sm">Anonymize sensitive research data</span>
               </label>
+            )}
 
-              {(exportFormat === 'qr' || exportFormat === 'json') && (
-                <label className="flex items-center">
-                  <input
-                    type="checkbox"
-                    checked={includePersonalInfo}
-                    onChange={(e) => setIncludePersonalInfo(e.target.checked)}
-                    className="mr-3 rounded border-gray-300"
-                  />
-                  <div>
-                    <div className="text-sm font-medium text-gray-900">
-                      {t('export.includePersonalInfo')}
-                    </div>
-                    <div className="text-xs text-gray-600">
-                      {t('export.includePersonalInfoDesc')}
-                    </div>
-                  </div>
+            {selectedFormat === 'clinical-pdf' && (
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  {t('export.qrExpiration')}
                 </label>
-              )}
-
-              {exportFormat === 'qr' && (
-                <div className="mt-3">
-                  <label className="block text-sm font-medium text-gray-900 mb-1">
-                    {t('export.qrExpiration')}
-                  </label>
-                  <select
-                    value={qrExpiration}
-                    onChange={(e) => setQRExpiration(parseInt(e.target.value))}
-                    className="block w-32 px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                  >
-                    <option value={15}>15 {t('export.minutes')}</option>
-                    <option value={60}>1 {t('export.hour')}</option>
-                    <option value={240}>4 {t('export.hours')}</option>
-                    <option value={1440}>24 {t('export.hours')}</option>
-                  </select>
-                </div>
-              )}
-            </div>
+                <select
+                  value={qrExpiration}
+                  onChange={(e) => handleExpirationChange(e.target.value)}
+                  className="border border-gray-300 rounded-md px-3 py-2"
+                >
+                  <option value="60">1 {t('export.hour')}</option>
+                  <option value="1440">24 {t('export.hours')}</option>
+                  <option value="10080">7 days</option>
+                  <option value="43200">30 days</option>
+                  <option value="0">Never expire</option>
+                </select>
+              </div>
+            )}
           </div>
+        </div>
 
-          {/* QR Code Display */}
-          {qrCodes.length > 0 && (
-            <div className="mb-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-3">
-                {t('export.qrCodes')}
-              </h3>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {qrCodes.map((qr, index) => (
-                  <div key={index} className="text-center">
-                    <img 
-                      src={qr} 
-                      alt={`QR Code ${index + 1}`} 
-                      className="mx-auto mb-2 border rounded"
-                    />
-                    <p className="text-sm text-gray-600">
-                      {t('export.qrPart', { current: index + 1, total: qrCodes.length })}
-                    </p>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-                <p className="text-sm text-blue-800">
-                  {t('export.qrInstructions')}
-                </p>
-              </div>
+        {/* Never Expire Consent */}
+        {showNeverExpireWarning && (
+          <div className="mb-6 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-lg">
+            <div className="font-semibold text-yellow-800 dark:text-yellow-200 mb-2">
+              ⚠️ Privacy Notice for Never-Expire QR Codes
             </div>
-          )}
+            <div className="text-sm text-yellow-700 dark:text-yellow-300 mb-3">
+              QR codes that never expire contain your health assessment data permanently. 
+              If lost or shared inappropriately, this could pose privacy risks. Only select 
+              this option if you understand and accept these risks.
+            </div>
+            <label className="flex items-start space-x-2">
+              <input
+                type="checkbox"
+                checked={neverExpireConsent}
+                onChange={(e) => setNeverExpireConsent(e.target.checked)}
+                className="mt-1 rounded"
+              />
+              <span className="text-sm text-yellow-700 dark:text-yellow-300">
+                I understand the privacy implications and consent to generating never-expire QR codes containing my health data.
+              </span>
+            </label>
+          </div>
+        )}
 
-          {/* Action Buttons */}
-          <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
-            <button
-              onClick={handleClose}
-              className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
-            >
-              {t('common.cancel')}
-            </button>
+        {/* Generated QR Codes Display */}
+        {qrCodes.length > 0 && (
+          <div className="mb-6">
+            <div className="flex justify-between items-center mb-3">
+              <h3 className="text-lg font-semibold">{t('export.qrCodes')}</h3>
+              {qrCodes.length > 1 && (
+                <button
+                  onClick={handleDownloadAllQRs}
+                  className="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600"
+                >
+                  Download All
+                </button>
+              )}
+            </div>
             
-            <button
-              onClick={handleExport}
-              disabled={isExporting}
-              className={`px-6 py-2 rounded-md font-medium transition-colors ${
-                isExporting
-                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  : 'bg-blue-600 text-white hover:bg-blue-700'
-              }`}
-            >
-              {isExporting ? (
-                <div className="flex items-center">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  {t('export.generating')}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              {qrCodes.map((qrCode) => (
+                <div key={qrCode.index} className="border border-gray-200 rounded-lg p-4">
+                  <img
+                    src={qrCode.dataUrl}
+                    alt={`QR Code ${qrCode.index}`}
+                    className="w-full max-w-[300px] mx-auto"
+                  />
+                  <div className="text-center mt-2">
+                    <div className="font-medium">
+                      {t('export.qrPart', { current: qrCode.index, total: qrCode.total })}
+                    </div>
+                    <div className="text-sm text-gray-500">Size: {qrCode.size}</div>
+                    <button
+                      onClick={() => handleDownloadQR(qrCode)}
+                      className="mt-2 bg-green-500 text-white px-4 py-2 rounded text-sm hover:bg-green-600"
+                    >
+                      Download
+                    </button>
+                  </div>
                 </div>
-              ) : (
-                t('export.generate')
-              )}
-            </button>
+              ))}
+            </div>
+            
+            {qrCodes.length > 1 && (
+              <div className="text-sm text-blue-600 dark:text-blue-400 text-center">
+                {t('export.qrInstructions')}
+              </div>
+            )}
           </div>
+        )}
+
+        {/* Status Messages */}
+        {error && (
+          <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg">
+            <div className="text-red-700 dark:text-red-300">❌ {error}</div>
+          </div>
+        )}
+
+        {successMessage && (
+          <div className="mb-4 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-lg">
+            <div className="text-green-700 dark:text-green-300">✅ {successMessage}</div>
+          </div>
+        )}
+
+        {/* Action Buttons */}
+        <div className="flex justify-end space-x-3">
+          <button
+            onClick={handleClose}
+            className="px-6 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleGenerateExport}
+            disabled={isGenerating || (showNeverExpireWarning && !neverExpireConsent)}
+            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            {isGenerating ? t('export.generating') : t('export.generate')}
+          </button>
         </div>
       </div>
     </div>
   );
 };
+
+export default ExportModal;
