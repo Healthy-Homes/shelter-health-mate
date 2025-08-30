@@ -81,37 +81,48 @@ const ExportModal: React.FC<ExportModalProps> = ({
     }
   };
 
-const generateClinicalReport = async () => {
-  console.log('Starting PDF generation...');
-  
-  try {
-    const pdfBlob = await PDFReportService.generateReport(
+  const generateClinicalReport = async () => {
+    // QR CODE FUNCTIONALITY TEMPORARILY DISABLED
+    // Uncomment the following lines to re-enable QR generation:
+    
+    // const qrResults = await QRCodeService.generateDownloadableQRCodes(
+    //   results,
+    //   responses,
+    //   questions,
+    //   {
+    //     includeRawData,
+    //     includePersonalInfo,
+    //     expirationMinutes: qrExpiration,
+    //     format: 'FHIR'
+    //   }
+    // );
+    // setQrCodes(qrResults);
+
+    // const pdfEmbeddableQRs = await QRCodeService.generatePDFEmbeddableQRCodes(
+    //   results,
+    //   responses,
+    //   questions,
+    //   {
+    //     includeRawData,
+    //     includePersonalInfo,
+    //     expirationMinutes: qrExpiration
+    //   }
+    // );
+
+    // Generate PDF without QR codes
+    await PDFReportService.generateReport(
       results,
       responses,
       questions,
-      'en',
       {
-        includeRawData,
-        includeQRCode: false
+        includeQRCodes: false, // QR functionality disabled
+        // qrCodes: pdfEmbeddableQRs, // Commented out
+        language: 'en'
       }
     );
 
-    console.log('PDF blob generated:', pdfBlob);
-    console.log('Blob size:', pdfBlob.size);
-    console.log('Blob type:', pdfBlob.type);
-
-    if (pdfBlob.size === 0) {
-      throw new Error('Generated PDF is empty');
-    }
-
-    PDFReportService.downloadReport(pdfBlob);
     setSuccessMessage('Clinical report generated successfully!');
-
-  } catch (error) {
-    console.error('PDF generation error:', error);
-    setError('Failed to generate PDF: ' + error.message);
-  }
-};
+  };
 
   const generateFHIRExport = async () => {
     // Use full FHIR payload for JSON export
