@@ -33,6 +33,150 @@
     "complete": "Complete",
     "skip": "Skip"
   },
+  "navigation": {
+    "backToMain": "← Back to Main App",
+    "startAssessment": "Start Assessment →",
+    "previousSection": "← Previous Section",
+    "nextSection": "Next Section →",
+    "completeAssessment": "Complete Assessment"
+  },
+  "language": {
+    "switchTo": "Switch to",
+    "english": "English",
+    "traditionalChinese": "繁體中文"
+  },
+  "assessment": {
+    "title": "Home Health Assessment",
+    "subtitle": "Select the assessments you'd like to complete",
+    "homeInspection": "Home Inspection Assessment",
+    "chooseRegion": "Choose your region's home inspection checklist:",
+    "skipHomeInspection": "Skip Home Inspection",
+    "onlyCompleteAdditional": "Only complete additional assessments",
+    "estimatedTime": "Estimated Time",
+    "minutes": "minutes",
+    "totalQuestions": "Total Questions",
+    "totalSections": "Total Sections",
+    "questionsAnswered": "questions answered",
+    "assessmentSummary": "Assessment Summary"
+  },
+  "checklists": {
+    "taiwan": {
+      "title": "Taiwan HALST Assessment",
+      "description": "Environmental health assessment for Taiwan housing ({{count}} questions)"
+    },
+    "us": {
+      "title": "US Healthy Homes Assessment", 
+      "description": "Comprehensive home safety evaluation for US housing ({{count}} questions)"
+    },
+    "elderSafety": {
+      "title": "Elder Safety Assessment (Optional)",
+      "description": "Home safety evaluation focused on fall prevention and aging-in-place safety ({{count}} questions)"
+    },
+    "sdoh": {
+      "title": "Social Determinants of Health (Optional)",
+      "description": "Assessment of social factors affecting health outcomes ({{count}} questions)"
+    }
+  },
+  "sections": {
+    "progress": "Section {{current}} of {{total}}",
+    "completed": "{{answered}} of {{total}} completed",
+    "sectionNotes": "Section Notes (Optional)",
+    "notesPlaceholder": "Add any additional notes about this section...",
+    "charactersRemaining": "{{remaining}}/200 characters",
+    "names": {
+      "layoutAndBuilding": "Layout and Building Structure",
+      "bedroomEnvironment": "Bedroom Environment", 
+      "kitchenEnvironment": "Kitchen Environment",
+      "bathroomEnvironment": "Bathroom Environment",
+      "livingAreas": "Living Areas",
+      "generalConditions": "General Conditions",
+      "yardAndExterior": "Yard and Exterior",
+      "exteriorRoof": "Exterior Roof, Walls, and Windows",
+      "basementCrawlspace": "Basement and Crawlspace",
+      "hvacEquipment": "HVAC Equipment",
+      "attic": "Attic",
+      "plumbingFixtures": "Plumbing, Fixtures, and Appliances",
+      "interiorWalls": "Interior Walls, Ceilings, Windows, and Doors",
+      "appliances": "Appliances",
+      "electricalEquipment": "Electrical Equipment",
+      "garage": "Garage",
+      "floors": "Floors",
+      "stairsSteps": "Stairs and Steps",
+      "kitchen": "Kitchen",
+      "bedrooms": "Bedrooms",
+      "bathrooms": "Bathrooms",
+      "fireSafety": "Fire Safety",
+      "electricalSafety": "Electrical Safety",
+      "medications": "Medications",
+      "generalSafety": "General Safety",
+      "foodSecurity": "Food Security",
+      "housingSecurity": "Housing Security",
+      "transportation": "Transportation",
+      "socialSupport": "Social Support",
+      "stressAndSafety": "Stress and Safety"
+    }
+  },
+  "results": {
+    "title": "Assessment Results",
+    "subtitle": "Your home health assessment is complete",
+    "riskScore": "Risk Score", 
+    "outOf100": "out of 100",
+    "riskLevel": "Risk Level",
+    "completionRate": "Completion Rate",
+    "questionsAnswered": "{{answered}}/{{total}} questions",
+    "issuesIdentified": "Issues Identified", 
+    "areasNeedAttention": "{{count}} areas need attention out of {{total}} assessed",
+    "reviewInterventions": "Review the priority interventions below for specific actions",
+    "priorityInterventions": "Priority Interventions",
+    "sectionNotes": "Section Notes",
+    "takeNewAssessment": "🔄 Take New Assessment",
+    "riskLevels": {
+      "low": "Low",
+      "moderate": "Moderate", 
+      "elevated": "Elevated",
+      "high": "High",
+      "critical": "Critical"
+    },
+    "priorities": {
+      "low": "low priority",
+      "medium": "medium priority", 
+      "high": "high priority",
+      "critical": "critical priority"
+    }
+  },
+  "analysis": {
+    "runScoringAnalysis": "🔬 Run Scoring Analysis"
+  },
+  "export": {
+    "title": "Export Report",
+    "selectFormat": "Select Export Format",
+    "generating": "Generating...",
+    "generate": "Generate Export",
+    "success": "Export completed successfully!",
+    "error": "Export failed. Please try again.",
+    "options": "Export Options",
+    "includeRawData": "Include Raw Response Data",
+    "includeRawDataDesc": "Include all question responses in export",
+    "includePersonalInfo": "Include Personal Information",
+    "includePersonalInfoDesc": "Include identifiers and personal data",
+    "qrExpiration": "QR Code Expiration",
+    "minutes": "minutes",
+    "hour": "hour",
+    "hours": "hours",
+    "qrCodes": "Generated QR Codes",
+    "qrPart": "Part {{current}} of {{total}}",
+    "qrInstructions": "Scan all QR codes in order to reconstruct the complete data.",
+    "formats": {
+      "pdf": "PDF Report",
+      "pdfDesc": "Human-readable report with charts and recommendations",
+      "fhir": "FHIR Bundle",
+      "fhirDesc": "HL7 FHIR R4 compatible medical data for EHR integration",
+      "json": "JSON Data",
+      "jsonDesc": "Structured data export for analysis and integration",
+      "qr": "QR Codes",
+      "qrDesc": "Secure QR codes for data portability and sharing"
+    }
+  },
   "questions": {
     "common": {
       "responses": {
@@ -40,18 +184,129 @@
         "no": "No", 
         "notapplicable": "Not applicable",
         "notsure": "Not sure",
-        "none": "None",
-        "never": "Never",
-        "sometimes": "Sometimes",
+        "excellent": "Excellent",
+        "verygood": "Very good",
+        "good": "Good",
+        "fair": "Fair",
+        "poor": "Poor",
+        "verypoor": "Very poor",
         "often": "Often",
-        "always": "Always",
-        "every_time": "Every time",
-        "na": "N/A",
-        "unsure": "Unsure",
+        "sometimes": "Sometimes",
+        "rarely": "Rarely",
+        "never": "Never",
+        "alwaystrue": "Always true",
+        "oftentrue": "Often true",
+        "sometimestrue": "Sometimes true",
+        "nevertrue": "Never true",
+        "apartment": "Apartment",
+        "house": "House",
+        "dormitory": "Dormitory",
         "other": "Other",
+        "groundfloor": "Ground floor",
+        "1st3rdfloor": "1st-3rd floor",
+        "4th6thfloor": "4th-6th floor",
+        "7thfloorabove": "7th floor and above",
+        "above6thfloor": "Above 6th floor",
+        "lessthan10years": "Less than 10 years",
+        "1020years": "10-20 years",
+        "1030years": "10-30 years",
+        "2030years": "20-30 years",
+        "morethan30years": "More than 30 years",
+        "yesregularly": "Yes, regularly",
+        "yesoccasionally": "Yes, occasionally",
+        "yesfrequently": "Yes, frequently",
+        "daily": "Daily",
+        "weekly": "Weekly",
+        "monthly": "Monthly",
+        "every2weeks": "Every 2 weeks",
+        "severaltimesayear": "Several times a year",
+        "onceperyear": "Once per year",
+        "verycomfortable": "Very comfortable",
+        "comfortable": "Comfortable",
+        "somewhatcomfortable": "Somewhat comfortable",
+        "uncomfortable": "Uncomfortable",
+        "veryuncomfortable": "Very uncomfortable",
+        "partially": "Partially",
+        "mostofthetime": "Most of the time",
+        "halfthetime": "Half the time",
+        "lessthanhalf": "Less than half the time",
+        "almostnever": "Almost never",
+        "allthetime": "All the time",
+        "frequently": "Frequently",
+        "occasionally": "Occasionally",
+        "seldom": "Seldom",
+        "significant": "Significant",
+        "moderate": "Moderate",
+        "minor": "Minor",
+        "none": "None",
+        "severe": "Severe",
+        "mild": "Mild",
+        "noticeable": "Noticeable",
+        "barelynoticeable": "Barely noticeable",
+        "inadequate": "Inadequate",
+        "poorcirculation": "Poor circulation",
+        "moderateamount": "Moderate amount",
+        "minorissues": "Minor issues",
+        "minoramounts": "Minor amounts",
+        "limitedstorage": "Limited storage",
+        "someneedrepair": "Some need repair",
+        "someappliances": "Some appliances",
+        "someproducts": "Some products",
+        "someconcerns": "Some concerns",
+        "poorventilation": "Poor ventilation",
+        "variablepressure": "Variable pressure",
+        "inconsistent": "Inconsistent",
+        "weeklyorless": "Weekly or less",
+        "everyfewdays": "Every few days",
+        "constantly": "Constantly",
+        "onlyseasonally": "Only seasonally",
+        "outdoorsonly": "Outdoors only",
+        "outdoorpetsonly": "Outdoor pets only",
+        "barelyAdequate": "Barely adequate",
+        "havesomeconcerns": "Have some concerns",
+        "nocarpetsrugs": "No carpets/rugs",
+        "excellentnew": "Excellent/New",
+        "goodcondition": "Good condition",
+        "faircondition": "Fair condition",
+        "poorold": "Poor/Old",
+        "notworking": "Not working",
+        "needhelp": "Need help",
+        "yesrecently": "Yes, recently",
+        "yeslongago": "Yes, but long ago",
+        "afewconcerns": "A few concerns",
+        "onemainconcern": "One main concern",
+        "yesactivelyplanning": "Yes, actively planning",
+        "yesforthefuture": "Yes, for the future",
+        "wantbutunable": "Want to but unable",
+        "noplans": "No plans",
+        "yesmajorvarations": "Yes, major variations",
+        "yesminorvarations": "Yes, minor variations",
+        "verysatisfied": "Very satisfied",
+        "satisfied": "Satisfied",
+        "neutral": "Neutral",
+        "dissatisfied": "Dissatisfied",
+        "verydissatisfied": "Very dissatisfied",
+        "own": "I have housing",
+        "temporary": "I have housing, but I am worried about losing it in the future",
+        "transitional": "I do not have housing (staying with others, in a hotel, in a shelter, living outside on the street, on a beach, in a car, or in a park)",
+        "lessthanoceweek": "Less than once a week",
+        "12timesweek": "1 or 2 times a week",
+        "35timesweek": "3 to 5 times a week",
+        "5ormoretimesweek": "5 or more times a week",
+        "notatall": "Not at all",
+        "alittlebit": "A little bit",
+        "quiteabit": "Quite a bit",
+        "verymuch": "Very much",
+        "nostairs": "No stairs",
+        "notubshower": "No tub/shower",
+        "nosmokealarms": "No smoke alarms",
+        "dontusethese": "Don't use these",
+        "nomedications": "No medications",
+        "nogasappliances": "No gas appliances",
+        "nohvacsystem": "No HVAC system",
+        "somewhat": "Somewhat",
         "townhouse": "Townhouse",
         "detached_house": "Detached house", 
-        "apartment": "Apartment (Is there an elevator?)",
         "rooftop_addition": "Rooftop addition (location of bedroom or living room)",
         "entire_building": "Occupies the entire building",
         "entire_floor": "Occupies an entire floor",
@@ -67,6 +322,8 @@
         "closable_door": "Closable door",
         "open_doorway": "Open doorway",
         "open_wall": "Open wall",
+        "weak_slight": "Weak or slight",
+        "strong": "Strong",
         "concrete": "Concrete",
         "wallpaper": "Wallpaper",
         "natural_wood": "Natural wood",
@@ -78,8 +335,6 @@
         "artificial_wood": "Artificial wood",
         "hardwood": "Hardwood",
         "carpet": "Carpet",
-        "weak_slight": "Weak or slight",
-        "strong": "Strong",
         "less_than_a4": "Less than A4 paper",
         "a4_to_door": "More than A4 paper and less than a standard door",
         "more_than_door": "More than a standard door",
@@ -89,8 +344,6 @@
         "morning": "Morning",
         "afternoon": "Afternoon",
         "evening_sleep": "Evening/during sleep",
-        "during_after_cooking": "During/after cooking",
-        "during_after_bathing": "During/after bathing",
         "1_person": "1 person",
         "2_people": "2 people",
         "3_people": "3 people",
@@ -102,7 +355,10 @@
         "15_30_years": "15-30 years",
         "more_than_30": "More than 30 years",
         "dog": "Dog",
-        "cat": "Cat"
+        "cat": "Cat",
+        "unsure": "Unsure",
+        "na": "N/A",
+        "every_time": "Every time"
       }
     },
     "taiwan": {
@@ -278,15 +534,384 @@
         "question": "Are there grab bars installed next to the shower or toilet?",
         "explanation": "Grab bars are essential bathroom safety features for preventing falls"
       }
-    }
-  },
-  "sections": {
-    "names": {
-      "layoutAndBuilding": "Layout and Building Structure",
-      "bedroomEnvironment": "Bedroom Environment", 
-      "kitchenEnvironment": "Kitchen Environment",
-      "bathroomEnvironment": "Bathroom Environment",
-      "generalConditions": "General Conditions"
+    },
+    "us": {
+      "US001": {
+        "question": "Is water draining away from the house?",
+        "explanation": "Water should drain away from foundation to prevent moisture problems"
+      },
+      "US002": {
+        "question": "Is the ground sloped away from the foundation?",
+        "explanation": "Proper grading prevents water from pooling near the foundation"
+      },
+      "US003": {
+        "question": "Are there areas of standing water near the house?",
+        "explanation": "Standing water can lead to pest problems and foundation issues"
+      },
+      "US004": {
+        "question": "Are walkways and driveways in good condition (no major cracks, level)?",
+        "explanation": "Uneven walkways pose trip hazards and safety risks"
+      },
+      "US005": {
+        "question": "Are trees and large branches a safe distance from the house?",
+        "explanation": "Trees too close to the house can cause damage during storms"
+      },
+      "US006": {
+        "question": "Is the roof in good condition (no missing shingles, sagging)?",
+        "explanation": "Roof damage can lead to water infiltration and structural problems"
+      },
+      "US007": {
+        "question": "Are gutters and downspouts clean and functioning properly?",
+        "explanation": "Blocked gutters can cause water damage and foundation problems"
+      },
+      "US008": {
+        "question": "Is exterior siding/walls in good condition (no cracks, holes)?",
+        "explanation": "Damaged exterior walls allow moisture and pests to enter"
+      },
+      "US009": {
+        "question": "Are windows properly sealed and caulked?",
+        "explanation": "Poor window sealing leads to drafts and energy loss"
+      },
+      "US010": {
+        "question": "Is the chimney in good condition (if applicable)?",
+        "explanation": "Damaged chimneys pose fire and carbon monoxide risks"
+      },
+      "US011": {
+        "question": "Are there signs of moisture, water damage, or flooding?",
+        "explanation": "Moisture in basements leads to mold and structural damage"
+      },
+      "US012": {
+        "question": "Are there visible cracks in the foundation walls?",
+        "explanation": "Foundation cracks can indicate serious structural problems"
+      },
+      "US013": {
+        "question": "Is there adequate ventilation in basement/crawlspace?",
+        "explanation": "Poor ventilation leads to moisture buildup and mold growth"
+      },
+      "US014": {
+        "question": "Are there signs of pests, rodents, or termites?",
+        "explanation": "Pests can spread disease and cause structural damage"
+      },
+      "US015": {
+        "question": "Has the home been tested for radon?",
+        "explanation": "Radon is a leading cause of lung cancer in non-smokers"
+      },
+      "US016": {
+        "question": "Is the heating system working properly?",
+        "explanation": "Faulty heating systems pose safety risks and health concerns"
+      },
+      "US017": {
+        "question": "Is the cooling/AC system working properly?",
+        "explanation": "Inadequate cooling can lead to heat-related health problems"
+      },
+      "US018": {
+        "question": "Are HVAC filters changed regularly (every 1-3 months)?",
+        "explanation": "Dirty filters reduce air quality and system efficiency"
+      },
+      "US019": {
+        "question": "Are carbon monoxide detectors installed near heating equipment?",
+        "explanation": "CO detectors prevent deadly carbon monoxide poisoning"
+      },
+      "US020": {
+        "question": "Are exhaust vents clear and functioning properly?",
+        "explanation": "Blocked vents can cause dangerous gas buildup indoors"
+      },
+      "US021": {
+        "question": "Is there adequate insulation in the attic?",
+        "explanation": "Poor insulation increases energy costs and comfort issues"
+      },
+      "US022": {
+        "question": "Is the attic properly ventilated?",
+        "explanation": "Attic ventilation prevents moisture buildup and ice dams"
+      },
+      "US023": {
+        "question": "Are there signs of roof leaks or water damage in attic?",
+        "explanation": "Attic water damage indicates roof problems requiring repair"
+      },
+      "US024": {
+        "question": "Are there signs of pests or animals in the attic?",
+        "explanation": "Attic pests can damage insulation and spread disease"
+      },
+      "US025": {
+        "question": "Is water pressure adequate throughout the home?",
+        "explanation": "Poor water pressure may indicate plumbing problems"
+      },
+      "US026": {
+        "question": "Are there visible leaks under sinks or around toilets?",
+        "explanation": "Water leaks can cause damage and promote mold growth"
+      },
+      "US027": {
+        "question": "Is the hot water heater functioning properly?",
+        "explanation": "Faulty water heaters can be dangerous and inefficient"
+      },
+      "US028": {
+        "question": "Is water heater temperature set at 120°F or below?",
+        "explanation": "High water temperature poses scalding risk, especially for children"
+      },
+      "US029": {
+        "question": "Do all drains empty quickly without backing up?",
+        "explanation": "Slow drains may indicate blockages or plumbing issues"
+      },
+      "US030": {
+        "question": "Are interior walls free from major cracks, holes, or water damage?",
+        "explanation": "Interior wall damage can indicate structural or moisture problems"
+      },
+      "US031": {
+        "question": "Are ceilings in good condition (no stains, sagging)?",
+        "explanation": "Ceiling problems often indicate roof leaks or structural issues"
+      },
+      "US032": {
+        "question": "Is the home free from peeling/chipping paint (lead hazard if pre-1978)?",
+        "explanation": "Lead paint poses serious health risks, especially to children"
+      },
+      "US033": {
+        "question": "Do all windows open, close, and lock properly?",
+        "explanation": "Window function affects security, ventilation, and emergency egress"
+      },
+      "US034": {
+        "question": "Do all doors open, close, and lock properly?",
+        "explanation": "Door function affects security and emergency evacuation"
+      },
+      "US035": {
+        "question": "Is there visible mold on walls, ceilings, or around windows?",
+        "explanation": "Visible mold indicates moisture problems and health risks"
+      },
+      "US036": {
+        "question": "Is the stove/oven working safely and properly?",
+        "explanation": "Faulty cooking equipment poses fire and gas leak risks"
+      },
+      "US037": {
+        "question": "Is the refrigerator maintaining proper temperature?",
+        "explanation": "Improper refrigeration can lead to foodborne illness"
+      },
+      "US038": {
+        "question": "Are washer and dryer properly installed and vented?",
+        "explanation": "Improper appliance installation poses fire and moisture risks"
+      },
+      "US039": {
+        "question": "Are all appliance electrical cords in good condition?",
+        "explanation": "Damaged electrical cords pose fire and shock hazards"
+      },
+      "US040": {
+        "question": "Are GFCI outlets installed in bathrooms and kitchen?",
+        "explanation": "GFCI outlets prevent electrical shock in wet areas"
+      },
+      "US041": {
+        "question": "Are all electrical outlets working and properly covered?",
+        "explanation": "Faulty outlets pose electrical shock and fire risks"
+      },
+      "US042": {
+        "question": "Is the electrical panel accessible and properly labeled?",
+        "explanation": "Proper electrical panel access is important for safety and maintenance"
+      },
+      "US043": {
+        "question": "Are smoke detectors installed on every level and tested monthly?",
+        "explanation": "Working smoke detectors are critical for fire safety"
+      },
+      "US044": {
+        "question": "Does garage door open/close properly with safety features working?",
+        "explanation": "Garage door safety features prevent injury and property damage"
+      },
+      "US045": {
+        "question": "Is there proper fire separation between garage and living space?",
+        "explanation": "Fire separation prevents garage fires from spreading to living areas"
+      }
+    },
+    "elder": {
+      "ELDER_1": {
+        "question": "Are there papers, shoes, books, or other objects on the floors?",
+        "explanation": "Objects on floors are major fall hazards for older adults"
+      },
+      "ELDER_2": {
+        "question": "Do you have scatter rugs on the floor?",
+        "explanation": "Scatter rugs can cause trips and falls"
+      },
+      "ELDER_3": {
+        "question": "Are your rugs anchored down and do they lie flat?",
+        "explanation": "Unsecured rugs are trip hazards"
+      },
+      "ELDER_4": {
+        "question": "Are your floors in good condition (no broken or uneven areas)?",
+        "explanation": "Broken or uneven floors pose serious fall risks"
+      },
+      "ELDER_5": {
+        "question": "Are handrails installed on both sides of the stairs?",
+        "explanation": "Handrails are essential fall prevention on stairs"
+      },
+      "ELDER_6": {
+        "question": "Are the handrails sturdy and in good repair?",
+        "explanation": "Damaged handrails cannot provide safe support"
+      },
+      "ELDER_7": {
+        "question": "Are the steps broken or uneven?",
+        "explanation": "Broken or uneven steps are extremely dangerous fall hazards"
+      },
+      "ELDER_8": {
+        "question": "Are there papers, shoes, books, or other objects on the stairs?",
+        "explanation": "Objects on stairs create severe fall risks"
+      },
+      "ELDER_9": {
+        "question": "Do you have good lighting on the stairs?",
+        "explanation": "Poor stair lighting increases fall risk"
+      },
+      "ELDER_10": {
+        "question": "Do you have light switches at both the top and bottom of the stairs?",
+        "explanation": "Accessible light switches improve stair safety"
+      },
+      "ELDER_11": {
+        "question": "Can you clearly see the edges of the steps?",
+        "explanation": "Visible step edges are crucial for safe navigation"
+      },
+      "ELDER_12": {
+        "question": "Are spills wiped up right away?",
+        "explanation": "Kitchen spills create serious slip hazards"
+      },
+      "ELDER_13": {
+        "question": "Are the things you use often within easy reach?",
+        "explanation": "Items stored too high require unsafe reaching or climbing"
+      },
+      "ELDER_14": {
+        "question": "Is there a lamp or light switch within reach of your bed?",
+        "explanation": "Accessible lighting prevents falls when getting up at night"
+      },
+      "ELDER_15": {
+        "question": "Is the path from your bed to the bathroom clear?",
+        "explanation": "Clear bathroom path is essential for nighttime safety"
+      },
+      "ELDER_16": {
+        "question": "Do you have a phone next to your bed?",
+        "explanation": "Bedside phone enables emergency calls without movement"
+      },
+      "ELDER_17": {
+        "question": "Are there grab bars in your tub or shower?",
+        "explanation": "Grab bars are essential for bathroom safety"
+      },
+      "ELDER_18": {
+        "question": "Is the tub or shower floor slippery?",
+        "explanation": "Slippery bathroom surfaces cause serious falls"
+      },
+      "ELDER_19": {
+        "question": "Are the chairs and sofas the right height (not too low or too high)?",
+        "explanation": "Proper furniture height makes sitting and standing safer"
+      },
+      "ELDER_20": {
+        "question": "Do you have to walk over or around wires or cords?",
+        "explanation": "Electrical cords create dangerous trip hazards"
+      },
+      "ELDER_21": {
+        "question": "Do you have smoke alarms on every level of your home?",
+        "explanation": "Smoke alarms are essential for fire safety and survival"
+      },
+      "ELDER_22": {
+        "question": "Have you tested the batteries in your smoke alarms in the past year?",
+        "explanation": "Smoke alarm maintenance is critical for fire safety"
+      },
+      "ELDER_23": {
+        "question": "Do you have a fire escape plan?",
+        "explanation": "Fire escape plans save lives in emergencies"
+      },
+      "ELDER_24": {
+        "question": "Are space heaters and fireplaces used safely (clear of flammable items)?",
+        "explanation": "Unsafe heating equipment is a major fire risk"
+      },
+      "ELDER_25": {
+        "question": "Are electrical outlets overloaded with too many plugs?",
+        "explanation": "Overloaded outlets can cause fires"
+      },
+      "ELDER_26": {
+        "question": "Are electrical cords in good condition (not frayed or damaged)?",
+        "explanation": "Damaged electrical cords pose fire and shock risks"
+      },
+      "ELDER_27": {
+        "question": "Do you have GFCI outlets in bathrooms and kitchen areas?",
+        "explanation": "GFCI protection prevents electrical shock in wet areas"
+      },
+      "ELDER_28": {
+        "question": "Are your medications stored safely and securely?",
+        "explanation": "Secure medication storage prevents accidental poisoning"
+      },
+      "ELDER_29": {
+        "question": "Do you have good lighting when taking medications?",
+        "explanation": "Good lighting prevents medication errors"
+      },
+      "ELDER_30": {
+        "question": "Do you regularly check medication expiration dates?",
+        "explanation": "Expired medications can be ineffective or harmful"
+      },
+      "ELDER_31": {
+        "question": "Do you use a pill organizer or system to track medications?",
+        "explanation": "Medication organization prevents dosing errors"
+      },
+      "ELDER_32": {
+        "question": "Do you have carbon monoxide detectors in your home?",
+        "explanation": "Carbon monoxide detectors prevent deadly poisoning"
+      },
+      "ELDER_33": {
+        "question": "Do you have emergency phone numbers posted where you can easily see them?",
+        "explanation": "Accessible emergency numbers enable quick response"
+      },
+      "ELDER_34": {
+        "question": "Do you have working flashlights and extra batteries?",
+        "explanation": "Flashlights are essential during power outages"
+      },
+      "ELDER_35": {
+        "question": "Do you have a well-stocked first aid kit?",
+        "explanation": "First aid supplies enable response to minor injuries"
+      },
+      "ELDER_36": {
+        "question": "Are your door locks in good working condition?",
+        "explanation": "Working locks provide security and safety"
+      },
+      "ELDER_37": {
+        "question": "Can you maintain a comfortable temperature in your home year-round?",
+        "explanation": "Temperature extremes pose health risks for older adults"
+      },
+      "ELDER_38": {
+        "question": "Is your home's heating and cooling system regularly maintained?",
+        "explanation": "HVAC maintenance ensures safe and efficient operation"
+      },
+      "ELDER_39": {
+        "question": "Is your water heater temperature set to 120°F (49°C) or below?",
+        "explanation": "High water temperature can cause serious burns"
+      },
+      "ELDER_40": {
+        "question": "Do you feel safe and secure in your home?",
+        "explanation": "Feeling unsafe indicates security or environmental concerns"
+      }
+    },
+    "sdoh": {
+      "SDOH_1": {
+        "question": "Within the past 12 months, you worried whether your food would run out before you got money to buy more.",
+        "explanation": "Food insecurity affects health outcomes and medication adherence"
+      },
+      "SDOH_2": {
+        "question": "Within the past 12 months, the food you bought just didn't last and you didn't have money to get more.",
+        "explanation": "Indicates severe food insecurity requiring immediate intervention"
+      },
+      "SDOH_3": {
+        "question": "What is your housing situation today?",
+        "explanation": "Housing instability significantly impacts health and safety"
+      },
+      "SDOH_4": {
+        "question": "In the past 12 months, has lack of reliable transportation kept you from medical appointments, meetings, work, or from getting things needed for daily living?",
+        "explanation": "Transportation barriers can prevent access to healthcare and essential services"
+      },
+      "SDOH_5": {
+        "question": "How often do you see or talk to people that you care about and feel close to? (For example: talking to friends on the phone, visiting friends or family, going to church or club meetings)",
+        "explanation": "Social isolation linked to depression, anxiety, and poor health outcomes"
+      },
+      "SDOH_6": {
+        "question": "Stress is when someone feels tense, nervous, anxious or can't sleep at night because their mind is troubled. How stressed are you?",
+        "explanation": "Chronic stress contributes to multiple health conditions"
+      },
+      "SDOH_7": {
+        "question": "Do you feel safe in your home?",
+        "explanation": "Personal safety concerns require immediate attention and resources"
+      },
+      "SDOH_8": {
+        "question": "Do you feel safe in your neighborhood?",
+        "explanation": "Neighborhood safety affects mental health and ability to access services"
+      }
     }
   }
 }
