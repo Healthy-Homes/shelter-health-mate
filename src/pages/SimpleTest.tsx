@@ -24,9 +24,9 @@ const TAIWAN_SECTIONS = [
   "layoutAndBuilding",
   "bedroomEnvironment", 
   "kitchenEnvironment",
-  "bathroomEnvironment",
-  "livingAreas",
-  "generalConditions"
+  "bathroomEnvironment", 
+  "generalConditions",
+  "homeSafety"           // ← ADD THIS IF YOU HAVE SAFETY QUESTIONS
 ];
 
 const US_SECTIONS = [
