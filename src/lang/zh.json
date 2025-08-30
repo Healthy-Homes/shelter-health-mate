@@ -33,150 +33,6 @@
     "complete": "完成",
     "skip": "跳過"
   },
-  "navigation": {
-    "backToMain": "← 返回主應用程式",
-    "startAssessment": "開始評估 →",
-    "previousSection": "← 上一節",
-    "nextSection": "下一節 →",
-    "completeAssessment": "完成評估"
-  },
-  "language": {
-    "switchTo": "切換至",
-    "english": "English",
-    "traditionalChinese": "繁體中文"
-  },
-  "assessment": {
-    "title": "居家健康評估",
-    "subtitle": "選擇您想要完成的評估項目",
-    "homeInspection": "居家檢查評估",
-    "chooseRegion": "選擇您所在地區的居家檢查清單：",
-    "skipHomeInspection": "跳過居家檢查",
-    "onlyCompleteAdditional": "僅完成附加評估",
-    "estimatedTime": "預估時間",
-    "minutes": "分鐘",
-    "totalQuestions": "總題數",
-    "totalSections": "總章節數",
-    "questionsAnswered": "題已回答",
-    "assessmentSummary": "評估摘要"
-  },
-  "checklists": {
-    "taiwan": {
-      "title": "台灣 HALST 評估",
-      "description": "台灣住宅環境健康評估（{{count}} 題）"
-    },
-    "us": {
-      "title": "美國健康住宅評估",
-      "description": "美國住宅綜合安全評估（{{count}} 題）"
-    },
-    "elderSafety": {
-      "title": "長者安全評估（選用）",
-      "description": "專注於跌倒預防與居家安全的長者居住環境評估（{{count}} 題）"
-    },
-    "sdoh": {
-      "title": "健康社會決定因素（選用）",
-      "description": "影響健康結果的社會因素評估（{{count}} 題）"
-    }
-  },
-  "sections": {
-    "progress": "第 {{current}} 節，共 {{total}} 節",
-    "completed": "{{total}} 題中已完成 {{answered}} 題",
-    "sectionNotes": "章節備註（選用）",
-    "notesPlaceholder": "為此章節添加任何額外備註...",
-    "charactersRemaining": "{{remaining}}/200 個字符",
-    "names": {
-      "layoutAndBuilding": "佈局和建築結構",
-      "bedroomEnvironment": "臥室環境",
-      "kitchenEnvironment": "廚房環境", 
-      "bathroomEnvironment": "浴室環境",
-      "livingAreas": "客廳區域",
-      "generalConditions": "一般條件",
-      "yardAndExterior": "庭院和外觀",
-      "exteriorRoof": "外部屋頂、牆面和窗戶",
-      "basementCrawlspace": "地下室和爬行空間",
-      "hvacEquipment": "暖通空調設備",
-      "attic": "閣樓",
-      "plumbingFixtures": "管道、裝置和電器",
-      "interiorWalls": "內部牆面、天花板、窗戶和門",
-      "appliances": "電器",
-      "electricalEquipment": "電氣設備",
-      "garage": "車庫",
-      "floors": "地板",
-      "stairsSteps": "樓梯和台階",
-      "kitchen": "廚房",
-      "bedrooms": "臥室",
-      "bathrooms": "浴室",
-      "fireSafety": "消防安全",
-      "electricalSafety": "電氣安全", 
-      "medications": "藥物",
-      "generalSafety": "一般安全",
-      "foodSecurity": "食物安全",
-      "housingSecurity": "住房安全",
-      "transportation": "交通",
-      "socialSupport": "社會支持",
-      "stressAndSafety": "壓力和安全"
-    }
-  },
-  "results": {
-    "title": "評估結果",
-    "subtitle": "您的居家健康評估已完成",
-    "riskScore": "風險評分",
-    "outOf100": "滿分 100 分",
-    "riskLevel": "風險等級",
-    "completionRate": "完成率",
-    "questionsAnswered": "{{total}} 題中已回答 {{answered}} 題",
-    "issuesIdentified": "已識別問題",
-    "areasNeedAttention": "{{total}} 個評估項目中有 {{count}} 個區域需要關注",
-    "reviewInterventions": "請查看下方的優先處理事項以了解具體行動",
-    "priorityInterventions": "優先處理事項",
-    "sectionNotes": "章節備註",
-    "takeNewAssessment": "🔄 進行新評估",
-    "riskLevels": {
-      "low": "低風險",
-      "moderate": "中度風險",
-      "elevated": "升高風險", 
-      "high": "高風險",
-      "critical": "極高風險"
-    },
-    "priorities": {
-      "low": "低優先級",
-      "medium": "中優先級",
-      "high": "高優先級", 
-      "critical": "極高優先級"
-    }
-  },
-  "analysis": {
-    "runScoringAnalysis": "🔬 執行評分分析"
-  },
-  "export": {
-    "title": "匯出報告",
-    "selectFormat": "選擇匯出格式",
-    "generating": "生成中...",
-    "generate": "生成匯出",
-    "success": "匯出成功完成！",
-    "error": "匯出失敗。請重試。",
-    "options": "匯出選項",
-    "includeRawData": "包含原始回應資料",
-    "includeRawDataDesc": "在匯出中包含所有問題回應",
-    "includePersonalInfo": "包含個人資訊",
-    "includePersonalInfoDesc": "包含識別符和個人資料",
-    "qrExpiration": "QR碼到期時間",
-    "minutes": "分鐘",
-    "hour": "小時",
-    "hours": "小時",
-    "qrCodes": "生成的QR碼",
-    "qrPart": "第{{current}}部分，共{{total}}部分",
-    "qrInstructions": "按順序掃描所有QR碼以重構完整資料。",
-    "formats": {
-      "pdf": "PDF報告",
-      "pdfDesc": "包含圖表和建議的人類可讀報告",
-      "fhir": "FHIR資料包",
-      "fhirDesc": "與電子健康記錄系統整合的HL7 FHIR R4相容醫療資料",
-      "json": "JSON資料",
-      "jsonDesc": "用於分析和整合的結構化資料匯出",
-      "qr": "QR碼",
-      "qrDesc": "用於資料可攜性和分享的安全QR碼"
-    }
-  },
   "questions": {
     "common": {
       "responses": {
@@ -184,135 +40,24 @@
         "no": "否",
         "notapplicable": "不適用", 
         "notsure": "不確定",
-        "excellent": "優秀",
-        "verygood": "很好",
-        "good": "良好",
-        "fair": "尚可",
-        "poor": "較差",
-        "verypoor": "很差",
-        "often": "經常",
-        "sometimes": "有時",
-        "rarely": "很少",
-        "never": "從不",
-        "alwaystrue": "總是如此",
-        "oftentrue": "經常如此", 
-        "sometimestrue": "有時如此",
-        "nevertrue": "從不如此",
-        "apartment": "公寓",
-        "house": "房屋",
-        "dormitory": "宿舍",
-        "other": "其他",
-        "groundfloor": "一樓",
-        "1st3rdfloor": "1-3樓",
-        "4th6thfloor": "4-6樓", 
-        "7thfloorabove": "7樓及以上",
-        "above6thfloor": "6樓以上",
-        "lessthan10years": "少於10年",
-        "1020years": "10-20年",
-        "1030years": "10-30年",
-        "2030years": "20-30年", 
-        "morethan30years": "超過30年",
-        "yesregularly": "是，經常",
-        "yesoccasionally": "是，偶爾",
-        "yesfrequently": "是，頻繁",
-        "daily": "每天",
-        "weekly": "每週",
-        "monthly": "每月",
-        "every2weeks": "每兩週",
-        "severaltimesayear": "一年數次",
-        "onceperyear": "一年一次",
-        "verycomfortable": "非常舒適",
-        "comfortable": "舒適",
-        "somewhatcomfortable": "有些舒適",
-        "uncomfortable": "不舒適",
-        "veryuncomfortable": "非常不舒適",
-        "partially": "部分",
-        "mostofthetime": "大部分時間",
-        "halfthetime": "一半時間",
-        "lessthanhalf": "少於一半時間",
-        "almostnever": "幾乎從不",
-        "allthetime": "所有時間",
-        "frequently": "頻繁",
-        "occasionally": "偶爾",
-        "seldom": "很少",
-        "significant": "顯著",
-        "moderate": "中度",
-        "minor": "輕微",
         "none": "無",
-        "severe": "嚴重",
-        "mild": "溫和",
-        "noticeable": "明顯",
-        "barelynoticeable": "幾乎不明顯",
-        "inadequate": "不充足",
-        "poorcirculation": "循環不良",
-        "moderateamount": "中等數量",
-        "minorissues": "小問題",
-        "minoramounts": "少量",
-        "limitedstorage": "儲存有限",
-        "someneedrepair": "部分需要維修",
-        "someappliances": "部分電器",
-        "someproducts": "部分產品",
-        "someconcerns": "有些擔憂",
-        "poorventilation": "通風不良",
-        "variablepressure": "壓力不穩",
-        "inconsistent": "不穩定",
-        "weeklyorless": "每週或更少",
-        "everyfewdays": "每幾天",
-        "constantly": "持續",
-        "onlyseasonally": "僅季節性",
-        "outdoorsonly": "僅戶外",
-        "outdoorpetsonly": "僅戶外寵物",
-        "barelyAdequate": "勉強充足",
-        "havesomeconcerns": "有些擔憂",
-        "nocarpetsrugs": "沒有地毯/地墊",
-        "excellentnew": "優秀/新",
-        "goodcondition": "狀況良好",
-        "faircondition": "狀況尚可",
-        "poorold": "較差/舊",
-        "notworking": "無法運作",
-        "needhelp": "需要幫助", 
-        "yesrecently": "是，最近",
-        "yeslongago": "是，但很久以前",
-        "afewconcerns": "有幾個擔憂",
-        "onemainconcern": "一個主要擔憂",
-        "yesactivelyplanning": "是，正在積極計劃",
-        "yesforthefuture": "是，為了未來",
-        "wantbutunable": "想要但無法",
-        "noplans": "沒有計劃",
-        "yesmajorvarations": "是，主要變化",
-        "yesminorvarations": "是，輕微變化",
-        "verysatisfied": "非常滿意",
-        "satisfied": "滿意",
-        "neutral": "中性",
-        "dissatisfied": "不滿意",
-        "verydissatisfied": "非常不滿意",
-        "own": "我有住房",
-        "temporary": "我有住房，但擔心將來會失去",
-        "transitional": "我沒有住房（與他人同住、住酒店、住收容所、露宿街頭、海灘、車內或公園）",
-        "lessthanoceweek": "每週少於一次",
-        "12timesweek": "每週1到2次",
-        "35timesweek": "每週3到5次",
-        "5ormoretimesweek": "每週5次或以上",
-        "notatall": "完全沒有",
-        "alittlebit": "一點點",
-        "quiteabit": "相當多",
-        "verymuch": "非常多",
-        "nostairs": "沒有樓梯",
-        "notubshower": "沒有浴缸/淋浴",
-        "nosmokealarms": "沒有煙霧警報器",
-        "dontusethese": "不使用這些",
-        "nomedications": "沒有藥物",
-        "nogasappliances": "沒有燃氣設備",
-        "nohvacsystem": "沒有暖通空調系統",
-        "somewhat": "有些",
+        "never": "從不",
+        "sometimes": "有時",
+        "often": "經常",
+        "always": "總是",
+        "every_time": "每次",
+        "na": "不適用",
+        "unsure": "不確定",
+        "other": "其他",
         "townhouse": "連棟房屋",
-        "detached_house": "獨立房屋",
+        "detached_house": "獨立房屋", 
+        "apartment": "公寓（有電梯嗎？）",
         "rooftop_addition": "屋頂加蓋（臥室或客廳位置）",
         "entire_building": "佔用整棟建築物",
         "entire_floor": "佔用整層樓",
         "shared_floor": "與他人共享一層樓",
         "1_floor": "1層",
-        "2_floors": "2層",
+        "2_floors": "2層", 
         "3_4_floors": "3-4層",
         "5_plus_floors": "5層以上",
         "ground_floor": "地面層",
@@ -320,10 +65,8 @@
         "2nd_floor": "2樓",
         "3rd_plus_floor": "3樓或更高",
         "closable_door": "可關閉的門",
-        "open_doorway": "開放式門口",
+        "open_doorway": "開放式門口", 
         "open_wall": "開放式牆面",
-        "weak_slight": "微弱或輕微",
-        "strong": "強烈",
         "concrete": "混凝土",
         "wallpaper": "壁紙",
         "natural_wood": "天然木材",
@@ -335,8 +78,10 @@
         "artificial_wood": "人造木材",
         "hardwood": "硬木",
         "carpet": "地毯",
+        "weak_slight": "微弱或輕微",
+        "strong": "強烈",
         "less_than_a4": "少於A4紙大小",
-        "a4_to_door": "大於A4紙但小於標準門大小",
+        "a4_to_door": "大於A4紙但小於標準門大小", 
         "more_than_door": "大於標準門大小",
         "1_2": "1-2盆植物",
         "3_5": "3-5盆植物",
@@ -344,21 +89,20 @@
         "morning": "早上",
         "afternoon": "下午",
         "evening_sleep": "晚上/睡覺時",
-        "1_person": "1人",
+        "during_after_cooking": "烹飪期間/之後",
+        "during_after_bathing": "洗澡期間/之後",
+        "1_person": "1人", 
         "2_people": "2人",
         "3_people": "3人",
         "4_plus_people": "4人以上",
         "3_4_people": "3-4人",
         "5_plus_people": "5人以上",
         "less_than_5": "少於5年",
-        "5_15_years": "5-15年",
+        "5_15_years": "5-15年", 
         "15_30_years": "15-30年",
         "more_than_30": "超過30年",
         "dog": "狗",
-        "cat": "貓",
-        "unsure": "不確定",
-        "na": "不適用",
-        "every_time": "每次"
+        "cat": "貓"
       }
     },
     "taiwan": {
@@ -367,7 +111,7 @@
         "explanation": "建築類型影響結構安全和環境健康風險"
       },
       "HALST_A1b": {
-        "question": "受訪者佔用建築的哪個部分？",
+        "question": "受訪者佔用建築的哪個部分？", 
         "explanation": "居住密度影響隱私、噪音暴露和感染傳播風險"
       },
       "HALST_A2a": {
@@ -375,7 +119,7 @@
         "explanation": "建築高度影響疏散風險和結構穩定性"
       },
       "HALST_A2b": {
-        "question": "這棟建築是否有任何地下室樓層（包括停車場）？",
+        "question": "這棟建築是否有任何地下室樓層（包括停車場）？", 
         "explanation": "地下室可能有濕氣和空氣品質問題"
       },
       "HALST_A3a": {
@@ -387,7 +131,7 @@
         "explanation": "缺乏獨立生活空間表示過度擁擠和生活品質降低"
       },
       "HALST_A3e": {
-        "question": "臥室有什麼類型的門口？（如果客廳被視為臥室，這描述的是通往廚房的門口）",
+        "question": "臥室有什麼類型的門口？（如果客廳被視為臥室，這描述的是通往廚房的門口）", 
         "explanation": "隱私和聲音控制影響睡眠品質和心理健康"
       },
       "HALST_A4a": {
@@ -468,7 +212,7 @@
       },
       "HALST_D2": {
         "question": "有多少人居住在這個家中？",
-        "explanation": "家庭密度影響過度擁擠風險和疾病傳播潛力"
+        "explanation": "家庭密度影響過度擁擠風險和疾病傳播潜力"
       },
       "HALST_D3": {
         "question": "您是否有任何室內寵物？（不包括魚類）",
@@ -534,384 +278,15 @@
         "question": "淋浴間或馬桶旁是否安裝扶手？",
         "explanation": "扶手是預防跌倒的重要浴室安全設施"
       }
-    },
-    "us": {
-      "US001": {
-        "question": "房屋排水是否良好？",
-        "explanation": "水應該從地基排走以防止濕氣問題"
-      },
-      "US002": {
-        "question": "地面是否向地基傾斜排水？",
-        "explanation": "適當的坡度可防止水在地基附近積聚"
-      },
-      "US003": {
-        "question": "房屋附近是否有積水區域？",
-        "explanation": "積水可能導致害蟲問題和地基問題"
-      },
-      "US004": {
-        "question": "人行道和車道狀況良好嗎（無大裂縫，平整）？",
-        "explanation": "不平整的人行道會造成絆倒危險和安全風險"
-      },
-      "US005": {
-        "question": "樹木和大樹枝是否與房屋保持安全距離？",
-        "explanation": "太靠近房屋的樹木在暴風雨期間可能造成損害"
-      },
-      "US006": {
-        "question": "屋頂狀況良好嗎（無缺失瓦片，無下垂）？",
-        "explanation": "屋頂損壞可能導致漏水和結構問題"
-      },
-      "US007": {
-        "question": "排水溝和落水管是否清潔且正常運作？",
-        "explanation": "堵塞的排水溝可能造成水損和地基問題"
-      },
-      "US008": {
-        "question": "外牆/側板狀況良好嗎（無裂縫、孔洞）？",
-        "explanation": "受損的外牆會讓濕氣和害蟲進入"
-      },
-      "US009": {
-        "question": "窗戶是否適當密封和填縫？",
-        "explanation": "窗戶密封不良會導致通風和能源損失"
-      },
-      "US010": {
-        "question": "煙囪狀況良好嗎（如適用）？",
-        "explanation": "受損的煙囪會造成火災和一氧化碳風險"
-      },
-      "US011": {
-        "question": "是否有濕氣、水損或洪水的跡象？",
-        "explanation": "地下室濕氣會導致黴菌和結構損壞"
-      },
-      "US012": {
-        "question": "地基牆是否有可見裂縫？",
-        "explanation": "地基裂縫可能表示嚴重的結構問題"
-      },
-      "US013": {
-        "question": "地下室/爬行空間是否有充足通風？",
-        "explanation": "通風不良會導致濕氣積聚和黴菌生長"
-      },
-      "US014": {
-        "question": "是否有害蟲、嚙齒動物或白蟻的跡象？",
-        "explanation": "害蟲可能傳播疾病並造成結構損害"
-      },
-      "US015": {
-        "question": "房屋是否已進行氡氣檢測？",
-        "explanation": "氡氣是非吸菸者肺癌的主要原因"
-      },
-      "US016": {
-        "question": "暖氣系統是否正常工作？",
-        "explanation": "故障的暖氣系統會造成安全風險和健康問題"
-      },
-      "US017": {
-        "question": "冷氣/空調系統是否正常工作？",
-        "explanation": "冷氣不足可能導致熱相關的健康問題"
-      },
-      "US018": {
-        "question": "HVAC濾網是否定期更換（每1-3個月）？",
-        "explanation": "髒污的濾網會降低空氣品質和系統效率"
-      },
-      "US019": {
-        "question": "暖氣設備附近是否安裝一氧化碳檢測器？",
-        "explanation": "一氧化碳檢測器可防止致命的一氧化碳中毒"
-      },
-      "US020": {
-        "question": "排氣口是否暢通且正常運作？",
-        "explanation": "堵塞的排氣口可能造成室內危險氣體積聚"
-      },
-      "US021": {
-        "question": "閣樓是否有充足的隔熱材料？",
-        "explanation": "隔熱不良會增加能源成本和舒適度問題"
-      },
-      "US022": {
-        "question": "閣樓是否有適當通風？",
-        "explanation": "閣樓通風可防止濕氣積聚和冰壩形成"
-      },
-      "US023": {
-        "question": "閣樓是否有屋頂漏水或水損的跡象？",
-        "explanation": "閣樓水損表示需要修復的屋頂問題"
-      },
-      "US024": {
-        "question": "閣樓是否有害蟲或動物的跡象？",
-        "explanation": "閣樓害蟲可能損壞隔熱材料並傳播疾病"
-      },
-      "US025": {
-        "question": "整個房屋的水壓是否充足？",
-        "explanation": "水壓不足可能表示管道問題"
-      },
-      "US026": {
-        "question": "水槽下方或馬桶周圍是否有可見漏水？",
-        "explanation": "漏水可能造成損害並促進黴菌生長"
-      },
-      "US027": {
-        "question": "熱水器是否正常工作？",
-        "explanation": "故障的熱水器可能很危險且效率低下"
-      },
-      "US028": {
-        "question": "熱水器溫度是否設定在120°F或以下？",
-        "explanation": "水溫過高會造成燙傷風險，特別是對兒童"
-      },
-      "US029": {
-        "question": "所有排水口是否快速排空且不回流？",
-        "explanation": "排水緩慢可能表示堵塞或管道問題"
-      },
-      "US030": {
-        "question": "內牆是否無重大裂縫、孔洞或水損？",
-        "explanation": "內牆損壞可能表示結構或濕氣問題"
-      },
-      "US031": {
-        "question": "天花板狀況良好嗎（無汙漬、下垂）？",
-        "explanation": "天花板問題通常表示屋頂漏水或結構問題"
-      },
-      "US032": {
-        "question": "房屋是否無剝落/剝離油漆（1978年前建築的鉛危險）？",
-        "explanation": "含鉛油漆會造成嚴重健康風險，特別是對兒童"
-      },
-      "US033": {
-        "question": "所有窗戶是否能正常開啟、關閉和鎖定？",
-        "explanation": "窗戶功能影響安全、通風和緊急逃生"
-      },
-      "US034": {
-        "question": "所有門是否能正常開啟、關閉和鎖定？",
-        "explanation": "門的功能影響安全和緊急疏散"
-      },
-      "US035": {
-        "question": "牆壁、天花板或窗戶周圍是否有可見黴菌？",
-        "explanation": "可見黴菌表示濕氣問題和健康風險"
-      },
-      "US036": {
-        "question": "爐灶/烤箱是否安全且正常工作？",
-        "explanation": "故障的烹飪設備會造成火災和氣體洩漏風險"
-      },
-      "US037": {
-        "question": "冰箱是否維持適當溫度？",
-        "explanation": "冷藏不當可能導致食源性疾病"
-      },
-      "US038": {
-        "question": "洗衣機和乾衣機是否正確安裝和通風？",
-        "explanation": "電器安裝不當會造成火災和濕氣風險"
-      },
-      "US039": {
-        "question": "所有電器的電源線狀況良好嗎？",
-        "explanation": "受損的電線會造成火災和觸電危險"
-      },
-      "US040": {
-        "question": "浴室和廚房是否安裝GFCI插座？",
-        "explanation": "GFCI插座可防止在潮濕區域觸電"
-      },
-      "US041": {
-        "question": "所有電源插座是否正常工作且有適當覆蓋？",
-        "explanation": "故障插座會造成觸電和火災風險"
-      },
-      "US042": {
-        "question": "電氣面板是否可以接近且標示清楚？",
-        "explanation": "適當的電氣面板接近對安全和維護很重要"
-      },
-      "US043": {
-        "question": "每層樓是否安裝煙霧探測器且每月測試？",
-        "explanation": "正常工作的煙霧探測器對消防安全至關重要"
-      },
-      "US044": {
-        "question": "車庫門是否正常開關且安全功能正常？",
-        "explanation": "車庫門安全功能可防止傷害和財產損失"
-      },
-      "US045": {
-        "question": "車庫與居住空間之間是否有適當的防火隔離？",
-        "explanation": "防火隔離可防止車庫火災蔓延到居住區域"
-      }
-    },
-    "elder": {
-      "ELDER_1": {
-        "question": "地板上是否有紙張、鞋子、書籍或其他物品？",
-        "explanation": "地板上的物品對老年人來說是主要的跌倒隱患"
-      },
-      "ELDER_2": {
-        "question": "您的地板上是否鋪有零散的地毯？",
-        "explanation": "零散的地毯可能導致絆倒和跌倒"
-      },
-      "ELDER_3": {
-        "question": "您的地毯是否固定好並平整鋪放？",
-        "explanation": "未固定的地毯是絆倒隱患"
-      },
-      "ELDER_4": {
-        "question": "您的地板是否狀況良好（沒有破損或不平整的區域）？",
-        "explanation": "破損或不平整的地板造成嚴重的跌倒風險"
-      },
-      "ELDER_5": {
-        "question": "樓梯兩側是否都安裝了扶手？",
-        "explanation": "扶手是樓梯跌倒預防的必要設施"
-      },
-      "ELDER_6": {
-        "question": "扶手是否堅固且狀況良好？",
-        "explanation": "損壞的扶手無法提供安全支撐"
-      },
-      "ELDER_7": {
-        "question": "台階是否有破損或不平整？",
-        "explanation": "破損或不平整的台階是極其危險的跌倒隱患"
-      },
-      "ELDER_8": {
-        "question": "樓梯上是否有紙張、鞋子、書籍或其他物品？",
-        "explanation": "樓梯上的物品造成嚴重的跌倒風險"
-      },
-      "ELDER_9": {
-        "question": "樓梯是否有良好的照明？",
-        "explanation": "樓梯照明不足會增加跌倒風險"
-      },
-      "ELDER_10": {
-        "question": "樓梯的頂部和底部是否都有電燈開關？",
-        "explanation": "便於觸及的電燈開關提高樓梯安全性"
-      },
-      "ELDER_11": {
-        "question": "您能清楚看到台階的邊緣嗎？",
-        "explanation": "清楚可見的台階邊緣對安全行走至關重要"
-      },
-      "ELDER_12": {
-        "question": "濺灑物是否會立即清理乾淨？",
-        "explanation": "廚房濺灑物造成嚴重的滑倒隱患"
-      },
-      "ELDER_13": {
-        "question": "您經常使用的物品是否在容易觸及的範圍內？",
-        "explanation": "物品放置過高需要不安全的伸手或攀爬"
-      },
-      "ELDER_14": {
-        "question": "您的床邊是否有檯燈或電燈開關？",
-        "explanation": "便於觸及的照明可防止夜間起身時跌倒"
-      },
-      "ELDER_15": {
-        "question": "從您的床到浴室的通道是否暢通？",
-        "explanation": "暢通的浴室通道對夜間安全至關重要"
-      },
-      "ELDER_16": {
-        "question": "您的床邊是否有電話？",
-        "explanation": "床邊電話可在緊急情況下無需移動即可求助"
-      },
-      "ELDER_17": {
-        "question": "您的浴缸或淋浴間是否安裝了扶手？",
-        "explanation": "扶手對浴室安全至關重要"
-      },
-      "ELDER_18": {
-        "question": "浴缸或淋浴間的地面是否滑滑的？",
-        "explanation": "滑滑的浴室地面會導致嚴重跌倒"
-      },
-      "ELDER_19": {
-        "question": "椅子和沙發的高度是否合適（不會太低或太高）？",
-        "explanation": "合適的家具高度使坐下和站起更安全"
-      },
-      "ELDER_20": {
-        "question": "您是否需要跨過或繞過電線或電纜？",
-        "explanation": "電線造成危險的絆倒隱患"
-      },
-      "ELDER_21": {
-        "question": "您家的每層樓都安裝了煙霧警報器嗎？",
-        "explanation": "煙霧警報器對火災安全和生存至關重要"
-      },
-      "ELDER_22": {
-        "question": "您在過去一年中測試過煙霧警報器的電池嗎？",
-        "explanation": "煙霧警報器的維護對火災安全至關重要"
-      },
-      "ELDER_23": {
-        "question": "您是否有火災逃生計劃？",
-        "explanation": "火災逃生計劃在緊急情況下可以救命"
-      },
-      "ELDER_24": {
-        "question": "電暖器和壁爐是否安全使用（遠離易燃物品）？",
-        "explanation": "不安全的供暖設備是主要的火災風險"
-      },
-      "ELDER_25": {
-        "question": "電源插座是否因插頭過多而過載？",
-        "explanation": "過載的插座可能引起火災"
-      },
-      "ELDER_26": {
-        "question": "電線是否狀況良好（沒有磨損或損壞）？",
-        "explanation": "損壞的電線造成火災和觸電風險"
-      },
-      "ELDER_27": {
-        "question": "浴室和廚房區域是否安裝了GFCI插座？",
-        "explanation": "GFCI保護可防止在潮濕區域觸電"
-      },
-      "ELDER_28": {
-        "question": "您的藥物是否安全妥善地存放？",
-        "explanation": "安全的藥物存放可防止意外中毒"
-      },
-      "ELDER_29": {
-        "question": "服藥時是否有良好的照明？",
-        "explanation": "良好的照明可防止用藥錯誤"
-      },
-      "ELDER_30": {
-        "question": "您是否定期檢查藥物的到期日？",
-        "explanation": "過期藥物可能無效或有害"
-      },
-      "ELDER_31": {
-        "question": "您是否使用藥盒或系統來跟蹤藥物？",
-        "explanation": "藥物組織管理可防止劑量錯誤"
-      },
-      "ELDER_32": {
-        "question": "您家中是否安裝了一氧化碳探測器？",
-        "explanation": "一氧化碳探測器可防止致命中毒"
-      },
-      "ELDER_33": {
-        "question": "您是否在容易看到的地方張貼了緊急電話號碼？",
-        "explanation": "便於查看的緊急電話號碼可實現快速響應"
-      },
-      "ELDER_34": {
-        "question": "您是否有可工作的手電筒和備用電池？",
-        "explanation": "手電筒在停電時至關重要"
-      },
-      "ELDER_35": {
-        "question": "您是否有儲備充足的急救包？",
-        "explanation": "急救用品可用於處理輕微傷害"
-      },
-      "ELDER_36": {
-        "question": "您的門鎖是否工作正常？",
-        "explanation": "正常工作的門鎖提供安全保障"
-      },
-      "ELDER_37": {
-        "question": "您能否全年在家中保持舒適的溫度？",
-        "explanation": "極端溫度對老年人構成健康風險"
-      },
-      "ELDER_38": {
-        "question": "您家的暖通空調系統是否定期維護？",
-        "explanation": "暖通空調維護確保安全高效運行"
-      },
-      "ELDER_39": {
-        "question": "您的熱水器溫度是否設定為120°F（49°C）或以下？",
-        "explanation": "過高的水溫可能造成嚴重燙傷"
-      },
-      "ELDER_40": {
-        "question": "您在家中是否感到安全放心？",
-        "explanation": "感到不安全表明存在安全或環境問題"
-      }
-    },
-    "sdoh": {
-      "SDOH_1": {
-        "question": "在過去12個月中，您是否擔心過在有錢購買更多食物之前食物會用完？",
-        "explanation": "食物不安全影響健康結果和藥物依從性"
-      },
-      "SDOH_2": {
-        "question": "在過去12個月中，您購買的食物不夠用且沒錢購買更多食物？",
-        "explanation": "表明嚴重的食物不安全，需要立即干預"
-      },
-      "SDOH_3": {
-        "question": "您今天的住房狀況如何？",
-        "explanation": "住房不穩定嚴重影響健康和安全"
-      },
-      "SDOH_4": {
-        "question": "在過去12個月中，缺乏可靠的交通工具是否阻礙您看醫生、參加會議、工作或獲取日常生活所需的物品？",
-        "explanation": "交通障礙可能阻止獲得醫療保健和基本服務"
-      },
-      "SDOH_5": {
-        "question": "您多久見到或與您關心和感覺親近的人交談一次？（例如：與朋友通電話、拜訪朋友或家人、去教堂或俱樂部聚會）",
-        "explanation": "社交孤立與抑鬱、焦慮和不良健康結果有關"
-      },
-      "SDOH_6": {
-        "question": "壓力是指感到緊張、神經質、焦慮或因心煩意亂而無法夜間入睡。您的壓力有多大？",
-        "explanation": "慢性壓力會導致多種健康問題"
-      },
-      "SDOH_7": {
-        "question": "您在家中是否感到安全？",
-        "explanation": "個人安全問題需要立即關注和資源"
-      },
-      "SDOH_8": {
-        "question": "您在所居住的社區中是否感到安全？",
-        "explanation": "社區安全影響心理健康和獲得服務的能力"
-      }
+    }
+  },
+  "sections": {
+    "names": {
+      "layoutAndBuilding": "佈局和建築結構",
+      "bedroomEnvironment": "臥室環境",
+      "kitchenEnvironment": "廚房環境", 
+      "bathroomEnvironment": "浴室環境",
+      "generalConditions": "一般條件"
     }
   }
 }
