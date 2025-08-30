@@ -49,13 +49,19 @@
         "na": "N/A",
         "unsure": "Unsure",
         "other": "Other",
+        
+        // Building Types
         "townhouse": "Townhouse",
         "detached_house": "Detached house", 
         "apartment": "Apartment (Is there an elevator?)",
         "rooftop_addition": "Rooftop addition (location of bedroom or living room)",
+        
+        // Occupancy Types
         "entire_building": "Occupies the entire building",
         "entire_floor": "Occupies an entire floor",
         "shared_floor": "Shares a floor with others",
+        
+        // Floor Numbers
         "1_floor": "1 floor",
         "2_floors": "2 floors",
         "3_4_floors": "3-4 floors",
@@ -64,9 +70,13 @@
         "1st_floor": "1st floor",
         "2nd_floor": "2nd floor",
         "3rd_plus_floor": "3rd floor or higher",
+        
+        // Door Types
         "closable_door": "Closable door",
         "open_doorway": "Open doorway",
         "open_wall": "Open wall",
+        
+        // Materials
         "concrete": "Concrete",
         "wallpaper": "Wallpaper",
         "natural_wood": "Natural wood",
@@ -78,29 +88,43 @@
         "artificial_wood": "Artificial wood",
         "hardwood": "Hardwood",
         "carpet": "Carpet",
+        
+        // Mold/Odor Levels
         "weak_slight": "Weak or slight",
         "strong": "Strong",
+        
+        // Area Sizes
         "less_than_a4": "Less than A4 paper",
         "a4_to_door": "More than A4 paper and less than a standard door",
         "more_than_door": "More than a standard door",
+        
+        // Plant Quantities
         "1_2": "1-2 plants",
         "3_5": "3-5 plants",
         "more_than_5": "More than 5 plants",
+        
+        // Time Periods
         "morning": "Morning",
         "afternoon": "Afternoon",
         "evening_sleep": "Evening/during sleep",
         "during_after_cooking": "During/after cooking",
         "during_after_bathing": "During/after bathing",
+        
+        // People Counts
         "1_person": "1 person",
         "2_people": "2 people",
         "3_people": "3 people",
         "4_plus_people": "4+ people",
         "3_4_people": "3-4 people",
         "5_plus_people": "5+ people",
+        
+        // Age Ranges
         "less_than_5": "Less than 5 years",
         "5_15_years": "5-15 years",
         "15_30_years": "15-30 years",
         "more_than_30": "More than 30 years",
+        
+        // Animals
         "dog": "Dog",
         "cat": "Cat"
       }
