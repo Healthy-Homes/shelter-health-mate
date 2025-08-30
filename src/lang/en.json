@@ -285,255 +285,219 @@
         "satisfied": "Satisfied",
         "neutral": "Neutral",
         "dissatisfied": "Dissatisfied",
-        "verydissatisfied": "Very dissatisfied",
-        "own": "I have housing",
-        "temporary": "I have housing, but I am worried about losing it in the future",
-        "transitional": "I do not have housing (staying with others, in a hotel, in a shelter, living outside on the street, on a beach, in a car, or in a park)",
-        "lessthanoceweek": "Less than once a week",
-        "12timesweek": "1 or 2 times a week",
-        "35timesweek": "3 to 5 times a week",
-        "5ormoretimesweek": "5 or more times a week",
-        "notatall": "Not at all",
-        "alittlebit": "A little bit",
-        "quiteabit": "Quite a bit",
-        "verymuch": "Very much",
-        "nostairs": "No stairs",
-        "notubshower": "No tub/shower",
-        "nosmokealarms": "No smoke alarms",
-        "dontusethese": "Don't use these",
-        "nomedications": "No medications",
-        "nogasappliances": "No gas appliances",
-        "nohvacsystem": "No HVAC system",
-        "somewhat": "Somewhat",
-        "townhouse": "Townhouse",
-        "detached_house": "Detached house", 
-        "apartment": "Apartment (Is there an elevator?)",
-        "rooftop_addition": "Rooftop addition (location of bedroom or living room)",
-        "entire_building": "Occupies the entire building",
-        "entire_floor": "Occupies an entire floor",
-        "shared_floor": "Shares a floor with others",
-        "1_floor": "1 floor",
-        "2_floors": "2 floors",
-        "3_4_floors": "3-4 floors",
-        "5_plus_floors": "5+ floors",
-        "ground_floor": "Ground floor",
-        "1st_floor": "1st floor",
-        "2nd_floor": "2nd floor",
-        "3rd_plus_floor": "3rd floor or higher",
-        "closable_door": "Closable door",
-        "open_doorway": "Open doorway",
-        "open_wall": "Open wall",
-        "weak_slight": "Weak or slight",
-        "strong": "Strong",
-        "concrete": "Concrete",
-        "wallpaper": "Wallpaper",
-        "natural_wood": "Natural wood",
-        "plastic_material": "Plastic material",
-        "fiberboard": "Fiberboard (may look like wood)",
-        "gypsum_tile": "Gypsum ceiling tile",
-        "drywall": "Drywall",
-        "stone_tile": "Stone or tile",
-        "artificial_wood": "Artificial wood",
-        "hardwood": "Hardwood",
-        "carpet": "Carpet",
-        "less_than_a4": "Less than A4 paper",
-        "a4_to_door": "More than A4 paper and less than a standard door",
-        "more_than_door": "More than a standard door",
-        "1_2": "1-2 plants",
-        "3_5": "3-5 plants",
-        "more_than_5": "More than 5 plants",
-        "morning": "Morning",
-        "afternoon": "Afternoon",
-        "evening_sleep": "Evening/during sleep",
-        "1_person": "1 person",
-        "2_people": "2 people",
-        "3_people": "3 people",
-        "4_plus_people": "4+ people",
-        "3_4_people": "3-4 people",
-        "5_plus_people": "5+ people",
-        "less_than_5": "Less than 5 years",
-        "5_15_years": "5-15 years",
-        "15_30_years": "15-30 years",
-        "more_than_30": "More than 30 years",
-        "dog": "Dog",
-        "cat": "Cat",
-        "unsure": "Unsure",
-        "na": "N/A",
-        "every_time": "Every time"
+"verydissatisfied": "Very dissatisfied",
+"own": "I have housing",
+"temporary": "I have housing, but I am worried about losing it in the future",
+"transitional": "I do not have housing (staying with others, in a hotel, in a shelter, living outside on the street, on a beach, in a car, or in a park)",
+"lessthanoceweek": "Less than once a week",
+"12timesweek": "1 or 2 times a week",
+"35timesweek": "3 to 5 times a week",
+"5ormoretimesweek": "5 or more times a week",
+"notatall": "Not at all",
+"alittlebit": "A little bit",
+"quiteabit": "Quite a bit",
+"verymuch": "Very much",
+"nostairs": "No stairs",
+"notubshower": "No tub/shower",
+"nosmokealarms": "No smoke alarms",
+"dontusethese": "Don't use these",
+"nomedications": "No medications",
+"nogasappliances": "No gas appliances",
+"nohvacsystem": "No HVAC system"        
       }
     },
     "taiwan": {
-      "HALST_A1a": {
-        "question": "What type of building is this residence?",
-        "explanation": "Building type affects structural safety and environmental health risks"
+      "HALST_1": {
+        "question": "What type of housing do you live in?",
+        "explanation": "Different housing types have different health considerations"
       },
-      "HALST_A1b": {
-        "question": "What part of the building does the respondent occupy?",
-        "explanation": "Occupancy density affects privacy, noise exposure, and infection transmission risk"
+      "HALST_2": {
+        "question": "What floor do you live on?",
+        "explanation": "Higher floors may have different air quality and accessibility considerations"
       },
-      "HALST_A2a": {
-        "question": "How many floors does this building have aboveground (inclusive of rooftop additions)?",
-        "explanation": "Building height affects evacuation risks and structural stability"
+      "HALST_3": {
+        "question": "How old is your building?",
+        "explanation": "Building age affects structural integrity and potential health hazards"
       },
-      "HALST_A2b": {
-        "question": "Does this building have any basement floors (including a parking garage)?",
-        "explanation": "Basements can have moisture and air quality issues"
+      "HALST_4": {
+        "question": "Does your home have ventilation (windows that open or ventilation fans)?",
+        "explanation": "Proper ventilation is essential for indoor air quality"
       },
-      "HALST_A3a": {
-        "question": "On which floor of the building is the participant's bedroom? (if the participant sleeps in the living room, consider it as their bedroom)",
-        "explanation": "Floor level affects evacuation access and air quality exposure"
+      "HALST_5": {
+        "question": "Are there any cracks in walls or ceilings?",
+        "explanation": "Cracks can indicate structural problems and allow moisture entry"
       },
-      "HALST_A3b": {
-        "question": "Does this home have a living room? (answer 'no' if the participant sleeps in the living room)",
-        "explanation": "Lack of separate living space indicates overcrowding and reduced quality of life"
+      "HALST_6": {
+        "question": "Are there any signs of water damage or leaks?",
+        "explanation": "Water damage can lead to mold growth and structural problems"
       },
-      "HALST_A3e": {
-        "question": "What type of doorway does the bedroom have? (if the living room is considered the bedroom, this describes the doorway to the kitchen)",
-        "explanation": "Privacy and sound control affect sleep quality and mental well-being"
+      "HALST_7": {
+        "question": "Is there peeling or chipping paint?",
+        "explanation": "Peeling paint in older buildings may contain lead"
       },
-      "HALST_A4a": {
-        "question": "Does this home have a kitchen? (cooking appliances inside the bedroom does not qualify)",
-        "explanation": "Lack of proper kitchen facilities affects nutrition and food safety"
+      "HALST_8": {
+        "question": "Do you have problems with pests (insects, rodents)?",
+        "explanation": "Pests can carry diseases and trigger allergies"
       },
-      "HALST_A5": {
-        "question": "Is there a bathroom inside the participant's bedroom? (if 'yes' inspect this bathroom in the later section, if 'no' inspect the bathroom in which the participant bathes)",
-        "explanation": "Bathroom accessibility affects convenience and hygiene"
+      "HALST_9": {
+        "question": "Is there adequate lighting in your home?",
+        "explanation": "Poor lighting can cause accidents and eye strain"
       },
-      "HALST_B1": {
-        "question": "What is the level of mold odor in the bedroom? (evaluate upon entering the room)",
-        "explanation": "Mold odor indicates potential respiratory health hazards and moisture problems"
+      "HALST_10": {
+        "question": "Do you feel safe in your neighborhood?",
+        "explanation": "Safety concerns can affect mental health and well-being"
       },
-      "HALST_B2": {
-        "question": "What material is the bedroom ceiling composed of?",
-        "explanation": "Ceiling materials affect air quality and potential hazardous material exposure"
+      "HALST_11": {
+        "question": "Is your bedroom well-ventilated?",
+        "explanation": "Bedroom ventilation affects sleep quality and air quality"
       },
-      "HALST_B3": {
-        "question": "What material is the bedroom walls composed of?",
-        "explanation": "Wall materials can harbor allergens and affect indoor air quality"
+      "HALST_12": {
+        "question": "Do you have trouble sleeping due to noise?",
+        "explanation": "Noise pollution can disrupt sleep and affect health"
       },
-      "HALST_B4": {
-        "question": "What material is the bedroom floor composed of?",
-        "explanation": "Floor materials affect allergen accumulation and cleaning difficulty"
+      "HALST_13": {
+        "question": "Is there adequate natural light in your bedroom?",
+        "explanation": "Natural light helps regulate circadian rhythms"
       },
-      "HALST_B5": {
-        "question": "What is the combined area of water stains?",
-        "explanation": "Water stains indicate moisture problems that can lead to mold growth"
+      "HALST_14": {
+        "question": "Is your bedroom temperature comfortable?",
+        "explanation": "Temperature control affects sleep quality and comfort"
       },
-      "HALST_B6a": {
-        "question": "What is the combined area of visible mold?",
-        "explanation": "Visible mold poses serious respiratory health risks and indicates moisture problems"
+      "HALST_15": {
+        "question": "Is there dampness or condensation in your bedroom?",
+        "explanation": "Dampness can lead to mold growth and respiratory problems"
       },
-      "HALST_B7": {
-        "question": "What is the combined area of wall cancer (bì ái)?",
-        "explanation": "Wall deterioration indicates structural moisture problems and potential health hazards"
+      "HALST_16": {
+        "question": "Do you have adequate cooking facilities?",
+        "explanation": "Proper cooking facilities are essential for nutrition and food safety"
       },
-      "HALST_B8": {
-        "question": "Are there any walls that could not be fully inspected?",
-        "explanation": "Incomplete inspection may miss important environmental health hazards"
+      "HALST_17": {
+        "question": "Is your kitchen well-ventilated?",
+        "explanation": "Kitchen ventilation removes cooking fumes and moisture"
       },
-      "HALST_B9": {
-        "question": "How many potted plants are in the bedroom?",
-        "explanation": "Excessive plants can increase humidity and allergen exposure"
+      "HALST_18": {
+        "question": "Do you have access to clean drinking water?",
+        "explanation": "Clean water is essential for health and hydration"
       },
-      "HALST_B10a": {
-        "question": "Is the mattress placed directly on the floor?",
-        "explanation": "Floor-placed mattresses have poor air circulation and increased dust mite exposure"
+      "HALST_19": {
+        "question": "Is there adequate food storage space?",
+        "explanation": "Proper food storage prevents spoilage and pest problems"
       },
-      "HALST_E2a": {
-        "question": "Is there a balcony door inside this room? (if the living room is considered to be the bedroom, this includes any exterior door)",
-        "explanation": "Lack of exterior access affects ventilation and emergency egress"
+      "HALST_20": {
+        "question": "Are there any problems with your stove or cooking equipment?",
+        "explanation": "Faulty cooking equipment can pose safety and health risks"
       },
-      "HALST_E2c": {
-        "question": "In the past week, when did you normally open the balcony door or balcony door window?",
-        "explanation": "Ventilation patterns affect indoor air quality and pollutant exposure"
+      "HALST_21": {
+        "question": "Do you have hot water available?",
+        "explanation": "Hot water is necessary for hygiene and sanitation"
       },
-      "HALST_E3a": {
-        "question": "Does this room have any exterior windows?",
-        "explanation": "Lack of exterior windows severely limits natural ventilation and light"
+      "HALST_22": {
+        "question": "Is your bathroom clean and well-maintained?",
+        "explanation": "Bathroom hygiene is important for preventing infections"
       },
-      "HALST_E3c": {
-        "question": "In the past week, when did you normally open the window?",
-        "explanation": "Window usage patterns directly affect indoor air quality and ventilation"
+      "HALST_23": {
+        "question": "Does your toilet flush properly?",
+        "explanation": "Proper sanitation facilities are essential for health"
       },
-      "HALST_E10": {
-        "question": "In the past week, how many people regularly slept in this room?",
-        "explanation": "Bedroom overcrowding affects air quality, disease transmission, and sleep quality"
+      "HALST_24": {
+        "question": "Is there adequate privacy in your bathroom?",
+        "explanation": "Privacy is important for dignity and comfort"
       },
-      "HALST_E14a": {
-        "question": "In the past week, did you cook food or boil water in the bedroom?",
-        "explanation": "Cooking in bedroom creates serious fire, air quality, and safety hazards"
+      "HALST_25": {
+        "question": "Is your bathroom well-ventilated?",
+        "explanation": "Bathroom ventilation prevents moisture buildup and mold"
       },
-      "HALST_D1": {
-        "question": "How old is this building?",
-        "explanation": "Building age affects structural integrity, materials safety, and maintenance needs"
+      "HALST_26": {
+        "question": "Are there any leaks in your bathroom?",
+        "explanation": "Bathroom leaks can cause water damage and mold growth"
       },
-      "HALST_D2": {
-        "question": "How many people reside in this home?",
-        "explanation": "Household density affects overcrowding risk and disease transmission potential"
+      "HALST_27": {
+        "question": "Is there visible mold in your bathroom?",
+        "explanation": "Mold can cause respiratory problems and allergic reactions"
       },
-      "HALST_D3": {
-        "question": "Do you have any indoor pets? (excluding fish)",
-        "explanation": "Indoor pets can trigger allergies and affect air quality for sensitive individuals"
+      "HALST_28": {
+        "question": "Is there adequate space for relaxation in your living area?",
+        "explanation": "Personal space is important for mental health and well-being"
       },
-      "HALST_D4a": {
-        "question": "In the past week, did you burn incense indoors?",
-        "explanation": "Indoor incense burning contributes to particulate matter and air pollution"
+      "HALST_29": {
+        "question": "Is there too much clutter in your living areas?",
+        "explanation": "Clutter can create safety hazards and affect mental health"
       },
-      "HALST_D5a": {
-        "question": "In the past week, were there any sources of smoke indoors apart from incense burning and cooking (such as cigarette smoking)?",
-        "explanation": "Indoor tobacco smoking creates severe health hazards for all occupants"
+      "HALST_30": {
+        "question": "Do you have adequate heating in winter?",
+        "explanation": "Proper heating is essential for comfort and health"
       },
-      "HALST_D6a": {
-        "question": "Does this home have an indoor gas water heater?",
-        "explanation": "Indoor gas water heaters can produce combustion byproducts if not properly ventilated"
+      "HALST_31": {
+        "question": "Do you have adequate cooling in summer?",
+        "explanation": "Temperature control prevents heat-related health problems"
       },
-      "HALST_D7": {
-        "question": "Does this home have a functional smoke detector?",
-        "explanation": "Functional smoke detectors are essential for fire safety and survival"
+      "HALST_32": {
+        "question": "Is the air quality in your home generally good?",
+        "explanation": "Poor air quality can cause respiratory and other health problems"
       },
-      "HALST_D8": {
-        "question": "Does this home have a functional carbon monoxide detector?",
-        "explanation": "Carbon monoxide detectors prevent deadly poisoning from gas appliances"
+      "HALST_33": {
+        "question": "Are there strong odors in your home?",
+        "explanation": "Strong odors may indicate air quality or hygiene problems"
       },
-      "HALST_I1a": {
-        "question": "Are rugs and floor mats without rolled-up edges?",
-        "explanation": "Rolled-up rug edges create serious trip and fall hazards"
+      "HALST_34": {
+        "question": "Is there excessive dust in your home?",
+        "explanation": "Dust can trigger allergies and respiratory problems"
       },
-      "HALST_I1c": {
-        "question": "Are all cords and furniture clear of walkways and neatly stowed away to avoid tripping?",
-        "explanation": "Cords and furniture in walkways create dangerous trip hazards"
+      "HALST_35": {
+        "question": "Are there any unusual sounds (like buzzing or humming)?",
+        "explanation": "Unusual sounds may indicate electrical or mechanical problems"
       },
-      "HALST_I2a": {
-        "question": "Are the indoor lights bright?",
-        "explanation": "Poor lighting increases fall risk and affects daily activities"
+      "HALST_36": {
+        "question": "Does anyone smoke tobacco inside your home?",
+        "explanation": "Indoor smoking creates serious health hazards for all residents"
       },
-      "HALST_I6a": {
-        "question": "Are the floors cleared of clutter?",
-        "explanation": "Floor clutter creates major trip hazards and prevents safe navigation"
+      "HALST_37": {
+        "question": "Do you have smoke detectors that work?",
+        "explanation": "Working smoke detectors are essential for fire safety"
       },
-      "HALST_G3": {
-        "question": "In the past week, how often was the range hood used when cooking with the gas stove?",
-        "explanation": "Range hood usage prevents indoor air pollution from cooking combustion"
+      "HALST_38": {
+        "question": "Is there a first aid kit available?",
+        "explanation": "First aid supplies are important for emergency medical care"
       },
-      "HALST_G4": {
-        "question": "In the past week, when did you normally open exterior windows or doors?",
-        "explanation": "Kitchen ventilation during cooking reduces indoor pollutant accumulation"
+      "HALST_39": {
+        "question": "Are electrical outlets and wiring in good condition?",
+        "explanation": "Faulty electrical systems pose fire and shock hazards"
       },
-      "HALST_H1": {
-        "question": "What is the combined area of visible mold?",
-        "explanation": "Bathroom mold indicates moisture problems and poses respiratory health risks"
+      "HALST_40": {
+        "question": "Overall, how would you rate the health and safety of your housing?",
+        "explanation": "Your overall assessment helps identify priority concerns"
       },
-      "HALST_H2": {
-        "question": "In the past week, when did you normally open the bathroom window?",
-        "explanation": "Bathroom ventilation prevents moisture buildup and mold growth"
+      "HALST_41": {
+        "question": "How comfortable do you feel in your home environment overall?",
+        "explanation": "Overall comfort reflects environmental health and well-being"
       },
-      "HALST_I4a": {
-        "question": "Does the bathroom floor have anti-slip protection?",
-        "explanation": "Bathroom floors without anti-slip protection pose serious fall risks"
+      "HALST_42": {
+        "question": "How often do you clean your home?",
+        "explanation": "Regular cleaning helps maintain a healthy living environment"
       },
-      "HALST_I4b": {
-        "question": "Are there grab bars installed next to the shower or toilet?",
-        "explanation": "Grab bars are essential bathroom safety features for preventing falls"
+      "HALST_43": {
+        "question": "Do you have adequate storage space in your home?",
+        "explanation": "Adequate storage helps prevent clutter and maintains organization"
+      },
+      "HALST_44": {
+        "question": "How would you rate the overall condition of your home?",
+        "explanation": "Overall home condition affects health, safety, and quality of life"
+      },
+      "HALST_45": {
+        "question": "Do you feel your home meets your basic needs?",
+        "explanation": "Meeting basic housing needs is fundamental for health and well-being"
+      },
+      "HALST_46": {
+        "question": "How satisfied are you with your current housing situation?",
+        "explanation": "Housing satisfaction affects mental health and overall well-being"
+      },
+      "HALST_47": {
+        "question": "Do you have any major concerns about your housing?",
+        "explanation": "Identifying housing concerns helps prioritize health and safety improvements"
+      },
+      "HALST_48": {
+        "question": "Overall, how satisfied are you with your home's environmental health?",
+        "explanation": "Overall satisfaction with environmental health may indicate multiple health risks"
       }
     },
     "us": {
@@ -718,201 +682,201 @@
         "explanation": "Fire separation prevents garage fires from spreading to living areas"
       }
     },
-    "elder": {
-      "ELDER_1": {
-        "question": "Are there papers, shoes, books, or other objects on the floors?",
-        "explanation": "Objects on floors are major fall hazards for older adults"
-      },
-      "ELDER_2": {
-        "question": "Do you have scatter rugs on the floor?",
-        "explanation": "Scatter rugs can cause trips and falls"
-      },
-      "ELDER_3": {
-        "question": "Are your rugs anchored down and do they lie flat?",
-        "explanation": "Unsecured rugs are trip hazards"
-      },
-      "ELDER_4": {
-        "question": "Are your floors in good condition (no broken or uneven areas)?",
-        "explanation": "Broken or uneven floors pose serious fall risks"
-      },
-      "ELDER_5": {
-        "question": "Are handrails installed on both sides of the stairs?",
-        "explanation": "Handrails are essential fall prevention on stairs"
-      },
-      "ELDER_6": {
-        "question": "Are the handrails sturdy and in good repair?",
-        "explanation": "Damaged handrails cannot provide safe support"
-      },
-      "ELDER_7": {
-        "question": "Are the steps broken or uneven?",
-        "explanation": "Broken or uneven steps are extremely dangerous fall hazards"
-      },
-      "ELDER_8": {
-        "question": "Are there papers, shoes, books, or other objects on the stairs?",
-        "explanation": "Objects on stairs create severe fall risks"
-      },
-      "ELDER_9": {
-        "question": "Do you have good lighting on the stairs?",
-        "explanation": "Poor stair lighting increases fall risk"
-      },
-      "ELDER_10": {
-        "question": "Do you have light switches at both the top and bottom of the stairs?",
-        "explanation": "Accessible light switches improve stair safety"
-      },
-      "ELDER_11": {
-        "question": "Can you clearly see the edges of the steps?",
-        "explanation": "Visible step edges are crucial for safe navigation"
-      },
-      "ELDER_12": {
-        "question": "Are spills wiped up right away?",
-        "explanation": "Kitchen spills create serious slip hazards"
-      },
-      "ELDER_13": {
-        "question": "Are the things you use often within easy reach?",
-        "explanation": "Items stored too high require unsafe reaching or climbing"
-      },
-      "ELDER_14": {
-        "question": "Is there a lamp or light switch within reach of your bed?",
-        "explanation": "Accessible lighting prevents falls when getting up at night"
-      },
-      "ELDER_15": {
-        "question": "Is the path from your bed to the bathroom clear?",
-        "explanation": "Clear bathroom path is essential for nighttime safety"
-      },
-      "ELDER_16": {
-        "question": "Do you have a phone next to your bed?",
-        "explanation": "Bedside phone enables emergency calls without movement"
-      },
-      "ELDER_17": {
-        "question": "Are there grab bars in your tub or shower?",
-        "explanation": "Grab bars are essential for bathroom safety"
-      },
-      "ELDER_18": {
-        "question": "Is the tub or shower floor slippery?",
-        "explanation": "Slippery bathroom surfaces cause serious falls"
-      },
-      "ELDER_19": {
-        "question": "Are the chairs and sofas the right height (not too low or too high)?",
-        "explanation": "Proper furniture height makes sitting and standing safer"
-      },
-      "ELDER_20": {
-        "question": "Do you have to walk over or around wires or cords?",
-        "explanation": "Electrical cords create dangerous trip hazards"
-      },
-      "ELDER_21": {
-        "question": "Do you have smoke alarms on every level of your home?",
-        "explanation": "Smoke alarms are essential for fire safety and survival"
-      },
-      "ELDER_22": {
-        "question": "Have you tested the batteries in your smoke alarms in the past year?",
-        "explanation": "Smoke alarm maintenance is critical for fire safety"
-      },
-      "ELDER_23": {
-        "question": "Do you have a fire escape plan?",
-        "explanation": "Fire escape plans save lives in emergencies"
-      },
-      "ELDER_24": {
-        "question": "Are space heaters and fireplaces used safely (clear of flammable items)?",
-        "explanation": "Unsafe heating equipment is a major fire risk"
-      },
-      "ELDER_25": {
-        "question": "Are electrical outlets overloaded with too many plugs?",
-        "explanation": "Overloaded outlets can cause fires"
-      },
-      "ELDER_26": {
-        "question": "Are electrical cords in good condition (not frayed or damaged)?",
-        "explanation": "Damaged electrical cords pose fire and shock risks"
-      },
-      "ELDER_27": {
-        "question": "Do you have GFCI outlets in bathrooms and kitchen areas?",
-        "explanation": "GFCI protection prevents electrical shock in wet areas"
-      },
-      "ELDER_28": {
-        "question": "Are your medications stored safely and securely?",
-        "explanation": "Secure medication storage prevents accidental poisoning"
-      },
-      "ELDER_29": {
-        "question": "Do you have good lighting when taking medications?",
-        "explanation": "Good lighting prevents medication errors"
-      },
-      "ELDER_30": {
-        "question": "Do you regularly check medication expiration dates?",
-        "explanation": "Expired medications can be ineffective or harmful"
-      },
-      "ELDER_31": {
-        "question": "Do you use a pill organizer or system to track medications?",
-        "explanation": "Medication organization prevents dosing errors"
-      },
-      "ELDER_32": {
-        "question": "Do you have carbon monoxide detectors in your home?",
-        "explanation": "Carbon monoxide detectors prevent deadly poisoning"
-      },
-      "ELDER_33": {
-        "question": "Do you have emergency phone numbers posted where you can easily see them?",
-        "explanation": "Accessible emergency numbers enable quick response"
-      },
-      "ELDER_34": {
-        "question": "Do you have working flashlights and extra batteries?",
-        "explanation": "Flashlights are essential during power outages"
-      },
-      "ELDER_35": {
-        "question": "Do you have a well-stocked first aid kit?",
-        "explanation": "First aid supplies enable response to minor injuries"
-      },
-      "ELDER_36": {
-        "question": "Are your door locks in good working condition?",
-        "explanation": "Working locks provide security and safety"
-      },
-      "ELDER_37": {
-        "question": "Can you maintain a comfortable temperature in your home year-round?",
-        "explanation": "Temperature extremes pose health risks for older adults"
-      },
-      "ELDER_38": {
-        "question": "Is your home's heating and cooling system regularly maintained?",
-        "explanation": "HVAC maintenance ensures safe and efficient operation"
-      },
-      "ELDER_39": {
-        "question": "Is your water heater temperature set to 120°F (49°C) or below?",
-        "explanation": "High water temperature can cause serious burns"
-      },
-      "ELDER_40": {
-        "question": "Do you feel safe and secure in your home?",
-        "explanation": "Feeling unsafe indicates security or environmental concerns"
-      }
-    },
-    "sdoh": {
-      "SDOH_1": {
-        "question": "Within the past 12 months, you worried whether your food would run out before you got money to buy more.",
-        "explanation": "Food insecurity affects health outcomes and medication adherence"
-      },
-      "SDOH_2": {
-        "question": "Within the past 12 months, the food you bought just didn't last and you didn't have money to get more.",
-        "explanation": "Indicates severe food insecurity requiring immediate intervention"
-      },
-      "SDOH_3": {
-        "question": "What is your housing situation today?",
-        "explanation": "Housing instability significantly impacts health and safety"
-      },
-      "SDOH_4": {
-        "question": "In the past 12 months, has lack of reliable transportation kept you from medical appointments, meetings, work, or from getting things needed for daily living?",
-        "explanation": "Transportation barriers can prevent access to healthcare and essential services"
-      },
-      "SDOH_5": {
-        "question": "How often do you see or talk to people that you care about and feel close to? (For example: talking to friends on the phone, visiting friends or family, going to church or club meetings)",
-        "explanation": "Social isolation linked to depression, anxiety, and poor health outcomes"
-      },
-      "SDOH_6": {
-        "question": "Stress is when someone feels tense, nervous, anxious or can't sleep at night because their mind is troubled. How stressed are you?",
-        "explanation": "Chronic stress contributes to multiple health conditions"
-      },
-      "SDOH_7": {
-        "question": "Do you feel safe in your home?",
-        "explanation": "Personal safety concerns require immediate attention and resources"
-      },
-      "SDOH_8": {
-        "question": "Do you feel safe in your neighborhood?",
-        "explanation": "Neighborhood safety affects mental health and ability to access services"
-      }
-    }
+"elder": {
+  "ELDER_1": {
+    "question": "Are there papers, shoes, books, or other objects on the floors?",
+    "explanation": "Objects on floors are major fall hazards for older adults"
+  },
+  "ELDER_2": {
+    "question": "Do you have scatter rugs on the floor?",
+    "explanation": "Scatter rugs can cause trips and falls"
+  },
+  "ELDER_3": {
+    "question": "Are your rugs anchored down and do they lie flat?",
+    "explanation": "Unsecured rugs are trip hazards"
+  },
+  "ELDER_4": {
+    "question": "Are your floors in good condition (no broken or uneven areas)?",
+    "explanation": "Broken or uneven floors pose serious fall risks"
+  },
+  "ELDER_5": {
+    "question": "Are handrails installed on both sides of the stairs?",
+    "explanation": "Handrails are essential fall prevention on stairs"
+  },
+  "ELDER_6": {
+    "question": "Are the handrails sturdy and in good repair?",
+    "explanation": "Damaged handrails cannot provide safe support"
+  },
+  "ELDER_7": {
+    "question": "Are the steps broken or uneven?",
+    "explanation": "Broken or uneven steps are extremely dangerous fall hazards"
+  },
+  "ELDER_8": {
+    "question": "Are there papers, shoes, books, or other objects on the stairs?",
+    "explanation": "Objects on stairs create severe fall risks"
+  },
+  "ELDER_9": {
+    "question": "Do you have good lighting on the stairs?",
+    "explanation": "Poor stair lighting increases fall risk"
+  },
+  "ELDER_10": {
+    "question": "Do you have light switches at both the top and bottom of the stairs?",
+    "explanation": "Accessible light switches improve stair safety"
+  },
+  "ELDER_11": {
+    "question": "Can you clearly see the edges of the steps?",
+    "explanation": "Visible step edges are crucial for safe navigation"
+  },
+  "ELDER_12": {
+    "question": "Are spills wiped up right away?",
+    "explanation": "Kitchen spills create serious slip hazards"
+  },
+  "ELDER_13": {
+    "question": "Are the things you use often within easy reach?",
+    "explanation": "Items stored too high require unsafe reaching or climbing"
+  },
+  "ELDER_14": {
+    "question": "Is there a lamp or light switch within reach of your bed?",
+    "explanation": "Accessible lighting prevents falls when getting up at night"
+  },
+  "ELDER_15": {
+    "question": "Is the path from your bed to the bathroom clear?",
+    "explanation": "Clear bathroom path is essential for nighttime safety"
+  },
+  "ELDER_16": {
+    "question": "Do you have a phone next to your bed?",
+    "explanation": "Bedside phone enables emergency calls without movement"
+  },
+  "ELDER_17": {
+    "question": "Are there grab bars in your tub or shower?",
+    "explanation": "Grab bars are essential for bathroom safety"
+  },
+  "ELDER_18": {
+    "question": "Is the tub or shower floor slippery?",
+    "explanation": "Slippery bathroom surfaces cause serious falls"
+  },
+  "ELDER_19": {
+    "question": "Are the chairs and sofas the right height (not too low or too high)?",
+    "explanation": "Proper furniture height makes sitting and standing safer"
+  },
+  "ELDER_20": {
+    "question": "Do you have to walk over or around wires or cords?",
+    "explanation": "Electrical cords create dangerous trip hazards"
+  },
+  "ELDER_21": {
+    "question": "Do you have smoke alarms on every level of your home?",
+    "explanation": "Smoke alarms are essential for fire safety and survival"
+  },
+  "ELDER_22": {
+    "question": "Have you tested the batteries in your smoke alarms in the past year?",
+    "explanation": "Smoke alarm maintenance is critical for fire safety"
+  },
+  "ELDER_23": {
+    "question": "Do you have a fire escape plan?",
+    "explanation": "Fire escape plans save lives in emergencies"
+  },
+  "ELDER_24": {
+    "question": "Are space heaters and fireplaces used safely (clear of flammable items)?",
+    "explanation": "Unsafe heating equipment is a major fire risk"
+  },
+  "ELDER_25": {
+    "question": "Are electrical outlets overloaded with too many plugs?",
+    "explanation": "Overloaded outlets can cause fires"
+  },
+  "ELDER_26": {
+    "question": "Are electrical cords in good condition (not frayed or damaged)?",
+    "explanation": "Damaged electrical cords pose fire and shock risks"
+  },
+  "ELDER_27": {
+    "question": "Do you have GFCI outlets in bathrooms and kitchen areas?",
+    "explanation": "GFCI protection prevents electrical shock in wet areas"
+  },
+  "ELDER_28": {
+    "question": "Are your medications stored safely and securely?",
+    "explanation": "Secure medication storage prevents accidental poisoning"
+  },
+  "ELDER_29": {
+    "question": "Do you have good lighting when taking medications?",
+    "explanation": "Good lighting prevents medication errors"
+  },
+  "ELDER_30": {
+    "question": "Do you regularly check medication expiration dates?",
+    "explanation": "Expired medications can be ineffective or harmful"
+  },
+  "ELDER_31": {
+    "question": "Do you use a pill organizer or system to track medications?",
+    "explanation": "Medication organization prevents dosing errors"
+  },
+  "ELDER_32": {
+    "question": "Do you have carbon monoxide detectors in your home?",
+    "explanation": "Carbon monoxide detectors prevent deadly poisoning"
+  },
+  "ELDER_33": {
+    "question": "Do you have emergency phone numbers posted where you can easily see them?",
+    "explanation": "Accessible emergency numbers enable quick response"
+  },
+  "ELDER_34": {
+    "question": "Do you have working flashlights and extra batteries?",
+    "explanation": "Flashlights are essential during power outages"
+  },
+  "ELDER_35": {
+    "question": "Do you have a well-stocked first aid kit?",
+    "explanation": "First aid supplies enable response to minor injuries"
+  },
+  "ELDER_36": {
+    "question": "Are your door locks in good working condition?",
+    "explanation": "Working locks provide security and safety"
+  },
+  "ELDER_37": {
+    "question": "Can you maintain a comfortable temperature in your home year-round?",
+    "explanation": "Temperature extremes pose health risks for older adults"
+  },
+  "ELDER_38": {
+    "question": "Is your home's heating and cooling system regularly maintained?",
+    "explanation": "HVAC maintenance ensures safe and efficient operation"
+  },
+  "ELDER_39": {
+    "question": "Is your water heater temperature set to 120°F (49°C) or below?",
+    "explanation": "High water temperature can cause serious burns"
+  },
+  "ELDER_40": {
+    "question": "Do you feel safe and secure in your home?",
+    "explanation": "Feeling unsafe indicates security or environmental concerns"
+  }
+},
+"sdoh": {
+  "SDOH_1": {
+    "question": "Within the past 12 months, you worried whether your food would run out before you got money to buy more.",
+    "explanation": "Food insecurity affects health outcomes and medication adherence"
+  },
+  "SDOH_2": {
+    "question": "Within the past 12 months, the food you bought just didn't last and you didn't have money to get more.",
+    "explanation": "Indicates severe food insecurity requiring immediate intervention"
+  },
+  "SDOH_3": {
+    "question": "What is your housing situation today?",
+    "explanation": "Housing instability significantly impacts health and safety"
+  },
+  "SDOH_4": {
+    "question": "In the past 12 months, has lack of reliable transportation kept you from medical appointments, meetings, work, or from getting things needed for daily living?",
+    "explanation": "Transportation barriers can prevent access to healthcare and essential services"
+  },
+  "SDOH_5": {
+    "question": "How often do you see or talk to people that you care about and feel close to? (For example: talking to friends on the phone, visiting friends or family, going to church or club meetings)",
+    "explanation": "Social isolation linked to depression, anxiety, and poor health outcomes"
+  },
+  "SDOH_6": {
+    "question": "Stress is when someone feels tense, nervous, anxious or can't sleep at night because their mind is troubled. How stressed are you?",
+    "explanation": "Chronic stress contributes to multiple health conditions"
+  },
+  "SDOH_7": {
+    "question": "Do you feel safe in your home?",
+    "explanation": "Personal safety concerns require immediate attention and resources"
+  },
+  "SDOH_8": {
+    "question": "Do you feel safe in your neighborhood?",
+    "explanation": "Neighborhood safety affects mental health and ability to access services"
+  }
+}
   }
 }
