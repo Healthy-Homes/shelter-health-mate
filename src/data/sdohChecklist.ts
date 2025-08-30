@@ -1,4 +1,4 @@
-// src/data/sdohChecklist.ts - Standar dized Version
+// src/data/sdohChecklist.ts - Standardized Version
 import { ChecklistItem } from '../types/checklist';
 
 export const SDOH_QUESTIONS: ChecklistItem[] = [
