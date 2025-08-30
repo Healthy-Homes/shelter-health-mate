@@ -49,19 +49,13 @@
         "na": "不適用",
         "unsure": "不確定",
         "other": "其他",
-        
-        // Building Types
         "townhouse": "連棟房屋",
         "detached_house": "獨立房屋", 
         "apartment": "公寓（有電梯嗎？）",
         "rooftop_addition": "屋頂加蓋（臥室或客廳位置）",
-        
-        // Occupancy Types
         "entire_building": "佔用整棟建築物",
         "entire_floor": "佔用整層樓",
         "shared_floor": "與他人共享一層樓",
-        
-        // Floor Numbers
         "1_floor": "1層",
         "2_floors": "2層", 
         "3_4_floors": "3-4層",
@@ -70,13 +64,9 @@
         "1st_floor": "1樓",
         "2nd_floor": "2樓",
         "3rd_plus_floor": "3樓或更高",
-        
-        // Door Types
         "closable_door": "可關閉的門",
         "open_doorway": "開放式門口", 
         "open_wall": "開放式牆面",
-        
-        // Materials
         "concrete": "混凝土",
         "wallpaper": "壁紙",
         "natural_wood": "天然木材",
@@ -88,43 +78,29 @@
         "artificial_wood": "人造木材",
         "hardwood": "硬木",
         "carpet": "地毯",
-        
-        // Mold/Odor Levels
         "weak_slight": "微弱或輕微",
         "strong": "強烈",
-        
-        // Area Sizes
         "less_than_a4": "少於A4紙大小",
         "a4_to_door": "大於A4紙但小於標準門大小", 
         "more_than_door": "大於標準門大小",
-        
-        // Plant Quantities
         "1_2": "1-2盆植物",
         "3_5": "3-5盆植物",
         "more_than_5": "超過5盆植物",
-        
-        // Time Periods
         "morning": "早上",
         "afternoon": "下午",
         "evening_sleep": "晚上/睡覺時",
         "during_after_cooking": "烹飪期間/之後",
         "during_after_bathing": "洗澡期間/之後",
-        
-        // People Counts
         "1_person": "1人", 
         "2_people": "2人",
         "3_people": "3人",
         "4_plus_people": "4人以上",
         "3_4_people": "3-4人",
         "5_plus_people": "5人以上",
-        
-        // Age Ranges
         "less_than_5": "少於5年",
         "5_15_years": "5-15年", 
         "15_30_years": "15-30年",
         "more_than_30": "超過30年",
-        
-        // Animals
         "dog": "狗",
         "cat": "貓"
       }
