@@ -1,1037 +1,917 @@
-// src/pages/SimpleTest.tsx - With Question Translation Supports and Export Modal
-
-import React, { useState } from 'react';
-
-import { useTranslation } from 'react-i18next';
-import LanguageSwitcher from '../components/LanguageSwitcher';
-import { ExportModal } from '../components/reports/ExportModal';
-
-import { ChecklistItem, ResponseMap, SectionNotes } from '../types/checklist';
-import { calculateItemRisk, calculateOverallRisk, getCompletenessMessage } from '../utils/riskScoring';
-import { testScoringConsistency } from '../utils/scoringAnalysis';
-
-// Import all checklist data
-import { TAIWAN_HALST_QUESTIONS } from '../data/taiwanHalstChecklist';
-import { US_HEALTHY_HOMES_QUESTIONS } from '../data/usHealthyHomesChecklist';
-import { ELDER_SAFETY_QUESTIONS } from '../data/elderSafetyChecklist';
-import { SDOH_QUESTIONS } from '../data/sdohChecklist';
-
-type HomeChecklistType = 'taiwan' | 'us' | null;
-type AssessmentPhase = 'selection' | 'assessment' | 'results';
-
-// Section constants with translation keys
-const TAIWAN_SECTIONS = [
-  "layoutAndBuilding",
-  "bedroomEnvironment", 
-  "kitchenEnvironment",
-  "bathroomEnvironment", 
-  "generalConditions",
-  "homeSafety"           // ← ADD THIS IF YOU HAVE SAFETY QUESTIONS
-];
-
-const US_SECTIONS = [
-  "yardAndExterior",
-  "exteriorRoof", 
-  "basementCrawlspace",
-  "hvacEquipment",
-  "attic",
-  "plumbingFixtures",
-  "interiorWalls",
-  "appliances",
-  "electricalEquipment",
-  "garage"
-];
-
-const ELDER_SECTIONS = [
-  "floors",
-  "stairsSteps",
-  "kitchen",
-  "bedrooms", 
-  "bathrooms",
-  "livingAreas",
-  "fireSafety",
-  "electricalSafety",
-  "medications",
-  "generalSafety"
-];
-
-const SDOH_SECTIONS = [
-  "foodSecurity",
-  "housingSecurity",
-  "transportation",
-  "socialSupport",
-  "stressAndSafety"
-];
-
-// Section mapping for backwards compatibility with existing questions
-const SECTION_MAPPING: Record<string, string> = {
-  "layoutAndBuilding": "Layout and Building Structure",
-  "bedroomEnvironment": "Bedroom Environment",
-  "kitchenEnvironment": "Kitchen Environment",
-  "bathroomEnvironment": "Bathroom Environment",
-  "livingAreas": "Living Areas",
-  "generalConditions": "General Conditions",
-  "yardAndExterior": "Yard and Exterior",
-  "exteriorRoof": "Exterior Roof, Walls, and Windows",
-  "basementCrawlspace": "Basement and Crawlspace",
-  "hvacEquipment": "HVAC Equipment",
-  "attic": "Attic",
-  "plumbingFixtures": "Plumbing, Fixtures, and Appliances",
-  "interiorWalls": "Interior Walls, Ceilings, Windows, and Doors",
-  "appliances": "Appliances",
-  "electricalEquipment": "Electrical Equipment",
-  "garage": "Garage",
-  "floors": "Floors",
-  "stairsSteps": "Stairs and Steps",
-  "kitchen": "Kitchen",
-  "bedrooms": "Bedrooms",
-  "bathrooms": "Bathrooms",
-  "fireSafety": "Fire Safety",
-  "electricalSafety": "Electrical Safety",
-  "medications": "Medications",
-  "generalSafety": "General Safety",
-  "foodSecurity": "Food Security",
-  "housingSecurity": "Housing Security",
-  "transportation": "Transportation",
-  "socialSupport": "Social Support",
-  "stressAndSafety": "Stress and Safety"
-};
-
-// Assessment type mapping for translation keys
-const ASSESSMENT_TYPE_MAP: Record<string, string> = {
-  'HALST': 'taiwan',
-  'US': 'us', 
-  'ELDER': 'elder',
-  'SDOH': 'sdoh'
-};
-
-// Helper functions for response options compatibility
-const getResponseOptions = (question: ChecklistItem): string[] => {
-  if (Array.isArray(question.response_options)) {
-    // New format: array of objects
-    return question.response_options.map(opt => opt.value);
-  } else {
-    // Old format: comma-separated string
-    return question.response_options.split(',').map(opt => opt.trim());
-  }
-};
-
-const getResponseLabel = (question: ChecklistItem, value: string, t: any): string => {
-  console.log('🔍 DEBUG - getResponseLabel called with:', { value, questionId: question.item_id });
-  
-  // Exact mappings based on VALUES from Taiwan HALST response data
-  const exactMappings: { [key: string]: string } = {
-    // Housing types (VALUES from your checklist data)
-    'apartment': 'apartment',
-    'house': 'house', 
-    'dormitory': 'dormitory',
-    'other': 'other',
-    
-    // Floor levels  
-    'ground': 'groundfloor',
-    '1_3': '1st3rdfloor', 
-    '4_6': '4th6thfloor',
-    'above_6': 'above6thfloor',
-    
-    // Basic responses
-    'yes': 'yes',
-    'no': 'no',
-    'not_sure': 'notsure',
-    'partial': 'partially',           // ← FROM DEBUG: "partial" 
-    'partially': 'partially',
-    'sometimes': 'sometimes',         // ← FROM DEBUG: "sometimes"
-    'occasionally': 'occasionally',
-    
-    // Quality ratings  
-    'excellent': 'excellent',
-    'good': 'good',
-    'fair': 'fair', 
-    'poor': 'poor',
-    
-    // Building age
-    'new': 'lessthan10years',
-    'moderate': '1030years', 
-    'old': 'morethan30years',
-    
-    // Frequency with modifiers
-    'yes_regularly': 'yesregularly',
-    'yes_frequently': 'yesfrequently',
-    
-    // Time frequencies
-    'weekly': 'weekly',
-    'biweekly': 'every2weeks',
-    'monthly': 'monthly',
-    'rarely': 'rarely',
-    
-    // Partial quantities
-    'some': 'someappliances',
-    'some_products': 'someproducts',
-    
-    // Comfort levels
-    'very_comfortable': 'verycomfortable',
-    'comfortable': 'comfortable', 
-    'somewhat_comfortable': 'somewhatcomfortable',
-    'uncomfortable': 'uncomfortable',
-    
-    // Special cases from your debug output
-    'outdoor_only': 'outdoorpetsonly',
-    'no_carpet': 'nocarpetsrugs',
-    'excellent_new': 'excellentnew',
-    'good_condition': 'goodcondition',
-    'fair_condition': 'faircondition', 
-    'poor_old': 'poorold',
-    
-    // Condition modifiers
-    'inadequate': 'inadequate',
-    'poor_circulation': 'poorcirculation',
-    'moderate_amount': 'moderateamount',
-    'minor': 'minorissues',          // ← FROM DEBUG: "minor"
-    'minor_issues': 'minorissues',
-    'minor_amounts': 'minoramounts',
-    'limited': 'limitedstorage',
-    'some_need_repair': 'someneedrepair',
-    'poor_ventilation': 'poorventilation',
-    'variable': 'variablepressure',
-    'inconsistent': 'inconsistent',
-    'concerns': 'someconcerns',
-    
-    // Frequency options
-    'weekly_less': 'weeklyorless',
-    'few_days': 'everyfewdays',
-    'daily': 'daily',
-    'constantly': 'constantly',
-    'seasonal': 'onlyseasonally',
-    'outdoors_only': 'outdoorsonly',
-    
-    // Additional options from debug
-    'barely': 'barelyAdequate',      // ← FROM DEBUG: "barely"
-    'barely_adequate': 'barelyAdequate',
-    'have_concerns': 'havesomeconcerns',
-    'some_issues': 'someneedrepair',
-  'need_help': 'needhelp',
-  'yes_recent': 'yesrecently', 
-  'yes_old': 'yeslongago',
-  'not_applicable': 'notapplicable',
-  'few': 'afewconcerns',
-  'one': 'onemainconcern',
-  'yes_active': 'yesactivelyplanning',
-  'yes_future': 'yesforthefuture',
-  'want_but_unable': 'wantbutunable',
-  'no_plans': 'noplans',
-  'yes_major': 'yesmajorvarations',
-  'yes_minor': 'yesminorvarations', 
-  'very_satisfied': 'verysatisfied',
-  'satisfied': 'satisfied',
-  'neutral': 'neutral',
-  'dissatisfied': 'dissatisfied',
-  'very_dissatisfied': 'verydissatisfied',
-    // US-specific mappings (add these, remove duplicate not_applicable):
-'unsure': 'notsure', 
-'very_poor': 'verypoor',
-'not_working': 'notworking',
-'none': 'none',
-'severe': 'severe',
-    // Add these to your existing exactMappings object:
-'often_true': 'oftentrue',
-'sometimes_true': 'sometimestrue', 
-'never_true': 'nevertrue',
-'own': 'own',
-'temporary': 'temporary',
-'transitional': 'transitional',
-'less_than_once_week': 'lessthanoceweek',
-'1_2_times_week': '12timesweek',
-'3_5_times_week': '35timesweek',
-'5_or_more_times_week': '5ormoretimesweek',
-'not_at_all': 'notatall',
-'a_little_bit': 'alittlebit',
-'quite_a_bit': 'quiteabit',
-'very_much': 'verymuch',
-'no_stairs': 'nostairs',
-'no_tub_shower': 'notubshower',
-'no_smoke_alarms': 'nosmokealarms',
-'dont_use_these': 'dontusethese',
-'no_medications': 'nomedications',
-'no_gas_appliances': 'nogasappliances',
-'no_hvac_system': 'nohvacsystem',
-    'somewhat': 'somewhat'
-  };
-  
-  // First try direct translation of the value
-  if (exactMappings[value]) {
-    const translationKey = `questions.common.responses.${exactMappings[value]}`;
-    const translated = t(translationKey);
-    console.log('🔍 DEBUG - Translation attempt (direct value):', { 
-      originalValue: value, 
-      mappedKey: exactMappings[value], 
-      translationKey, 
-      translated 
-    });
-    if (translated !== translationKey) {
-      return translated;
+{
+  "ui": {
+    "appTitle": "庇護所健康應用程式",
+    "language": "語言",
+    "checklist": "檢查清單類型",
+    "includeSection": "在報告中包含此章節",
+    "downloadPdf": "下載 PDF",
+    "emailReport": "郵寄報告",
+    "shareReport": "分享報告",
+    "loading": "載入中...",
+    "error": "載入資料時發生錯誤",
+    "languages": { "en": "English", "zh": "繁體中文" }
+  },
+  "common": {
+    "yes": "是",
+    "no": "否", 
+    "notApplicable": "不適用",
+    "notSure": "不確定",
+    "excellent": "優秀",
+    "good": "良好",
+    "fair": "尚可",
+    "poor": "較差",
+    "veryPoor": "很差",
+    "often": "經常",
+    "sometimes": "有時",
+    "rarely": "很少",
+    "never": "從不",
+    "save": "儲存",
+    "cancel": "取消", 
+    "continue": "繼續",
+    "back": "返回",
+    "next": "下一步",
+    "complete": "完成",
+    "skip": "跳過"
+  },
+  "navigation": {
+    "backToMain": "← 返回主應用程式",
+    "startAssessment": "開始評估 →",
+    "previousSection": "← 上一節",
+    "nextSection": "下一節 →",
+    "completeAssessment": "完成評估"
+  },
+  "language": {
+    "switchTo": "切換至",
+    "english": "English",
+    "traditionalChinese": "繁體中文"
+  },
+  "assessment": {
+    "title": "居家健康評估",
+    "subtitle": "選擇您想要完成的評估項目",
+    "homeInspection": "居家檢查評估",
+    "chooseRegion": "選擇您所在地區的居家檢查清單：",
+    "skipHomeInspection": "跳過居家檢查",
+    "onlyCompleteAdditional": "僅完成附加評估",
+    "estimatedTime": "預估時間",
+    "minutes": "分鐘",
+    "totalQuestions": "總題數",
+    "totalSections": "總章節數",
+    "questionsAnswered": "題已回答",
+    "assessmentSummary": "評估摘要"
+  },
+  "checklists": {
+    "taiwan": {
+      "title": "台灣 HALST 評估",
+      "description": "台灣住宅環境健康評估（{{count}} 題）"
+    },
+    "us": {
+      "title": "美國健康住宅評估",
+      "description": "美國住宅綜合安全評估（{{count}} 題）"
+    },
+    "elderSafety": {
+      "title": "長者安全評估（選用）",
+      "description": "專注於跌倒預防與居家安全的長者居住環境評估（{{count}} 題）"
+    },
+    "sdoh": {
+      "title": "健康社會決定因素（選用）",
+      "description": "影響健康結果的社會因素評估（{{count}} 題）"
     }
-  }
-  
-  // If we have response_options array, get the label and try to translate it
-  if (Array.isArray(question.response_options)) {
-    const option = question.response_options.find(opt => opt.value === value);
-    if (option) {
-      // Try to find translation mapping for the label
-      const labelMappings: { [key: string]: string } = {
-        'Apartment': 'apartment',
-        'House': 'house',
-        'Dormitory': 'dormitory', 
-        'Other': 'other',
-        'Ground floor': 'groundfloor',
-        '1st-3rd floor': '1st3rdfloor',
-        '4th-6th floor': '4th6thfloor',
-        'Above 6th floor': 'above6thfloor',
-        'Yes': 'yes',
-        'No': 'no',
-        'Not sure': 'notsure',
-        'Partially': 'partially',
-        'Sometimes': 'sometimes',
-        'Occasionally': 'occasionally',
-        'Excellent': 'excellent',
-        'Good': 'good',
-        'Fair': 'fair',
-        'Poor': 'poor',
-        'Less than 10 years': 'lessthan10years',
-        '10-30 years': '1030years',
-        'More than 30 years': 'morethan30years',
-        'Very comfortable': 'verycomfortable',
-        'Comfortable': 'comfortable',
-        'Somewhat comfortable': 'somewhatcomfortable', 
-        'Uncomfortable': 'uncomfortable',
-        'Barely adequate': 'barelyAdequate',
-        'Minor issues': 'minorissues',
-        'Minor amounts': 'minoramounts'
-      };
-      
-      if (labelMappings[option.label]) {
-        const translationKey = `questions.common.responses.${labelMappings[option.label]}`;
-        const translated = t(translationKey);
-        console.log('🔍 DEBUG - Translation attempt (label):', { 
-          originalLabel: option.label, 
-          mappedKey: labelMappings[option.label], 
-          translationKey, 
-          translated 
-        });
-        if (translated !== translationKey) {
-          return translated;
-        }
+  },
+  "sections": {
+    "progress": "第 {{current}} 節，共 {{total}} 節",
+    "completed": "{{total}} 題中已完成 {{answered}} 題",
+    "sectionNotes": "章節備註（選用）",
+    "notesPlaceholder": "為此章節添加任何額外備註...",
+    "charactersRemaining": "{{remaining}}/200 個字符",
+    "names": {
+      "layoutAndBuilding": "佈局和建築結構",
+      "bedroomEnvironment": "臥室環境",
+      "kitchenEnvironment": "廚房環境", 
+      "bathroomEnvironment": "浴室環境",
+      "livingAreas": "客廳區域",
+      "generalConditions": "一般條件",
+      "yardAndExterior": "庭院和外觀",
+      "exteriorRoof": "外部屋頂、牆面和窗戶",
+      "basementCrawlspace": "地下室和爬行空間",
+      "hvacEquipment": "暖通空調設備",
+      "attic": "閣樓",
+      "plumbingFixtures": "管道、裝置和電器",
+      "interiorWalls": "內部牆面、天花板、窗戶和門",
+      "appliances": "電器",
+      "electricalEquipment": "電氣設備",
+      "garage": "車庫",
+      "floors": "地板",
+      "stairsSteps": "樓梯和台階",
+      "kitchen": "廚房",
+      "bedrooms": "臥室",
+      "bathrooms": "浴室",
+      "fireSafety": "消防安全",
+      "electricalSafety": "電氣安全", 
+      "medications": "藥物",
+      "generalSafety": "一般安全",
+      "foodSecurity": "食物安全",
+      "housingSecurity": "住房安全",
+      "transportation": "交通",
+      "socialSupport": "社會支持",
+      "stressAndSafety": "壓力和安全"
+    }
+  },
+  "results": {
+    "title": "評估結果",
+    "subtitle": "您的居家健康評估已完成",
+    "riskScore": "風險評分",
+    "outOf100": "滿分 100 分",
+    "riskLevel": "風險等級",
+    "completionRate": "完成率",
+    "questionsAnswered": "{{total}} 題中已回答 {{answered}} 題",
+    "issuesIdentified": "已識別問題",
+    "areasNeedAttention": "{{total}} 個評估項目中有 {{count}} 個區域需要關注",
+    "reviewInterventions": "請查看下方的優先處理事項以了解具體行動",
+    "priorityInterventions": "優先處理事項",
+    "sectionNotes": "章節備註",
+    "takeNewAssessment": "🔄 進行新評估",
+    "riskLevels": {
+      "low": "低風險",
+      "moderate": "中度風險",
+      "elevated": "升高風險", 
+      "high": "高風險",
+      "critical": "極高風險"
+    },
+    "priorities": {
+      "low": "低優先級",
+      "medium": "中優先級",
+      "high": "高優先級", 
+      "critical": "極高優先級"
+    }
+  },
+  "analysis": {
+    "runScoringAnalysis": "🔬 執行評分分析"
+  },
+  "export": {
+    "title": "匯出報告",
+    "selectFormat": "選擇匯出格式",
+    "generating": "生成中...",
+    "generate": "生成匯出",
+    "success": "匯出成功完成！",
+    "error": "匯出失敗。請重試。",
+    "options": "匯出選項",
+    "includeRawData": "包含原始回應資料",
+    "includeRawDataDesc": "在匯出中包含所有問題回應",
+    "includePersonalInfo": "包含個人資訊",
+    "includePersonalInfoDesc": "包含識別符和個人資料",
+    "qrExpiration": "QR碼到期時間",
+    "minutes": "分鐘",
+    "hour": "小時",
+    "hours": "小時",
+    "qrCodes": "生成的QR碼",
+    "qrPart": "第{{current}}部分，共{{total}}部分",
+    "qrInstructions": "按順序掃描所有QR碼以重構完整資料。",
+    "formats": {
+      "pdf": "PDF報告",
+      "pdfDesc": "包含圖表和建議的人類可讀報告",
+      "fhir": "FHIR資料包",
+      "fhirDesc": "與電子健康記錄系統整合的HL7 FHIR R4相容醫療資料",
+      "json": "JSON資料",
+      "jsonDesc": "用於分析和整合的結構化資料匯出",
+      "qr": "QR碼",
+      "qrDesc": "用於資料可攜性和分享的安全QR碼"
+    }
+  },
+  "questions": {
+    "common": {
+      "responses": {
+        "yes": "是",
+        "no": "否",
+        "notapplicable": "不適用", 
+        "notsure": "不確定",
+        "excellent": "優秀",
+        "verygood": "很好",
+        "good": "良好",
+        "fair": "尚可",
+        "poor": "較差",
+        "verypoor": "很差",
+        "often": "經常",
+        "sometimes": "有時",
+        "rarely": "很少",
+        "never": "從不",
+        "alwaystrue": "總是如此",
+        "oftentrue": "經常如此", 
+        "sometimestrue": "有時如此",
+        "nevertrue": "從不如此",
+        "apartment": "公寓",
+        "house": "房屋",
+        "dormitory": "宿舍",
+        "other": "其他",
+        "groundfloor": "一樓",
+        "1st3rdfloor": "1-3樓",
+        "4th6thfloor": "4-6樓", 
+        "7thfloorabove": "7樓及以上",
+        "above6thfloor": "6樓以上",
+        "lessthan10years": "少於10年",
+        "1020years": "10-20年",
+        "1030years": "10-30年",
+        "2030years": "20-30年", 
+        "morethan30years": "超過30年",
+        "yesregularly": "是，經常",
+        "yesoccasionally": "是，偶爾",
+        "yesfrequently": "是，頻繁",
+        "daily": "每天",
+        "weekly": "每週",
+        "monthly": "每月",
+        "every2weeks": "每兩週",
+        "severaltimesayear": "一年數次",
+        "onceperyear": "一年一次",
+        "verycomfortable": "非常舒適",
+        "comfortable": "舒適",
+        "somewhatcomfortable": "有些舒適",
+        "uncomfortable": "不舒適",
+        "veryuncomfortable": "非常不舒適",
+        "partially": "部分",
+        "mostofthetime": "大部分時間",
+        "halfthetime": "一半時間",
+        "lessthanhalf": "少於一半時間",
+        "almostnever": "幾乎從不",
+        "allthetime": "所有時間",
+        "frequently": "頻繁",
+        "occasionally": "偶爾",
+        "seldom": "很少",
+        "significant": "顯著",
+        "moderate": "中度",
+        "minor": "輕微",
+        "none": "無",
+        "severe": "嚴重",
+        "mild": "溫和",
+        "noticeable": "明顯",
+        "barelynoticeable": "幾乎不明顯",
+        "inadequate": "不充足",
+        "poorcirculation": "循環不良",
+        "moderateamount": "中等數量",
+        "minorissues": "小問題",
+        "minoramounts": "少量",
+        "limitedstorage": "儲存有限",
+        "someneedrepair": "部分需要維修",
+        "someappliances": "部分電器",
+        "someproducts": "部分產品",
+        "someconcerns": "有些擔憂",
+        "poorventilation": "通風不良",
+        "variablepressure": "壓力不穩",
+        "inconsistent": "不穩定",
+        "weeklyorless": "每週或更少",
+        "everyfewdays": "每幾天",
+        "constantly": "持續",
+        "onlyseasonally": "僅季節性",
+        "outdoorsonly": "僅戶外",
+        "outdoorpetsonly": "僅戶外寵物",
+        "barelyAdequate": "勉強充足",
+        "havesomeconcerns": "有些擔憂",
+        "nocarpetsrugs": "沒有地毯/地墊",
+        "excellentnew": "優秀/新",
+        "goodcondition": "狀況良好",
+        "faircondition": "狀況尚可",
+        "poorold": "較差/舊",
+        "notworking": "無法運作",
+        "needhelp": "需要幫助", 
+        "yesrecently": "是，最近",
+        "yeslongago": "是，但很久以前",
+        "afewconcerns": "有幾個擔憂",
+        "onemainconcern": "一個主要擔憂",
+        "yesactivelyplanning": "是，正在積極計劃",
+        "yesforthefuture": "是，為了未來",
+        "wantbutunable": "想要但無法",
+        "noplans": "沒有計劃",
+        "yesmajorvarations": "是，主要變化",
+        "yesminorvarations": "是，輕微變化",
+        "verysatisfied": "非常滿意",
+        "satisfied": "滿意",
+        "neutral": "中性",
+        "dissatisfied": "不滿意",
+        "verydissatisfied": "非常不滿意",
+        "own": "我有住房",
+        "temporary": "我有住房，但擔心將來會失去",
+        "transitional": "我沒有住房（與他人同住、住酒店、住收容所、露宿街頭、海灘、車內或公園）",
+        "lessthanoceweek": "每週少於一次",
+        "12timesweek": "每週1到2次",
+        "35timesweek": "每週3到5次",
+        "5ormoretimesweek": "每週5次或以上",
+        "notatall": "完全沒有",
+        "alittlebit": "一點點",
+        "quiteabit": "相當多",
+        "verymuch": "非常多",
+        "nostairs": "沒有樓梯",
+        "notubshower": "沒有浴缸/淋浴",
+        "nosmokealarms": "沒有煙霧警報器",
+        "dontusethese": "不使用這些",
+        "nomedications": "沒有藥物",
+        "nogasappliances": "沒有燃氣設備",
+        "nohvacsystem": "沒有暖通空調系統",
+        "somewhat": "有些",
+        "townhouse": "連棟房屋",
+        "detached_house": "獨立房屋",
+        "rooftop_addition": "屋頂加蓋（臥室或客廳位置）",
+        "entire_building": "佔用整棟建築物",
+        "entire_floor": "佔用整層樓",
+        "shared_floor": "與他人共享一層樓",
+        "1_floor": "1層",
+        "2_floors": "2層",
+        "3_4_floors": "3-4層",
+        "5_plus_floors": "5層以上",
+        "ground_floor": "地面層",
+        "1st_floor": "1樓",
+        "2nd_floor": "2樓",
+        "3rd_plus_floor": "3樓或更高",
+        "closable_door": "可關閉的門",
+        "open_doorway": "開放式門口",
+        "open_wall": "開放式牆面",
+        "weak_slight": "微弱或輕微",
+        "strong": "強烈",
+        "concrete": "混凝土",
+        "wallpaper": "壁紙",
+        "natural_wood": "天然木材",
+        "plastic_material": "塑料材質",
+        "fiberboard": "纖維板（可能看起來像木材）",
+        "gypsum_tile": "石膏天花板磚",
+        "drywall": "石膏板",
+        "stone_tile": "石材或磁磚",
+        "artificial_wood": "人造木材",
+        "hardwood": "硬木",
+        "carpet": "地毯",
+        "less_than_a4": "少於A4紙大小",
+        "a4_to_door": "大於A4紙但小於標準門大小",
+        "more_than_door": "大於標準門大小",
+        "1_2": "1-2盆植物",
+        "3_5": "3-5盆植物",
+        "more_than_5": "超過5盆植物",
+        "morning": "早上",
+        "afternoon": "下午",
+        "evening_sleep": "晚上/睡覺時",
+        "1_person": "1人",
+        "2_people": "2人",
+        "3_people": "3人",
+        "4_plus_people": "4人以上",
+        "3_4_people": "3-4人",
+        "5_plus_people": "5人以上",
+        "less_than_5": "少於5年",
+        "5_15_years": "5-15年",
+        "15_30_years": "15-30年",
+        "more_than_30": "超過30年",
+        "dog": "狗",
+        "cat": "貓",
+        "unsure": "不確定",
+        "na": "不適用",
+        "every_time": "每次"
       }
-      
-      // Fallback to original label if no translation found
-      console.log('🔍 DEBUG - No translation found for label, returning original:', option.label);
-      return option.label;
+    },
+    "taiwan": {
+      "HALST_A1a": {
+        "question": "這個住宅是什麼類型的建築？",
+        "explanation": "建築類型影響結構安全和環境健康風險"
+      },
+      "HALST_A1b": {
+        "question": "受訪者佔用建築的哪個部分？",
+        "explanation": "居住密度影響隱私、噪音暴露和感染傳播風險"
+      },
+      "HALST_A2a": {
+        "question": "這棟建築地面以上有幾層（包括屋頂加蓋）？",
+        "explanation": "建築高度影響疏散風險和結構穩定性"
+      },
+      "HALST_A2b": {
+        "question": "這棟建築是否有任何地下室樓層（包括停車場）？",
+        "explanation": "地下室可能有濕氣和空氣品質問題"
+      },
+      "HALST_A3a": {
+        "question": "參與者的臥室在建築的哪一層？（如果參與者睡在客廳，請視為臥室）",
+        "explanation": "樓層高度影響疏散通道和空氣品質暴露"
+      },
+      "HALST_A3b": {
+        "question": "這個家有客廳嗎？（如果參與者睡在客廳請回答「否」）",
+        "explanation": "缺乏獨立生活空間表示過度擁擠和生活品質降低"
+      },
+      "HALST_A3e": {
+        "question": "臥室有什麼類型的門口？（如果客廳被視為臥室，這描述的是通往廚房的門口）",
+        "explanation": "隱私和聲音控制影響睡眠品質和心理健康"
+      },
+      "HALST_A4a": {
+        "question": "這個家有廚房嗎？（臥室內的烹飪設備不算）",
+        "explanation": "缺乏適當的廚房設施影響營養和食品安全"
+      },
+      "HALST_A5": {
+        "question": "參與者的臥室內是否有浴室？（如回答「是」請在後續章節檢查此浴室，如回答「否」請檢查參與者洗澡的浴室）",
+        "explanation": "浴室可及性影響便利性和衛生"
+      },
+      "HALST_B1": {
+        "question": "臥室中黴菌氣味的程度如何？（進入房間時評估）",
+        "explanation": "黴菌氣味表示潛在的呼吸健康危害和濕氣問題"
+      },
+      "HALST_B2": {
+        "question": "臥室天花板是什麼材質？",
+        "explanation": "天花板材料影響空氣品質和潛在有害物質暴露"
+      },
+      "HALST_B3": {
+        "question": "臥室牆壁是什麼材質？",
+        "explanation": "牆壁材料可能藏匿過敏原並影響室內空氣品質"
+      },
+      "HALST_B4": {
+        "question": "臥室地板是什麼材質？",
+        "explanation": "地板材料影響過敏原積聚和清潔難易度"
+      },
+      "HALST_B5": {
+        "question": "水漬的總面積是多少？",
+        "explanation": "水漬表示可能導致黴菌生長的濕氣問題"
+      },
+      "HALST_B6a": {
+        "question": "可見黴菌的總面積是多少？",
+        "explanation": "可見黴菌造成嚴重的呼吸健康風險並表示濕氣問題"
+      },
+      "HALST_B7": {
+        "question": "壁癌的總面積是多少？",
+        "explanation": "牆壁劣化表示結構濕氣問題和潛在健康危害"
+      },
+      "HALST_B8": {
+        "question": "是否有任何牆壁無法完全檢查？",
+        "explanation": "檢查不完整可能遺漏重要的環境健康危害"
+      },
+      "HALST_B9": {
+        "question": "臥室中有多少盆栽植物？",
+        "explanation": "過多植物可能增加濕度和過敏原暴露"
+      },
+      "HALST_B10a": {
+        "question": "床墊是否直接放在地板上？",
+        "explanation": "放在地板上的床墊通風不良且增加塵蟎暴露"
+      },
+      "HALST_E2a": {
+        "question": "這個房間內是否有陽台門？（如果客廳被視為臥室，這包括任何對外門）",
+        "explanation": "缺乏對外通道影響通風和緊急出口"
+      },
+      "HALST_E2c": {
+        "question": "過去一週，您通常什麼時候開啟陽台門或陽台門窗？",
+        "explanation": "通風模式影響室內空氣品質和污染物暴露"
+      },
+      "HALST_E3a": {
+        "question": "這個房間是否有任何對外窗戶？",
+        "explanation": "缺乏對外窗戶嚴重限制自然通風和光線"
+      },
+      "HALST_E3c": {
+        "question": "過去一週，您通常什麼時候開窗？",
+        "explanation": "開窗使用模式直接影響室內空氣品質和通風"
+      },
+      "HALST_E10": {
+        "question": "過去一週，有多少人經常在這個房間睡覺？",
+        "explanation": "臥室過度擁擠影響空氣品質、疾病傳播和睡眠品質"
+      },
+      "HALST_E14a": {
+        "question": "過去一週，您是否在臥室烹煮食物或燒水？",
+        "explanation": "在臥室烹飪會造成嚴重的火災、空氣品質和安全危害"
+      },
+      "HALST_D1": {
+        "question": "這棟建築有多久了？",
+        "explanation": "建築年齡影響結構完整性、材料安全和維護需求"
+      },
+      "HALST_D2": {
+        "question": "有多少人居住在這個家中？",
+        "explanation": "家庭密度影響過度擁擠風險和疾病傳播潛力"
+      },
+      "HALST_D3": {
+        "question": "您是否有任何室內寵物？（不包括魚類）",
+        "explanation": "室內寵物可能引發過敏並影響敏感個體的空氣品質"
+      },
+      "HALST_D4a": {
+        "question": "過去一週，您是否在室內燒香？",
+        "explanation": "室內燒香會增加懸浮微粒和空氣污染"
+      },
+      "HALST_D5a": {
+        "question": "過去一週，除了燒香和烹飪外，室內是否有任何其他煙霧來源（如吸菸）？",
+        "explanation": "室內吸菸會對所有居住者造成嚴重健康危害"
+      },
+      "HALST_D6a": {
+        "question": "這個家是否有室內瓦斯熱水器？",
+        "explanation": "室內瓦斯熱水器如果通風不當可能產生燃燒副產品"
+      },
+      "HALST_D7": {
+        "question": "這個家是否有功能正常的煙霧探測器？",
+        "explanation": "功能正常的煙霧探測器對火災安全和生存至關重要"
+      },
+      "HALST_D8": {
+        "question": "這個家是否有功能正常的一氧化碳探測器？",
+        "explanation": "一氧化碳探測器可防止瓦斯設備致命中毒"
+      },
+      "HALST_I1a": {
+        "question": "地毯和踏墊是否沒有捲起的邊緣？",
+        "explanation": "捲起的地毯邊緣會造成嚴重的絆倒和跌倒危害"
+      },
+      "HALST_I1c": {
+        "question": "所有電線和家具是否遠離行走路線並整齊收納以避免絆倒？",
+        "explanation": "行走路線上的電線和家具會造成危險的絆倒危害"
+      },
+      "HALST_I2a": {
+        "question": "室內燈光是否明亮？",
+        "explanation": "照明不良會增加跌倒風險並影響日常活動"
+      },
+      "HALST_I6a": {
+        "question": "地板是否清除雜物？",
+        "explanation": "地板雜物會造成主要的絆倒危害並阻礙安全行走"
+      },
+      "HALST_G3": {
+        "question": "過去一週，使用瓦斯爐烹飪時多久使用一次抽油煙機？",
+        "explanation": "使用抽油煙機可防止烹飪燃燒造成的室內空氣污染"
+      },
+      "HALST_G4": {
+        "question": "過去一週，您通常什麼時候開啟對外窗戶或門？",
+        "explanation": "烹飪時的廚房通風可減少室內污染物積聚"
+      },
+      "HALST_H1": {
+        "question": "可見黴菌的總面積是多少？",
+        "explanation": "浴室黴菌表示濕氣問題並造成呼吸健康風險"
+      },
+      "HALST_H2": {
+        "question": "過去一週，您通常什麼時候開啟浴室窗戶？",
+        "explanation": "浴室通風可防止濕氣積聚和黴菌生長"
+      },
+      "HALST_I4a": {
+        "question": "浴室地板是否有防滑保護？",
+        "explanation": "沒有防滑保護的浴室地板會造成嚴重的跌倒風險"
+      },
+      "HALST_I4b": {
+        "question": "淋浴間或馬桶旁是否安裝扶手？",
+        "explanation": "扶手是預防跌倒的重要浴室安全設施"
+      }
+    },
+    "us": {
+      "US001": {
+        "question": "房屋排水是否良好？",
+        "explanation": "水應該從地基排走以防止濕氣問題"
+      },
+      "US002": {
+        "question": "地面是否向地基傾斜排水？",
+        "explanation": "適當的坡度可防止水在地基附近積聚"
+      },
+      "US003": {
+        "question": "房屋附近是否有積水區域？",
+        "explanation": "積水可能導致害蟲問題和地基問題"
+      },
+      "US004": {
+        "question": "人行道和車道狀況良好嗎（無大裂縫，平整）？",
+        "explanation": "不平整的人行道會造成絆倒危險和安全風險"
+      },
+      "US005": {
+        "question": "樹木和大樹枝是否與房屋保持安全距離？",
+        "explanation": "太靠近房屋的樹木在暴風雨期間可能造成損害"
+      },
+      "US006": {
+        "question": "屋頂狀況良好嗎（無缺失瓦片，無下垂）？",
+        "explanation": "屋頂損壞可能導致漏水和結構問題"
+      },
+      "US007": {
+        "question": "排水溝和落水管是否清潔且正常運作？",
+        "explanation": "堵塞的排水溝可能造成水損和地基問題"
+      },
+      "US008": {
+        "question": "外牆/側板狀況良好嗎（無裂縫、孔洞）？",
+        "explanation": "受損的外牆會讓濕氣和害蟲進入"
+      },
+      "US009": {
+        "question": "窗戶是否適當密封和填縫？",
+        "explanation": "窗戶密封不良會導致通風和能源損失"
+      },
+      "US010": {
+        "question": "煙囪狀況良好嗎（如適用）？",
+        "explanation": "受損的煙囪會造成火災和一氧化碳風險"
+      },
+      "US011": {
+        "question": "是否有濕氣、水損或洪水的跡象？",
+        "explanation": "地下室濕氣會導致黴菌和結構損壞"
+      },
+      "US012": {
+        "question": "地基牆是否有可見裂縫？",
+        "explanation": "地基裂縫可能表示嚴重的結構問題"
+      },
+      "US013": {
+        "question": "地下室/爬行空間是否有充足通風？",
+        "explanation": "通風不良會導致濕氣積聚和黴菌生長"
+      },
+      "US014": {
+        "question": "是否有害蟲、嚙齒動物或白蟻的跡象？",
+        "explanation": "害蟲可能傳播疾病並造成結構損害"
+      },
+      "US015": {
+        "question": "房屋是否已進行氡氣檢測？",
+        "explanation": "氡氣是非吸菸者肺癌的主要原因"
+      },
+      "US016": {
+        "question": "暖氣系統是否正常工作？",
+        "explanation": "故障的暖氣系統會造成安全風險和健康問題"
+      },
+      "US017": {
+        "question": "冷氣/空調系統是否正常工作？",
+        "explanation": "冷氣不足可能導致熱相關的健康問題"
+      },
+      "US018": {
+        "question": "HVAC濾網是否定期更換（每1-3個月）？",
+        "explanation": "髒污的濾網會降低空氣品質和系統效率"
+      },
+      "US019": {
+        "question": "暖氣設備附近是否安裝一氧化碳檢測器？",
+        "explanation": "一氧化碳檢測器可防止致命的一氧化碳中毒"
+      },
+      "US020": {
+        "question": "排氣口是否暢通且正常運作？",
+        "explanation": "堵塞的排氣口可能造成室內危險氣體積聚"
+      },
+      "US021": {
+        "question": "閣樓是否有充足的隔熱材料？",
+        "explanation": "隔熱不良會增加能源成本和舒適度問題"
+      },
+      "US022": {
+        "question": "閣樓是否有適當通風？",
+        "explanation": "閣樓通風可防止濕氣積聚和冰壩形成"
+      },
+      "US023": {
+        "question": "閣樓是否有屋頂漏水或水損的跡象？",
+        "explanation": "閣樓水損表示需要修復的屋頂問題"
+      },
+      "US024": {
+        "question": "閣樓是否有害蟲或動物的跡象？",
+        "explanation": "閣樓害蟲可能損壞隔熱材料並傳播疾病"
+      },
+      "US025": {
+        "question": "整個房屋的水壓是否充足？",
+        "explanation": "水壓不足可能表示管道問題"
+      },
+      "US026": {
+        "question": "水槽下方或馬桶周圍是否有可見漏水？",
+        "explanation": "漏水可能造成損害並促進黴菌生長"
+      },
+      "US027": {
+        "question": "熱水器是否正常工作？",
+        "explanation": "故障的熱水器可能很危險且效率低下"
+      },
+      "US028": {
+        "question": "熱水器溫度是否設定在120°F或以下？",
+        "explanation": "水溫過高會造成燙傷風險，特別是對兒童"
+      },
+      "US029": {
+        "question": "所有排水口是否快速排空且不回流？",
+        "explanation": "排水緩慢可能表示堵塞或管道問題"
+      },
+      "US030": {
+        "question": "內牆是否無重大裂縫、孔洞或水損？",
+        "explanation": "內牆損壞可能表示結構或濕氣問題"
+      },
+      "US031": {
+        "question": "天花板狀況良好嗎（無汙漬、下垂）？",
+        "explanation": "天花板問題通常表示屋頂漏水或結構問題"
+      },
+      "US032": {
+        "question": "房屋是否無剝落/剝離油漆（1978年前建築的鉛危險）？",
+        "explanation": "含鉛油漆會造成嚴重健康風險，特別是對兒童"
+      },
+      "US033": {
+        "question": "所有窗戶是否能正常開啟、關閉和鎖定？",
+        "explanation": "窗戶功能影響安全、通風和緊急逃生"
+      },
+      "US034": {
+        "question": "所有門是否能正常開啟、關閉和鎖定？",
+        "explanation": "門的功能影響安全和緊急疏散"
+      },
+      "US035": {
+        "question": "牆壁、天花板或窗戶周圍是否有可見黴菌？",
+        "explanation": "可見黴菌表示濕氣問題和健康風險"
+      },
+      "US036": {
+        "question": "爐灶/烤箱是否安全且正常工作？",
+        "explanation": "故障的烹飪設備會造成火災和氣體洩漏風險"
+      },
+      "US037": {
+        "question": "冰箱是否維持適當溫度？",
+        "explanation": "冷藏不當可能導致食源性疾病"
+      },
+      "US038": {
+        "question": "洗衣機和乾衣機是否正確安裝和通風？",
+        "explanation": "電器安裝不當會造成火災和濕氣風險"
+      },
+      "US039": {
+        "question": "所有電器的電源線狀況良好嗎？",
+        "explanation": "受損的電線會造成火災和觸電危險"
+      },
+      "US040": {
+        "question": "浴室和廚房是否安裝GFCI插座？",
+        "explanation": "GFCI插座可防止在潮濕區域觸電"
+      },
+      "US041": {
+        "question": "所有電源插座是否正常工作且有適當覆蓋？",
+        "explanation": "故障插座會造成觸電和火災風險"
+      },
+      "US042": {
+        "question": "電氣面板是否可以接近且標示清楚？",
+        "explanation": "適當的電氣面板接近對安全和維護很重要"
+      },
+      "US043": {
+        "question": "每層樓是否安裝煙霧探測器且每月測試？",
+        "explanation": "正常工作的煙霧探測器對消防安全至關重要"
+      },
+      "US044": {
+        "question": "車庫門是否正常開關且安全功能正常？",
+        "explanation": "車庫門安全功能可防止傷害和財產損失"
+      },
+      "US045": {
+        "question": "車庫與居住空間之間是否有適當的防火隔離？",
+        "explanation": "防火隔離可防止車庫火災蔓延到居住區域"
+      }
+    },
+    "elder": {
+      "ELDER_1": {
+        "question": "地板上是否有紙張、鞋子、書籍或其他物品？",
+        "explanation": "地板上的物品對老年人來說是主要的跌倒隱患"
+      },
+      "ELDER_2": {
+        "question": "您的地板上是否鋪有零散的地毯？",
+        "explanation": "零散的地毯可能導致絆倒和跌倒"
+      },
+      "ELDER_3": {
+        "question": "您的地毯是否固定好並平整鋪放？",
+        "explanation": "未固定的地毯是絆倒隱患"
+      },
+      "ELDER_4": {
+        "question": "您的地板是否狀況良好（沒有破損或不平整的區域）？",
+        "explanation": "破損或不平整的地板造成嚴重的跌倒風險"
+      },
+      "ELDER_5": {
+        "question": "樓梯兩側是否都安裝了扶手？",
+        "explanation": "扶手是樓梯跌倒預防的必要設施"
+      },
+      "ELDER_6": {
+        "question": "扶手是否堅固且狀況良好？",
+        "explanation": "損壞的扶手無法提供安全支撐"
+      },
+      "ELDER_7": {
+        "question": "台階是否有破損或不平整？",
+        "explanation": "破損或不平整的台階是極其危險的跌倒隱患"
+      },
+      "ELDER_8": {
+        "question": "樓梯上是否有紙張、鞋子、書籍或其他物品？",
+        "explanation": "樓梯上的物品造成嚴重的跌倒風險"
+      },
+      "ELDER_9": {
+        "question": "樓梯是否有良好的照明？",
+        "explanation": "樓梯照明不足會增加跌倒風險"
+      },
+      "ELDER_10": {
+        "question": "樓梯的頂部和底部是否都有電燈開關？",
+        "explanation": "便於觸及的電燈開關提高樓梯安全性"
+      },
+      "ELDER_11": {
+        "question": "您能清楚看到台階的邊緣嗎？",
+        "explanation": "清楚可見的台階邊緣對安全行走至關重要"
+      },
+      "ELDER_12": {
+        "question": "濺灑物是否會立即清理乾淨？",
+        "explanation": "廚房濺灑物造成嚴重的滑倒隱患"
+      },
+      "ELDER_13": {
+        "question": "您經常使用的物品是否在容易觸及的範圍內？",
+        "explanation": "物品放置過高需要不安全的伸手或攀爬"
+      },
+      "ELDER_14": {
+        "question": "您的床邊是否有檯燈或電燈開關？",
+        "explanation": "便於觸及的照明可防止夜間起身時跌倒"
+      },
+      "ELDER_15": {
+        "question": "從您的床到浴室的通道是否暢通？",
+        "explanation": "暢通的浴室通道對夜間安全至關重要"
+      },
+      "ELDER_16": {
+        "question": "您的床邊是否有電話？",
+        "explanation": "床邊電話可在緊急情況下無需移動即可求助"
+      },
+      "ELDER_17": {
+        "question": "您的浴缸或淋浴間是否安裝了扶手？",
+        "explanation": "扶手對浴室安全至關重要"
+      },
+      "ELDER_18": {
+        "question": "浴缸或淋浴間的地面是否滑滑的？",
+        "explanation": "滑滑的浴室地面會導致嚴重跌倒"
+      },
+      "ELDER_19": {
+        "question": "椅子和沙發的高度是否合適（不會太低或太高）？",
+        "explanation": "合適的家具高度使坐下和站起更安全"
+      },
+      "ELDER_20": {
+        "question": "您是否需要跨過或繞過電線或電纜？",
+        "explanation": "電線造成危險的絆倒隱患"
+      },
+      "ELDER_21": {
+        "question": "您家的每層樓都安裝了煙霧警報器嗎？",
+        "explanation": "煙霧警報器對火災安全和生存至關重要"
+      },
+      "ELDER_22": {
+        "question": "您在過去一年中測試過煙霧警報器的電池嗎？",
+        "explanation": "煙霧警報器的維護對火災安全至關重要"
+      },
+      "ELDER_23": {
+        "question": "您是否有火災逃生計劃？",
+        "explanation": "火災逃生計劃在緊急情況下可以救命"
+      },
+      "ELDER_24": {
+        "question": "電暖器和壁爐是否安全使用（遠離易燃物品）？",
+        "explanation": "不安全的供暖設備是主要的火災風險"
+      },
+      "ELDER_25": {
+        "question": "電源插座是否因插頭過多而過載？",
+        "explanation": "過載的插座可能引起火災"
+      },
+      "ELDER_26": {
+        "question": "電線是否狀況良好（沒有磨損或損壞）？",
+        "explanation": "損壞的電線造成火災和觸電風險"
+      },
+      "ELDER_27": {
+        "question": "浴室和廚房區域是否安裝了GFCI插座？",
+        "explanation": "GFCI保護可防止在潮濕區域觸電"
+      },
+      "ELDER_28": {
+        "question": "您的藥物是否安全妥善地存放？",
+        "explanation": "安全的藥物存放可防止意外中毒"
+      },
+      "ELDER_29": {
+        "question": "服藥時是否有良好的照明？",
+        "explanation": "良好的照明可防止用藥錯誤"
+      },
+      "ELDER_30": {
+        "question": "您是否定期檢查藥物的到期日？",
+        "explanation": "過期藥物可能無效或有害"
+      },
+      "ELDER_31": {
+        "question": "您是否使用藥盒或系統來跟蹤藥物？",
+        "explanation": "藥物組織管理可防止劑量錯誤"
+      },
+      "ELDER_32": {
+        "question": "您家中是否安裝了一氧化碳探測器？",
+        "explanation": "一氧化碳探測器可防止致命中毒"
+      },
+      "ELDER_33": {
+        "question": "您是否在容易看到的地方張貼了緊急電話號碼？",
+        "explanation": "便於查看的緊急電話號碼可實現快速響應"
+      },
+      "ELDER_34": {
+        "question": "您是否有可工作的手電筒和備用電池？",
+        "explanation": "手電筒在停電時至關重要"
+      },
+      "ELDER_35": {
+        "question": "您是否有儲備充足的急救包？",
+        "explanation": "急救用品可用於處理輕微傷害"
+      },
+      "ELDER_36": {
+        "question": "您的門鎖是否工作正常？",
+        "explanation": "正常工作的門鎖提供安全保障"
+      },
+      "ELDER_37": {
+        "question": "您能否全年在家中保持舒適的溫度？",
+        "explanation": "極端溫度對老年人構成健康風險"
+      },
+      "ELDER_38": {
+        "question": "您家的暖通空調系統是否定期維護？",
+        "explanation": "暖通空調維護確保安全高效運行"
+      },
+      "ELDER_39": {
+        "question": "您的熱水器溫度是否設定為120°F（49°C）或以下？",
+        "explanation": "過高的水溫可能造成嚴重燙傷"
+      },
+      "ELDER_40": {
+        "question": "您在家中是否感到安全放心？",
+        "explanation": "感到不安全表明存在安全或環境問題"
+      }
+    },
+    "sdoh": {
+      "SDOH_1": {
+        "question": "在過去12個月中，您是否擔心過在有錢購買更多食物之前食物會用完？",
+        "explanation": "食物不安全影響健康結果和藥物依從性"
+      },
+      "SDOH_2": {
+        "question": "在過去12個月中，您購買的食物不夠用且沒錢購買更多食物？",
+        "explanation": "表明嚴重的食物不安全，需要立即干預"
+      },
+      "SDOH_3": {
+        "question": "您今天的住房狀況如何？",
+        "explanation": "住房不穩定嚴重影響健康和安全"
+      },
+      "SDOH_4": {
+        "question": "在過去12個月中，缺乏可靠的交通工具是否阻礙您看醫生、參加會議、工作或獲取日常生活所需的物品？",
+        "explanation": "交通障礙可能阻止獲得醫療保健和基本服務"
+      },
+      "SDOH_5": {
+        "question": "您多久見到或與您關心和感覺親近的人交談一次？（例如：與朋友通電話、拜訪朋友或家人、去教堂或俱樂部聚會）",
+        "explanation": "社交孤立與抑鬱、焦慮和不良健康結果有關"
+      },
+      "SDOH_6": {
+        "question": "壓力是指感到緊張、神經質、焦慮或因心煩意亂而無法夜間入睡。您的壓力有多大？",
+        "explanation": "慢性壓力會導致多種健康問題"
+      },
+      "SDOH_7": {
+        "question": "您在家中是否感到安全？",
+        "explanation": "個人安全問題需要立即關注和資源"
+      },
+      "SDOH_8": {
+        "question": "您在所居住的社區中是否感到安全？",
+        "explanation": "社區安全影響心理健康和獲得服務的能力"
+      }
     }
   }
-  
-  // Final fallback: return original value
-  console.log('🔍 DEBUG - No translation found, returning original value:', value);
-  return value;
-};
-
-// Helper function to get translated question text
-const getQuestionText = (question: ChecklistItem, t: any): string => {
-  // Handle different ID formats
-  let assessmentType: string;
-  
-  if (question.item_id.includes('_')) {
-    // Format: "HALST_1" -> "HALST"
-    assessmentType = question.item_id.split('_')[0];
-  } else {
-    // Format: "US001" -> "US"  
-    assessmentType = question.item_id.match(/^[A-Z]+/)?.[0] || '';
-  }
-  
-  console.log('🔍 DEBUG - getQuestionText called:', {
-    questionId: question.item_id,
-    assessmentType,
-    hasUnderscore: question.item_id.includes('_')
-  });
-  
-  // Map to translation namespace
-  const translationNamespace = ASSESSMENT_TYPE_MAP[assessmentType];
-  
-  console.log('🔍 DEBUG - Translation namespace lookup:', {
-    assessmentType,
-    translationNamespace,
-    ASSESSMENT_TYPE_MAP
-  });
-  
-  if (translationNamespace) {
-    const translationKey = `questions.${translationNamespace}.${question.item_id}.question`;
-    const translated = t(translationKey);
-    
-    console.log('🔍 DEBUG - Question translation attempt:', {
-      translationKey,
-      translated: translated.substring(0, 50) + '...',
-      isTranslated: translated !== translationKey
-    });
-    
-    if (translated !== translationKey) {
-      return translated;
-    }
-  }
-  
-  console.log('🔍 DEBUG - Using fallback text for:', question.item_id);
-  return question.question;
-};
-
-// Helper function to get translated explanation
-const getQuestionExplanation = (question: ChecklistItem, t: any): string => {
-  // Extract assessment type from question ID
-  const idParts = question.item_id.split('_');
-  const assessmentType = idParts[0];
-  
-  // Map to translation namespace
-  const translationNamespace = ASSESSMENT_TYPE_MAP[assessmentType];
-  
-  if (translationNamespace && question.explanation) {
-    const translationKey = `questions.${translationNamespace}.${question.item_id}.explanation`;
-    const translated = t(translationKey);
-    
-    // If translation exists and is different from the key, use it
-    if (translated !== translationKey) {
-      return translated;
-    }
-  }
-  
-  // Fallback to original explanation or empty string
-  return question.explanation || '';
-};
-
-// Helper function to get questions by section - now handles both key and full name
-const getQuestionsBySection = (questions: ChecklistItem[], sectionKey: string): ChecklistItem[] => {
-  const sectionName = SECTION_MAPPING[sectionKey] || sectionKey;
-  return questions.filter(q => q.section === sectionName);
-};
-
-// Helper function to get translated section names in results
-const getSectionDisplayName = (sectionName: string, t: any): string => {
-  // Find the section key that matches the English name
-  const sectionKey = Object.keys(SECTION_MAPPING).find(key => SECTION_MAPPING[key] === sectionName);
-  
-  if (sectionKey) {
-    return t(`sections.names.${sectionKey}`);
-  }
-  
-  // Fallback to original name if no translation found
-  return sectionName;
-};
-
-export default function SimpleTest() {
-  // Add translation hook
-  const { t } = useTranslation();
-
-  // State management
-  const [phase, setPhase] = useState<AssessmentPhase>('selection');
-  const [homeChecklistType, setHomeChecklistType] = useState<HomeChecklistType>(null);
-  const [includeSDOH, setIncludeSDOH] = useState(false);
-  const [includeElderSafety, setIncludeElderSafety] = useState(false);
-  const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
-  const [responses, setResponses] = useState<ResponseMap>({});
-  const [sectionNotes, setSectionNotes] = useState<SectionNotes>({});
-  const [showExportModal, setShowExportModal] = useState(false);
-
-  // Get current questions and sections
-  const getCurrentQuestions = (): ChecklistItem[] => {
-    let questions: ChecklistItem[] = [];
-    
-    // Add home checklist questions
-    if (homeChecklistType === 'taiwan') {
-      questions = [...questions, ...TAIWAN_HALST_QUESTIONS];
-    } else if (homeChecklistType === 'us') {
-      questions = [...questions, ...US_HEALTHY_HOMES_QUESTIONS];
-    }
-    
-    // Add Elder Safety if selected
-    if (includeElderSafety) {
-      questions = [...questions, ...ELDER_SAFETY_QUESTIONS];
-    }
-    
-    // Add SDOH if selected
-    if (includeSDOH) {
-      questions = [...questions, ...SDOH_QUESTIONS];
-    }
-    
-    return questions;
-  };
-
-  const getCurrentSections = (): string[] => {
-    let sections: string[] = [];
-    
-    // Add home checklist sections
-    if (homeChecklistType === 'taiwan') {
-      sections = [...sections, ...TAIWAN_SECTIONS];
-    } else if (homeChecklistType === 'us') {
-      sections = [...sections, ...US_SECTIONS];
-    }
-    
-    // Add Elder Safety sections if selected
-    if (includeElderSafety) {
-      sections = [...sections, ...ELDER_SECTIONS];
-    }
-    
-    // Add SDOH sections if selected
-    if (includeSDOH) {
-      sections = [...sections, ...SDOH_SECTIONS];
-    }
-    
-    return sections;
-  };
-
-  const currentQuestions = getCurrentQuestions();
-  const currentSections = getCurrentSections();
-  const currentSectionKey = currentSections[currentSectionIndex];
-  const sectionQuestions = getQuestionsBySection(currentQuestions, currentSectionKey);
-
-  // Response handling
-  const handleResponse = (questionId: string, response: string) => {
-    setResponses(prev => ({
-      ...prev,
-      [questionId]: response
-    }));
-  };
-
-  const handleSectionNote = (section: string, note: string) => {
-    const truncatedNote = note.slice(0, 200);
-    setSectionNotes(prev => ({
-      ...prev,
-      [section]: truncatedNote
-    }));
-  };
-
-  // Navigation functions
-  const goToNextSection = () => {
-    if (currentSectionIndex < currentSections.length - 1) {
-      setCurrentSectionIndex(currentSectionIndex + 1);
-    } else {
-      setPhase('results');
-    }
-  };
-
-  const goToPreviousSection = () => {
-    if (currentSectionIndex > 0) {
-      setCurrentSectionIndex(currentSectionIndex - 1);
-    }
-  };
-
-  const goToSection = (sectionIndex: number) => {
-    setCurrentSectionIndex(sectionIndex);
-  };
-
-  // Calculate results
-  const calculateResults = () => {
-    const itemRisks = currentQuestions.map(question => {
-      const userResponse = responses[question.item_id] || '';
-      return calculateItemRisk(question, userResponse);
-    });
-    
-    return calculateOverallRisk(itemRisks);
-  };
-
-  // Reset assessment
-  const resetAssessment = () => {
-    setPhase('selection');
-    setHomeChecklistType(null);
-    setIncludeSDOH(false);
-    setIncludeElderSafety(false);
-    setCurrentSectionIndex(0);
-    setResponses({});
-    setSectionNotes({});
-  };
-
-  // Start assessment - FIXED: Now allows SDOH alone
-  const startAssessment = () => {
-    if (homeChecklistType || includeElderSafety || includeSDOH) {
-      setPhase('assessment');
-    }
-  };
-
-  // Calculate progress
-  const getTotalAnsweredQuestions = () => {
-    return Object.keys(responses).filter(key => responses[key] !== '').length;
-  };
-
-  const getSectionProgress = (sectionKey: string) => {
-    const questions = getQuestionsBySection(currentQuestions, sectionKey);
-    const answered = questions.filter(q => responses[q.item_id]).length;
-    return { total: questions.length, answered, percentage: Math.round((answered / questions.length) * 100) };
-  };
-
-  // Render functions
-  const renderSelectionPhase = () => (
-    <div className="max-w-4xl mx-auto p-6">
-      {/* Header with Language Switcher */}
-      <div className="flex justify-between items-center mb-8">
-        <div className="text-center flex-1">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">{t('assessment.title')}</h1>
-          <p className="text-lg text-gray-600">{t('assessment.subtitle')}</p>
-        </div>
-        <LanguageSwitcher />
-      </div>
-
-      <div className="space-y-6">
-        {/* Home Inspection Choice */}
-        <div className="bg-white p-6 rounded-lg shadow-md border">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('assessment.homeInspection')}</h2>
-          <p className="text-gray-600 mb-4">{t('assessment.chooseRegion')}</p>
-          
-          <div className="space-y-3">
-            <label className="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
-              <input
-                type="radio"
-                name="homeChecklist"
-                value="taiwan"
-                checked={homeChecklistType === 'taiwan'}
-                onChange={(e) => setHomeChecklistType(e.target.value as HomeChecklistType)}
-                className="mr-3"
-              />
-              <div>
-                <div className="font-medium text-gray-900">{t('checklists.taiwan.title')}</div>
-                <div className="text-sm text-gray-600">{t('checklists.taiwan.description', { count: TAIWAN_HALST_QUESTIONS.length })}</div>
-              </div>
-            </label>
-
-            <label className="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
-              <input
-                type="radio"
-                name="homeChecklist"
-                value="us"
-                checked={homeChecklistType === 'us'}
-                onChange={(e) => setHomeChecklistType(e.target.value as HomeChecklistType)}
-                className="mr-3"
-              />
-              <div>
-                <div className="font-medium text-gray-900">{t('checklists.us.title')}</div>
-                <div className="text-sm text-gray-600">{t('checklists.us.description', { count: US_HEALTHY_HOMES_QUESTIONS.length })}</div>
-              </div>
-            </label>
-
-            <label className="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
-              <input
-                type="radio"
-                name="homeChecklist"
-                value=""
-                checked={homeChecklistType === null}
-                onChange={() => setHomeChecklistType(null)}
-                className="mr-3"
-              />
-              <div>
-                <div className="font-medium text-gray-900">{t('assessment.skipHomeInspection')}</div>
-                <div className="text-sm text-gray-600">{t('assessment.onlyCompleteAdditional')}</div>
-              </div>
-            </label>
-          </div>
-        </div>
-
-        {/* Elder Safety Assessment */}
-        <div className="bg-orange-50 p-6 rounded-lg shadow-md border border-orange-200">
-          <label className="flex items-start cursor-pointer">
-            <input
-              type="checkbox"
-              checked={includeElderSafety}
-              onChange={(e) => setIncludeElderSafety(e.target.checked)}
-              className="mt-1 mr-3 text-orange-600"
-            />
-            <div>
-              <div className="font-medium text-gray-900">{t('checklists.elderSafety.title')}</div>
-              <div className="text-sm text-gray-600">
-                {t('checklists.elderSafety.description', { count: ELDER_SAFETY_QUESTIONS.length })}
-              </div>
-            </div>
-          </label>
-        </div>
-
-        {/* SDOH Assessment */}
-        <div className="bg-purple-50 p-6 rounded-lg shadow-md border border-purple-200">
-          <label className="flex items-start cursor-pointer">
-            <input
-              type="checkbox"
-              checked={includeSDOH}
-              onChange={(e) => setIncludeSDOH(e.target.checked)}
-              className="mt-1 mr-3 text-purple-600"
-            />
-            <div>
-              <div className="font-medium text-gray-900">{t('checklists.sdoh.title')}</div>
-              <div className="text-sm text-gray-600">
-                {t('checklists.sdoh.description', { count: SDOH_QUESTIONS.length })}
-              </div>
-            </div>
-          </label>
-        </div>
-
-        {/* Assessment Summary */}
-        {(homeChecklistType || includeElderSafety || includeSDOH) && (
-          <div className="bg-blue-50 p-6 rounded-lg border border-blue-200">
-            <h3 className="font-semibold text-gray-900 mb-2">{t('assessment.assessmentSummary')}</h3>
-            <div className="text-sm text-gray-600 space-y-1">
-              <div>{t('assessment.totalQuestions')}: <span className="font-medium">{getCurrentQuestions().length}</span></div>
-              <div>{t('assessment.totalSections')}: <span className="font-medium">{getCurrentSections().length}</span></div>
-              <div>{t('assessment.estimatedTime')}: <span className="font-medium">{Math.ceil(getCurrentQuestions().length / 2)} {t('assessment.minutes')}</span></div>
-            </div>
-          </div>
-        )}
-
-        {/* Action Buttons */}
-        <div className="flex justify-between items-center pt-6">
-          <div className="flex space-x-4">
-            <a 
-              href="/"
-              className="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors"
-            >
-              {t('navigation.backToMain')}
-            </a>
-            
-            <button
-              onClick={() => testScoringConsistency()}
-              className="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors"
-            >
-              {t('analysis.runScoringAnalysis')}
-            </button>
-          </div>
-
-          <button
-            onClick={startAssessment}
-            disabled={!homeChecklistType && !includeElderSafety && !includeSDOH}
-            className={`px-8 py-3 rounded-lg font-medium transition-colors ${
-              homeChecklistType || includeElderSafety || includeSDOH
-                ? 'bg-blue-600 text-white hover:bg-blue-700'
-                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-            }`}
-          >
-            {t('navigation.startAssessment')}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-
-  const renderAssessmentPhase = () => (
-    <div className="max-w-6xl mx-auto p-6">
-      {/* Header with Language Switcher */}
-      <div className="mb-6">
-        <div className="flex justify-between items-center mb-4">
-          <h1 className="text-2xl font-bold text-gray-900">{t('assessment.title')}</h1>
-          <div className="flex items-center space-x-4">
-            <div className="text-sm text-gray-600">
-              {t('assessment.questionsAnswered', { answered: getTotalAnsweredQuestions(), total: currentQuestions.length })}
-            </div>
-            <LanguageSwitcher />
-          </div>
-        </div>
-        
-        {/* Progress Bar */}
-        <div className="w-full bg-gray-200 rounded-full h-2">
-          <div 
-            className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-            style={{ width: `${(getTotalAnsweredQuestions() / currentQuestions.length) * 100}%` }}
-          ></div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* Section Navigation */}
-        <div className="lg:col-span-1">
-          <div className="bg-white rounded-lg shadow-md p-4 sticky top-6">
-            <h2 className="font-semibold text-gray-900 mb-4">{t('sections.progress', { current: currentSectionIndex + 1, total: currentSections.length })}</h2>
-            <div className="space-y-2">
-              {currentSections.map((sectionKey, index) => {
-                const progress = getSectionProgress(sectionKey);
-                const isActive = index === currentSectionIndex;
-                const isComplete = progress.answered === progress.total && progress.total > 0;
-                
-                return (
-                  <button
-                    key={sectionKey}
-                    onClick={() => goToSection(index)}
-                    className={`w-full text-left p-3 rounded-lg text-sm transition-colors ${
-                      isActive 
-                        ? 'bg-blue-100 border-l-4 border-blue-500 text-blue-900' 
-                        : isComplete
-                        ? 'bg-green-50 text-green-800 hover:bg-green-100'
-                        : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
-                    }`}
-                  >
-                    <div className="flex justify-between items-center">
-                      <span className="font-medium">{t(`sections.names.${sectionKey}`)}</span>
-                      {isComplete && <span className="text-green-600">✓</span>}
-                    </div>
-                    <div className="text-xs text-gray-500 mt-1">
-                      {t('sections.completed', { answered: progress.answered, total: progress.total })}
-                    </div>
-                    {progress.total > 0 && (
-                      <div className="w-full bg-gray-200 rounded-full h-1 mt-2">
-                        <div 
-                          className={`h-1 rounded-full transition-all duration-300 ${
-                            isComplete ? 'bg-green-500' : isActive ? 'bg-blue-500' : 'bg-gray-400'
-                          }`}
-                          style={{ width: `${progress.percentage}%` }}
-                        ></div>
-                      </div>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-
-        {/* Questions Area */}
-        <div className="lg:col-span-3">
-          <div className="bg-white rounded-lg shadow-md">
-            {/* Section Header */}
-            <div className="p-6 border-b border-gray-200">
-              <h2 className="text-xl font-bold text-gray-900 mb-2">{t(`sections.names.${currentSectionKey}`)}</h2>
-              <div className="flex justify-between items-center text-sm text-gray-600">
-                <span>{t('sections.progress', { current: currentSectionIndex + 1, total: currentSections.length })}</span>
-                <span>{t('sections.completed', { answered: getSectionProgress(currentSectionKey).answered, total: sectionQuestions.length })}</span>
-              </div>
-            </div>
-
-            {/* Questions */}
-            <div className="p-6 space-y-6">
-              {sectionQuestions.map((question) => {
-                const responseOptions = getResponseOptions(question);
-                const currentResponse = responses[question.item_id] || '';
-                const questionText = getQuestionText(question, t);
-                const explanationText = getQuestionExplanation(question, t);
-                
-                return (
-                  <div key={question.item_id} className="border-b border-gray-100 pb-6 last:border-b-0">
-                    <h3 className="text-lg font-medium text-gray-900 mb-3">
-                      {questionText}
-                    </h3>
-                    
-                    {explanationText && (
-                      <p className="text-sm text-gray-600 mb-4">{explanationText}</p>
-                    )}
-
-                    <div className="space-y-2">
-                      {responseOptions.map((option) => (
-                        <label key={option} className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
-                          <input
-                            type="radio"
-                            name={question.item_id}
-                            value={option}
-                            checked={currentResponse === option}
-                            onChange={(e) => handleResponse(question.item_id, e.target.value)}
-                            className="mr-3"
-                          />
-                          <span className="text-gray-800">
-                            {getResponseLabel(question, option, t)}
-                          </span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                );
-              })}
-
-              {/* Section Notes */}
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {t('sections.sectionNotes')}
-                </label>
-                <textarea
-                  value={sectionNotes[t(`sections.names.${currentSectionKey}`)] || ''}
-                  onChange={(e) => handleSectionNote(t(`sections.names.${currentSectionKey}`), e.target.value)}
-                  maxLength={200}
-                  rows={3}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-                  placeholder={t('sections.notesPlaceholder')}
-                />
-                <div className="text-xs text-gray-500 mt-1">
-                  {t('sections.charactersRemaining', { remaining: 200 - (sectionNotes[t(`sections.names.${currentSectionKey}`)] || '').length })}
-                </div>
-              </div>
-            </div>
-
-            {/* Navigation */}
-            <div className="p-6 border-t border-gray-200 flex justify-between">
-              <button
-                onClick={goToPreviousSection}
-                disabled={currentSectionIndex === 0}
-                className={`px-6 py-2 rounded-lg font-medium ${
-                  currentSectionIndex === 0
-                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                    : 'bg-gray-600 text-white hover:bg-gray-700'
-                }`}
-              >
-                {t('navigation.previousSection')}
-              </button>
-
-              <button
-                onClick={goToNextSection}
-                className="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700"
-              >
-                {currentSectionIndex === currentSections.length - 1 ? t('navigation.completeAssessment') : t('navigation.nextSection')}
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
-  const renderResultsPhase = () => {
-    const results = calculateResults();
-    const answeredQuestions = getTotalAnsweredQuestions();
-    const completionRate = Math.round((answeredQuestions / currentQuestions.length) * 100);
-
-    return (
-      <div className="max-w-4xl mx-auto p-6">
-        {/* Header with Language Switcher */}
-        <div className="flex justify-between items-center mb-8">
-          <div className="text-center flex-1">
-            <h1 className="text-3xl font-bold text-gray-900 mb-4">{t('results.title')}</h1>
-            <p className="text-lg text-gray-600">{t('results.subtitle')}</p>
-          </div>
-          <LanguageSwitcher />
-        </div>
-
-        <div className="bg-white rounded-lg shadow-md">
-          {/* Overall Score */}
-          <div className="p-8 border-b border-gray-200">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
-              <div className="p-6 bg-red-50 rounded-lg">
-                <div className="text-3xl font-bold text-red-600">{results.risk_score}</div>
-                <div className="text-red-800">{t('results.riskScore')}</div>
-                <div className="text-sm text-red-600 mt-1">{t('results.outOf100')}</div>
-              </div>
-              
-              <div className={`p-6 rounded-lg ${
-                results.risk_level === 'Critical' ? 'bg-red-100' :
-                results.risk_level === 'High' ? 'bg-orange-100' :
-                results.risk_level === 'Elevated' ? 'bg-yellow-100' :
-                results.risk_level === 'Moderate' ? 'bg-blue-100' : 'bg-green-100'
-              }`}>
-                <div className={`text-3xl font-bold ${
-                  results.risk_level === 'Critical' ? 'text-red-600' :
-                  results.risk_level === 'High' ? 'text-orange-600' :
-                  results.risk_level === 'Elevated' ? 'text-yellow-600' :
-                  results.risk_level === 'Moderate' ? 'text-blue-600' : 'text-green-600'
-                }`}>
-                  {t(`results.riskLevels.${results.risk_level.toLowerCase()}`)}
-                </div>
-                <div className="text-gray-800">{t('results.riskLevel')}</div>
-              </div>
-              
-              <div className="p-6 bg-blue-50 rounded-lg">
-                <div className="text-3xl font-bold text-blue-600">{completionRate}%</div>
-                <div className="text-blue-800">{t('results.completionRate')}</div>
-                <div className="text-sm text-blue-600 mt-1">{t('results.questionsAnswered', { answered: answeredQuestions, total: currentQuestions.length })}</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Issues Summary */}
-          {results.questions_with_issues > 0 && (
-            <div className="p-6 border-b border-gray-200">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">{t('results.issuesIdentified')}</h2>
-              <div className="bg-orange-50 p-4 rounded-lg">
-                <div className="text-orange-800 font-medium">
-                  {t('results.areasNeedAttention', { count: results.questions_with_issues, total: answeredQuestions })}
-                </div>
-                <div className="text-sm text-orange-600 mt-1">
-                  {t('results.reviewInterventions')}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Priority Interventions */}
-          {results.priority_interventions.length > 0 && (
-            <div className="p-6 border-b border-gray-200">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">{t('results.priorityInterventions')}</h2>
-              <div className="space-y-3">
-                {results.priority_interventions.slice(0, 10).map((intervention, index) => (
-                  <div key={intervention.item_id} className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
-                    <div className="flex-1">
-                      <div className="font-medium text-gray-900">{getSectionDisplayName(intervention.section, t)}</div>
-                      <div className="text-sm text-gray-600">{t(`results.priorities.${intervention.priority}`)}</div>
-                    </div>
-                    <div className="text-right">
-                      <div className={`text-lg font-bold ${
-                        intervention.risk_score > 70 ? 'text-red-600' :
-                        intervention.risk_score > 40 ? 'text-yellow-600' :
-                        'text-green-600'
-                      }`}>
-                        {intervention.risk_score}/100
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Section Notes Summary */}
-          {Object.keys(sectionNotes).length > 0 && (
-            <div className="p-6 border-b border-gray-200">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">{t('results.sectionNotes')}</h2>
-              <div className="space-y-3">
-                {Object.entries(sectionNotes).map(([section, notes]) => (
-                  notes && (
-                    <div key={section} className="p-4 bg-gray-50 rounded-lg">
-                      <h3 className="font-semibold text-gray-900">{section}</h3>
-                      <p className="text-gray-700 text-sm">{notes}</p>
-                    </div>
-                  )
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Action Buttons */}
-          <div className="p-6">
-            <div className="flex justify-between items-center">
-              <button
-                onClick={resetAssessment}
-                className="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors"
-              >
-                {t('results.takeNewAssessment')}
-              </button>
-              
-              <div className="flex space-x-3">
-                <button
-                  onClick={() => setShowExportModal(true)}
-                  className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors"
-                >
-                  {t('export.title')}
-                </button>
-                
-                <a 
-                  href="/"
-                  className="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors"
-                >
-                  {t('navigation.backToMain')}
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  // Main render
-  return (
-    <div className="min-h-screen bg-gray-100">
-      {phase === 'selection' && renderSelectionPhase()}
-      {phase === 'assessment' && renderAssessmentPhase()}
-      {phase === 'results' && renderResultsPhase()}
-      
-      {/* Export Modal */}
-      <ExportModal
-        isOpen={showExportModal}
-        onClose={() => setShowExportModal(false)}
-        results={calculateResults()}
-        responses={responses}
-        questions={currentQuestions}
-      />
-    </div>
-  );
 }
