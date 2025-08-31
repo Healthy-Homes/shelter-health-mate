@@ -113,7 +113,14 @@
       "housingSecurity": "住房安全",
       "transportation": "交通",
       "socialSupport": "社會支持",
-      "stressAndSafety": "壓力和安全"
+      "stressAndSafety": "壓力和安全",
+      "layout": "佈局",
+"bedroomDay1": "臥室（第1天）",
+"bedroomDay8": "臥室（第8天）",
+"general": "一般",
+      "bathroom": "浴室",
+"safe": "安全"
+      
     }
   },
   "results": {
