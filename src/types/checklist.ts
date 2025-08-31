@@ -16,7 +16,7 @@ export interface ChecklistItem {
   question_key?: string;
   question_text: string;              // NEW: Human-readable question
   question_type?: 'assessment' | 'action';
-  response_type: 'binary' | 'scale' | 'multiple_choice' | 'numeric';
+  response_type: 'binary' | 'scale' | 'multiple_choice' | 'numeric' | 'multi_select';
   
   // FIXED: Allow both old string format and new array format
   response_options: ResponseOption[] | string;
