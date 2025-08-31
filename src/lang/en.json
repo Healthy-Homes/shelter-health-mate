@@ -113,8 +113,13 @@
       "housingSecurity": "Housing Security",
       "transportation": "Transportation",
       "socialSupport": "Social Support",
-      "stressAndSafety": "Stress and Safety"
-    }
+      "stressAndSafety": "Stress and Safety",
+      "layout": "Layout",
+"bedroomDay1": "Bedroom (Day 1)",
+"bedroomDay8": "Bedroom (Day 8)",
+"general": "General",
+"bathroom": "Bathroom",
+"safe": "Safe"    }
   },
   "results": {
     "title": "Assessment Results",
