@@ -1,852 +1,1144 @@
-// src/data/taiwanHalstChecklist.ts - Recalibrated to 0-100 Range
+// src/data/taiwanHalstChecklist.ts - Complete with all 97 items
 import { ChecklistItem } from '../types/checklist';
 
 export const TAIWAN_HALST_QUESTIONS: ChecklistItem[] = [
-  // Layout and Building Structure Section
+  // Layout Section (10 items)
   {
-    item_id: "HALST_1",
-    category: "layout",
-    section: "Layout and Building Structure",
-    subcategory: "housing_type",
-    question_text: "What type of housing do you live in?",
+    item_id: "A1a",
+    section: "Layout",
+    question_text: "What type of building is this residence?",
+    response_type: "multiple_choice",
     response_options: [
-      { value: "apartment", label: "Apartment", weight: 0.2 },
-      { value: "house", label: "House", weight: 0.1 },
-      { value: "dormitory", label: "Dormitory", weight: 0.3 },
-      { value: "other", label: "Other", weight: 0.4 }
+      { value: "townhouse", label: "Townhouse" },
+      { value: "detached_house", label: "Detached house" },
+      { value: "apartment", label: "Apartment" },
+      { value: "rooftop_addition", label: "Rooftop addition" }
     ],
-    risk_score_yes: 25, // Increased from 20
-    risk_score_no: 0,
-    priority: "low",
-    explanation: "Housing type affects ventilation and environmental control",
-    response_type: "multiple_choice"
+    priority: "medium"
   },
   {
-    item_id: "HALST_2",
-    category: "layout",
-    section: "Layout and Building Structure",
-    subcategory: "floor_level",
-    question_text: "Which floor do you live on?",
+    item_id: "A1a_elevator",
+    section: "Layout",
+    question_text: "Is there an elevator?",
+    response_type: "multiple_choice",
     response_options: [
-      { value: "ground", label: "Ground floor", weight: 0.1 },
-      { value: "1_3", label: "1st-3rd floor", weight: 0.2 },
-      { value: "4_6", label: "4th-6th floor", weight: 0.3 },
-      { value: "above_6", label: "Above 6th floor", weight: 0.4 }
+      { value: "yes", label: "Yes" },
+      { value: "no", label: "No" }
     ],
-    risk_score_yes: 35, // Increased from 30
-    risk_score_no: 0,
-    priority: "low",
-    explanation: "Higher floors may have different air quality and evacuation challenges",
-    response_type: "multiple_choice"
+    conditional: { question_id: "A1a", value: "apartment" },
+    priority: "low"
   },
   {
-    item_id: "HALST_3",
-    category: "layout",
-    section: "Layout and Building Structure",
-    subcategory: "building_age",
-    question_text: "How old is your building?",
+    item_id: "A1b",
+    section: "Layout",
+    question_text: "What part of the building does the respondent occupy?",
+    response_type: "multiple_choice",
     response_options: [
-      { value: "new", label: "Less than 10 years", weight: 0.1 },
-      { value: "moderate", label: "10-30 years", weight: 0.3 },
-      { value: "old", label: "More than 30 years", weight: 0.6 }
+      { value: "entire_building", label: "Occupies the entire building" },
+      { value: "entire_floor", label: "Occupies an entire floor" },
+      { value: "shares_floor", label: "Shares a floor with others" }
     ],
-    risk_score_yes: 60, // Increased from 50
-    risk_score_no: 0,
-    priority: "medium",
-    explanation: "Older buildings may have outdated ventilation and potential hazardous materials",
-    response_type: "multiple_choice"
+    priority: "low"
   },
   {
-    item_id: "HALST_4",
-    category: "layout",
-    section: "Layout and Building Structure",
-    subcategory: "ventilation",
-    question_text: "Does your home have adequate ventilation?",
-    response_options: [
-      { value: "yes", label: "Yes", weight: 0 },
-      { value: "no", label: "No", weight: 1 },
-      { value: "not_sure", label: "Not sure", weight: 0.5 }
-    ],
-    risk_score_yes: 0,
-    risk_score_no: 85, // Increased from 70 - critical for health
-    priority: "critical",
-    explanation: "Poor ventilation leads to indoor air quality problems and health issues",
-    response_type: "multiple_choice"
+    item_id: "A2a",
+    section: "Layout",
+    question_text: "How many floors does this building have aboveground (inclusive of rooftop additions)?",
+    response_type: "numeric",
+    response_options: "",
+    min: 0,
+    priority: "low"
   },
   {
-    item_id: "HALST_5",
-    category: "layout",
-    section: "Layout and Building Structure",
-    subcategory: "natural_light",
-    question_text: "Does your home receive adequate natural light?",
+    item_id: "A2b",
+    section: "Layout",
+    question_text: "Does this building have any basement floors (including a parking garage)?",
+    response_type: "multiple_choice",
     response_options: [
-      { value: "yes", label: "Yes", weight: 0 },
-      { value: "no", label: "No", weight: 1 },
-      { value: "partial", label: "Partially", weight: 0.5 }
+      { value: "yes", label: "Yes" },
+      { value: "no", label: "No" }
     ],
-    risk_score_yes: 0,
-    risk_score_no: 45, // Increased from 40
-    priority: "medium",
-    explanation: "Inadequate natural light affects mental health and vitamin D synthesis",
-    response_type: "multiple_choice"
+    priority: "low"
   },
   {
-    item_id: "HALST_6",
-    category: "layout",
-    section: "Layout and Building Structure",
-    subcategory: "noise_level",
-    question_text: "Is your home affected by excessive noise?",
-    response_options: [
-      { value: "yes", label: "Yes", weight: 1 },
-      { value: "no", label: "No", weight: 0 },
-      { value: "sometimes", label: "Sometimes", weight: 0.5 }
-    ],
-    risk_score_yes: 55, // Increased from 45
-    risk_score_no: 0,
-    priority: "medium",
-    explanation: "Excessive noise affects sleep quality and stress levels",
-    response_type: "multiple_choice"
+    item_id: "A3a",
+    section: "Layout",
+    question_text: "On which floor of the building is the participant's bedroom?",
+    response_type: "numeric",
+    response_options: "",
+    min: 0,
+    priority: "low"
   },
   {
-    item_id: "HALST_7",
-    category: "layout",
-    section: "Layout and Building Structure",
-    subcategory: "space_adequacy",
-    question_text: "Do you have adequate living space for your household size?",
+    item_id: "A3b",
+    section: "Layout",
+    question_text: "Does this home have a living room?",
+    response_type: "multiple_choice",
     response_options: [
-      { value: "yes", label: "Yes", weight: 0 },
-      { value: "no", label: "No", weight: 1 },
-      { value: "barely", label: "Barely adequate", weight: 0.6 }
+      { value: "yes", label: "Yes" },
+      { value: "no", label: "No" }
     ],
-    risk_score_yes: 0,
-    risk_score_no: 50, // Increased from 45
-    priority: "medium",
-    explanation: "Overcrowding increases disease transmission and stress",
-    response_type: "multiple_choice"
+    priority: "low"
   },
   {
-    item_id: "HALST_8",
-    category: "layout",
-    section: "Layout and Building Structure",
-    subcategory: "structural_issues",
-    question_text: "Are there any structural problems in your home (cracks, leaks, etc.)?",
+    item_id: "A3e",
+    section: "Layout",
+    question_text: "What type of doorway does the bedroom have?",
+    response_type: "multiple_choice",
     response_options: [
-      { value: "yes", label: "Yes", weight: 1 },
-      { value: "no", label: "No", weight: 0 },
-      { value: "minor", label: "Minor issues", weight: 0.4 }
+      { value: "closable_door", label: "Closable door" },
+      { value: "open_doorway", label: "Open doorway" },
+      { value: "open_wall", label: "Open wall" }
     ],
-    risk_score_yes: 75, // Increased from 60
-    risk_score_no: 0,
-    priority: "high",
-    explanation: "Structural problems can lead to safety hazards and moisture issues",
-    response_type: "multiple_choice"
+    priority: "low"
+  },
+  {
+    item_id: "A4a",
+    section: "Layout",
+    question_text: "Does this home have a kitchen?",
+    response_type: "multiple_choice",
+    response_options: [
+      { value: "yes", label: "Yes" },
+      { value: "no", label: "No" }
+    ],
+    priority: "medium"
+  },
+  {
+    item_id: "A5",
+    section: "Layout",
+    question_text: "Is there a bathroom inside the participant's bedroom?",
+    response_type: "multiple_choice",
+    response_options: [
+      { value: "yes", label: "Yes" },
+      { value: "no", label: "No" }
+    ],
+    priority: "low"
   },
 
-  // Bedroom Environment Section
+  // Bedroom (Day 1) Section (17 items)
   {
-    item_id: "HALST_9",
-    category: "bedroom",
-    section: "Bedroom Environment",
-    subcategory: "temperature_control",
-    question_text: "Can you control the temperature in your bedroom?",
+    item_id: "B1",
+    section: "Bedroom (Day 1)",
+    question_text: "What is the level of mold odor in the bedroom?",
+    response_type: "multiple_choice",
     response_options: [
-      { value: "yes", label: "Yes", weight: 0 },
-      { value: "no", label: "No", weight: 1 },
-      { value: "partially", label: "Partially", weight: 0.5 }
+      { value: "none", label: "None" },
+      { value: "weak_or_slight", label: "Weak or slight" },
+      { value: "strong", label: "Strong" }
     ],
-    risk_score_yes: 0,
-    risk_score_no: 50, // Increased from 40
-    priority: "medium",
-    explanation: "Temperature control affects sleep quality and comfort",
-    response_type: "multiple_choice"
+    priority: "high"
   },
   {
-    item_id: "HALST_10",
-    category: "bedroom",
-    section: "Bedroom Environment",
-    subcategory: "air_circulation",
-    question_text: "Is there adequate air circulation in your bedroom?",
+    item_id: "B2",
+    section: "Bedroom (Day 1)",
+    question_text: "What material is the bedroom ceiling composed of?",
+    response_type: "multiple_choice",
     response_options: [
-      { value: "yes", label: "Yes", weight: 0 },
-      { value: "no", label: "No", weight: 1 },
-      { value: "poor", label: "Poor circulation", weight: 0.7 }
+      { value: "concrete", label: "Concrete" },
+      { value: "wallpaper", label: "Wallpaper" },
+      { value: "natural_wood", label: "Natural wood" },
+      { value: "plastic_material", label: "Plastic material" },
+      { value: "fiberboard", label: "Fiberboard" },
+      { value: "gypsum_ceiling_tile", label: "Gypsum ceiling tile" },
+      { value: "other", label: "Other" }
     ],
-    risk_score_yes: 0,
-    risk_score_no: 70, // Increased from 60
-    priority: "high",
-    explanation: "Poor bedroom air circulation affects sleep and respiratory health",
-    response_type: "multiple_choice"
+    other_specify: true,
+    priority: "low"
   },
   {
-    item_id: "HALST_11",
-    category: "bedroom",
-    section: "Bedroom Environment",
-    subcategory: "humidity",
-    question_text: "Do you experience humidity problems in your bedroom?",
+    item_id: "B3",
+    section: "Bedroom (Day 1)",
+    question_text: "What material is the bedroom walls composed of?",
+    response_type: "multiple_choice",
     response_options: [
-      { value: "yes", label: "Yes", weight: 1 },
-      { value: "no", label: "No", weight: 0 },
-      { value: "sometimes", label: "Sometimes", weight: 0.5 }
+      { value: "concrete", label: "Concrete" },
+      { value: "wallpaper", label: "Wallpaper" },
+      { value: "natural_wood", label: "Natural wood" },
+      { value: "plastic_material", label: "Plastic material" },
+      { value: "fiberboard", label: "Fiberboard" },
+      { value: "drywall", label: "Drywall" },
+      { value: "other", label: "Other" }
     ],
-    risk_score_yes: 65, // Increased from 55
-    risk_score_no: 0,
-    priority: "medium",
-    explanation: "High humidity promotes mold growth and dust mites",
-    response_type: "multiple_choice"
+    other_specify: true,
+    priority: "low"
   },
   {
-    item_id: "HALST_12",
-    category: "bedroom",
-    section: "Bedroom Environment",
-    subcategory: "dust_accumulation",
-    question_text: "Do you notice excessive dust accumulation in your bedroom?",
+    item_id: "B4",
+    section: "Bedroom (Day 1)",
+    question_text: "What material is the bedroom floor composed of?",
+    response_type: "multiple_choice",
     response_options: [
-      { value: "yes", label: "Yes", weight: 1 },
-      { value: "no", label: "No", weight: 0 },
-      { value: "moderate", label: "Moderate amount", weight: 0.5 }
+      { value: "stone_or_tile", label: "Stone or tile" },
+      { value: "concrete", label: "Concrete" },
+      { value: "artificial_wood", label: "Artificial wood" },
+      { value: "hardwood", label: "Hardwood" },
+      { value: "carpet", label: "Carpet" },
+      { value: "other", label: "Other" }
     ],
-    risk_score_yes: 55, // Increased from 45
-    risk_score_no: 0,
-    priority: "medium",
-    explanation: "Excessive dust can trigger allergies and respiratory issues",
-    response_type: "multiple_choice"
+    other_specify: true,
+    priority: "low"
   },
   {
-    item_id: "HALST_13",
-    category: "bedroom",
-    section: "Bedroom Environment",
-    subcategory: "mold_mildew",
-    question_text: "Do you see any signs of mold or mildew in your bedroom?",
+    item_id: "B5",
+    section: "Bedroom (Day 1)",
+    question_text: "What is the combined area of water stains?",
+    response_type: "multiple_choice",
     response_options: [
-      { value: "yes", label: "Yes", weight: 1 },
-      { value: "no", label: "No", weight: 0 },
-      { value: "not_sure", label: "Not sure", weight: 0.6 }
+      { value: "none", label: "None" },
+      { value: "less_than_a4_paper", label: "Less than A4 paper" },
+      { value: "more_than_a4_paper_and_less_than_standard_door", label: "More than A4 paper and less than a standard door" },
+      { value: "more_than_standard_door", label: "More than a standard door" }
     ],
-    risk_score_yes: 90, // Increased from 80 - critical health risk
-    risk_score_no: 0,
-    priority: "critical",
-    explanation: "Mold exposure can cause serious respiratory and allergic reactions",
-    response_type: "multiple_choice"
+    priority: "medium"
   },
   {
-    item_id: "HALST_14",
-    category: "bedroom",
-    section: "Bedroom Environment",
-    subcategory: "pest_control",
-    question_text: "Do you have problems with pests (insects, rodents) in your bedroom?",
+    item_id: "B7",
+    section: "Bedroom (Day 1)",
+    question_text: "What is the combined area of wall cancer (bì ái)?",
+    response_type: "multiple_choice",
     response_options: [
-      { value: "yes", label: "Yes", weight: 1 },
-      { value: "no", label: "No", weight: 0 },
-      { value: "occasionally", label: "Occasionally", weight: 0.4 }
+      { value: "none", label: "None" },
+      { value: "less_than_a4_paper", label: "Less than A4 paper" },
+      { value: "more_than_a4_paper_and_less_than_standard_door", label: "More than A4 paper and less than a standard door" },
+      { value: "more_than_standard_door", label: "More than a standard door" }
     ],
-    risk_score_yes: 65, // Increased from 55
-    risk_score_no: 0,
-    priority: "medium",
-    explanation: "Pests can carry diseases and trigger allergic reactions",
-    response_type: "multiple_choice"
+    priority: "high"
   },
   {
-    item_id: "HALST_15",
-    category: "bedroom",
-    section: "Bedroom Environment",
-    subcategory: "chemical_exposure",
-    question_text: "Do you use air fresheners, pesticides, or strong cleaning products in your bedroom?",
+    item_id: "B6a",
+    section: "Bedroom (Day 1)",
+    question_text: "What is the combined area of visible mold?",
+    response_type: "multiple_choice",
     response_options: [
-      { value: "yes", label: "Yes, regularly", weight: 1 },
-      { value: "no", label: "No", weight: 0 },
-      { value: "sometimes", label: "Sometimes", weight: 0.5 }
+      { value: "none", label: "None" },
+      { value: "less_than_a4_paper", label: "Less than A4 paper" },
+      { value: "more_than_a4_paper_and_less_than_standard_door", label: "More than A4 paper and less than a standard door" },
+      { value: "more_than_standard_door", label: "More than a standard door" }
     ],
-    risk_score_yes: 60, // Increased from 50
-    risk_score_no: 0,
-    priority: "medium",
-    explanation: "Chemical products can affect indoor air quality and respiratory health",
-    response_type: "multiple_choice"
+    priority: "critical"
   },
   {
-    item_id: "HALST_16",
-    category: "bedroom",
-    section: "Bedroom Environment",
-    subcategory: "bedding_cleanliness",
-    question_text: "How often do you wash your bedding?",
+    item_id: "B8",
+    section: "Bedroom (Day 1)",
+    question_text: "Are there any walls that could not be fully inspected?",
+    response_type: "multiple_choice",
     response_options: [
-      { value: "weekly", label: "Weekly", weight: 0 },
-      { value: "biweekly", label: "Every 2 weeks", weight: 0.3 },
-      { value: "monthly", label: "Monthly", weight: 0.6 },
-      { value: "rarely", label: "Rarely", weight: 1 }
+      { value: "yes", label: "Yes" },
+      { value: "no", label: "No" }
     ],
-    risk_score_yes: 45, // Increased from 35
-    risk_score_no: 0,
-    priority: "low",
-    explanation: "Infrequent bedding washing allows dust mites and bacteria to accumulate",
-    response_type: "multiple_choice"
-  },
-
-  // Kitchen Environment Section
-  {
-    item_id: "HALST_17",
-    category: "kitchen",
-    section: "Kitchen Environment",
-    subcategory: "ventilation",
-    question_text: "Do you have proper ventilation in your kitchen (range hood, fan)?",
-    response_options: [
-      { value: "yes", label: "Yes", weight: 0 },
-      { value: "no", label: "No", weight: 1 },
-      { value: "inadequate", label: "Inadequate", weight: 0.7 }
-    ],
-    risk_score_yes: 0,
-    risk_score_no: 80, // Increased from 70
-    priority: "high",
-    explanation: "Kitchen ventilation prevents moisture buildup and removes cooking pollutants",
-    response_type: "multiple_choice"
+    priority: "low"
   },
   {
-    item_id: "HALST_18",
-    category: "kitchen",
-    section: "Kitchen Environment",
-    subcategory: "moisture_control",
-    question_text: "Do you experience excessive moisture or condensation in your kitchen?",
-    response_options: [
-      { value: "yes", label: "Yes", weight: 1 },
-      { value: "no", label: "No", weight: 0 },
-      { value: "sometimes", label: "Sometimes", weight: 0.5 }
-    ],
-    risk_score_yes: 70, // Increased from 60
-    risk_score_no: 0,
-    priority: "high",
-    explanation: "Excessive kitchen moisture promotes mold growth and structural damage",
-    response_type: "multiple_choice"
+    item_id: "B9",
+    section: "Bedroom (Day 1)",
+    question_text: "How many potted plants are in the bedroom?",
+    response_type: "numeric",
+    response_options: "",
+    min: 0,
+    priority: "low"
   },
   {
-    item_id: "HALST_19",
-    category: "kitchen",
-    section: "Kitchen Environment",
-    subcategory: "cooking_fumes",
-    question_text: "Do cooking fumes and odors linger in your kitchen after cooking?",
+    item_id: "B10a",
+    section: "Bedroom (Day 1)",
+    question_text: "Is the mattress placed directly on the floor?",
+    response_type: "multiple_choice",
     response_options: [
-      { value: "yes", label: "Yes", weight: 1 },
-      { value: "no", label: "No", weight: 0 },
-      { value: "sometimes", label: "Sometimes", weight: 0.5 }
+      { value: "yes", label: "Yes" },
+      { value: "no", label: "No" }
     ],
-    risk_score_yes: 55, // Increased from 45
-    risk_score_no: 0,
-    priority: "medium",
-    explanation: "Lingering cooking fumes indicate poor ventilation and air quality",
-    response_type: "multiple_choice"
+    priority: "medium"
   },
   {
-    item_id: "HALST_20",
-    category: "kitchen",
-    section: "Kitchen Environment",
-    subcategory: "gas_appliances",
-    question_text: "Do you have gas appliances in your kitchen?",
+    item_id: "B10b",
+    section: "Bedroom (Day 1)",
+    question_text: "What is covering the mattress?",
+    response_type: "multiple_choice",
     response_options: [
-      { value: "yes", label: "Yes", weight: 0.6 },
-      { value: "no", label: "No", weight: 0 },
-      { value: "some", label: "Some appliances", weight: 0.4 }
+      { value: "nothing", label: "Nothing" },
+      { value: "cotton_bedsheet", label: "Cotton bedsheet" },
+      { value: "blanket", label: "Blanket" },
+      { value: "other", label: "Other" }
     ],
-    risk_score_yes: 65, // Increased from 55
-    risk_score_no: 0,
-    priority: "medium",
-    explanation: "Gas appliances can produce combustion byproducts if not properly ventilated",
-    response_type: "multiple_choice"
+    other_specify: true,
+    priority: "low"
   },
   {
-    item_id: "HALST_21",
-    category: "kitchen",
-    section: "Kitchen Environment",
-    subcategory: "cleanliness",
-    question_text: "How would you rate the overall cleanliness of your kitchen?",
+    item_id: "B10c",
+    section: "Bedroom (Day 1)",
+    question_text: "What is used as a blanket?",
+    response_type: "multiple_choice",
     response_options: [
-      { value: "excellent", label: "Excellent", weight: 0 },
-      { value: "good", label: "Good", weight: 0.2 },
-      { value: "fair", label: "Fair", weight: 0.5 },
-      { value: "poor", label: "Poor", weight: 1 }
+      { value: "nothing", label: "Nothing" },
+      { value: "duvet_or_comforter", label: "Duvet or comforter" },
+      { value: "blanket", label: "Blanket" },
+      { value: "other", label: "Other" }
     ],
-    risk_score_yes: 60, // Increased from 50
-    risk_score_no: 0,
-    priority: "medium",
-    explanation: "Kitchen cleanliness affects food safety and pest control",
-    response_type: "multiple_choice"
+    other_specify: true,
+    priority: "low"
   },
   {
-    item_id: "HALST_22",
-    category: "kitchen",
-    section: "Kitchen Environment",
-    subcategory: "water_quality",
-    question_text: "Are you satisfied with your kitchen water quality?",
+    item_id: "B10d",
+    section: "Bedroom (Day 1)",
+    question_text: "What is covering the pillow?",
+    response_type: "multiple_choice",
     response_options: [
-      { value: "yes", label: "Yes", weight: 0 },
-      { value: "no", label: "No", weight: 1 },
-      { value: "concerns", label: "Have some concerns", weight: 0.6 }
+      { value: "nothing", label: "Nothing" },
+      { value: "cotton_pillow_case", label: "Cotton pillow case" },
+      { value: "hand_towel", label: "Hand towel" },
+      { value: "other", label: "Other" }
     ],
-    risk_score_yes: 0,
-    risk_score_no: 75, // Increased from 65
-    priority: "high",
-    explanation: "Poor water quality affects cooking, cleaning, and health",
-    response_type: "multiple_choice"
+    other_specify: true,
+    priority: "low"
   },
   {
-    item_id: "HALST_23",
-    category: "kitchen",
-    section: "Kitchen Environment",
-    subcategory: "storage_conditions",
-    question_text: "Do you have adequate and appropriate food storage conditions?",
-    response_options: [
-      { value: "yes", label: "Yes", weight: 0 },
-      { value: "no", label: "No", weight: 1 },
-      { value: "limited", label: "Limited storage", weight: 0.5 }
-    ],
-    risk_score_yes: 0,
-    risk_score_no: 50, // Increased from 40
-    priority: "medium",
-    explanation: "Inadequate food storage can lead to spoilage and pest problems",
-    response_type: "multiple_choice"
+    item_id: "E1_height",
+    section: "Bedroom (Day 1)",
+    question_text: "Measure the room height (meters)",
+    response_type: "numeric",
+    response_options: "",
+    min: 0,
+    priority: "low"
   },
   {
-    item_id: "HALST_24",
-    category: "kitchen",
-    section: "Kitchen Environment",
-    subcategory: "appliance_maintenance",
-    question_text: "Are your kitchen appliances in good working condition?",
+    item_id: "E1_width",
+    section: "Bedroom (Day 1)",
+    question_text: "Measure the room width (meters)",
+    response_type: "numeric",
+    response_options: "",
+    min: 0,
+    priority: "low"
+  },
+  {
+    item_id: "E1_length",
+    section: "Bedroom (Day 1)",
+    question_text: "Measure the room length (meters)",
+    response_type: "numeric",
+    response_options: "",
+    min: 0,
+    priority: "low"
+  },
+  {
+    item_id: "E4a",
+    section: "Bedroom (Day 1)",
+    question_text: "Does this room have any interior openings?",
+    response_type: "multiple_choice",
     response_options: [
-      { value: "yes", label: "Yes", weight: 0 },
-      { value: "no", label: "No", weight: 1 },
-      { value: "some_issues", label: "Some need repair", weight: 0.6 }
+      { value: "no", label: "No" },
+      { value: "yes_less_than_door", label: "Yes (less than a standard door)" },
+      { value: "yes_more_than_door", label: "Yes (more than a standard door)" }
     ],
-    risk_score_yes: 0,
-    risk_score_no: 55, // Increased from 45
-    priority: "medium",
-    explanation: "Faulty appliances can pose safety and health risks",
-    response_type: "multiple_choice"
+    priority: "low"
   },
 
-  // Bathroom Environment Section
+  // Bedroom (Day 8) Section (18 items)
   {
-    item_id: "HALST_25",
-    category: "bathroom",
-    section: "Bathroom Environment",
-    subcategory: "ventilation",
-    question_text: "Does your bathroom have adequate ventilation?",
+    item_id: "E2a",
+    section: "Bedroom (Day 8)",
+    question_text: "Is there a balcony door inside this room?",
+    response_type: "multiple_choice",
     response_options: [
-      { value: "yes", label: "Yes", weight: 0 },
-      { value: "no", label: "No", weight: 1 },
-      { value: "poor", label: "Poor ventilation", weight: 0.7 }
+      { value: "yes", label: "Yes" },
+      { value: "no", label: "No" }
     ],
-    risk_score_yes: 0,
-    risk_score_no: 85, // Increased from 75 - critical for mold prevention
-    priority: "critical",
-    explanation: "Bathroom ventilation prevents mold growth and moisture damage",
-    response_type: "multiple_choice"
+    priority: "low"
   },
   {
-    item_id: "HALST_26",
-    category: "bathroom",
-    section: "Bathroom Environment",
-    subcategory: "moisture_problems",
-    question_text: "Do you have moisture problems in your bathroom (condensation, standing water)?",
+    item_id: "E2c",
+    section: "Bedroom (Day 8)",
+    question_text: "In the past week, when did you normally open the balcony door or balcony door window?",
+    response_type: "multiple_choice",
     response_options: [
-      { value: "yes", label: "Yes", weight: 1 },
-      { value: "no", label: "No", weight: 0 },
-      { value: "sometimes", label: "Sometimes", weight: 0.5 }
+      { value: "never", label: "Never" },
+      { value: "morning", label: "Morning" },
+      { value: "afternoon", label: "Afternoon" },
+      { value: "evening_or_during_sleep", label: "Evening/during sleep" }
     ],
-    risk_score_yes: 80, // Increased from 70
-    risk_score_no: 0,
-    priority: "high",
-    explanation: "Bathroom moisture problems lead to mold growth and structural damage",
-    response_type: "multiple_choice"
+    conditional: { question_id: "E2a", value: "yes" },
+    priority: "medium"
   },
   {
-    item_id: "HALST_27",
-    category: "bathroom",
-    section: "Bathroom Environment",
-    subcategory: "mold_growth",
-    question_text: "Do you see mold or mildew in your bathroom?",
+    item_id: "E3a",
+    section: "Bedroom (Day 8)",
+    question_text: "Does this room have any exterior windows?",
+    response_type: "multiple_choice",
     response_options: [
-      { value: "yes", label: "Yes", weight: 1 },
-      { value: "no", label: "No", weight: 0 },
-      { value: "minor", label: "Minor amounts", weight: 0.5 }
+      { value: "yes", label: "Yes" },
+      { value: "no", label: "No" }
     ],
-    risk_score_yes: 95, // Increased from 85 - highest risk
-    risk_score_no: 0,
-    priority: "critical",
-    explanation: "Bathroom mold poses serious respiratory health risks",
-    response_type: "multiple_choice"
+    priority: "medium"
   },
   {
-    item_id: "HALST_28",
-    category: "bathroom",
-    section: "Bathroom Environment",
-    subcategory: "cleanliness",
-    question_text: "How would you rate your bathroom cleanliness?",
+    item_id: "E3c",
+    section: "Bedroom (Day 8)",
+    question_text: "In the past week, when did you normally open the window?",
+    response_type: "multiple_choice",
     response_options: [
-      { value: "excellent", label: "Excellent", weight: 0 },
-      { value: "good", label: "Good", weight: 0.2 },
-      { value: "fair", label: "Fair", weight: 0.5 },
-      { value: "poor", label: "Poor", weight: 1 }
+      { value: "never", label: "Never" },
+      { value: "morning", label: "Morning" },
+      { value: "afternoon", label: "Afternoon" },
+      { value: "evening_or_during_sleep", label: "Evening/during sleep" }
     ],
-    risk_score_yes: 65, // Increased from 55
-    risk_score_no: 0,
-    priority: "medium",
-    explanation: "Bathroom cleanliness affects hygiene and prevents bacterial growth",
-    response_type: "multiple_choice"
+    conditional: { question_id: "E3a", value: "yes" },
+    priority: "medium"
   },
   {
-    item_id: "HALST_29",
-    category: "bathroom",
-    section: "Bathroom Environment",
-    subcategory: "water_pressure",
-    question_text: "Is your bathroom water pressure adequate?",
+    item_id: "E5",
+    section: "Bedroom (Day 8)",
+    question_text: "In the past week, when did you normally use the air conditioning?",
+    response_type: "multiple_choice",
     response_options: [
-      { value: "yes", label: "Yes", weight: 0 },
-      { value: "no", label: "No", weight: 1 },
-      { value: "variable", label: "Variable pressure", weight: 0.4 }
+      { value: "never", label: "Never" },
+      { value: "morning", label: "Morning" },
+      { value: "afternoon", label: "Afternoon" },
+      { value: "evening_or_during_sleep", label: "Evening/during sleep" },
+      { value: "na", label: "N/A" }
     ],
-    risk_score_yes: 0,
-    risk_score_no: 35, // Increased from 30
-    priority: "low",
-    explanation: "Low water pressure affects hygiene and bathroom function",
-    response_type: "multiple_choice"
+    priority: "low"
   },
   {
-    item_id: "HALST_30",
-    category: "bathroom",
-    section: "Bathroom Environment",
-    subcategory: "hot_water",
-    question_text: "Do you have reliable hot water in your bathroom?",
+    item_id: "E6",
+    section: "Bedroom (Day 8)",
+    question_text: "In the past week, when did you normally use the dehumidifier?",
+    response_type: "multiple_choice",
     response_options: [
-      { value: "yes", label: "Yes", weight: 0 },
-      { value: "no", label: "No", weight: 1 },
-      { value: "inconsistent", label: "Inconsistent", weight: 0.6 }
+      { value: "never", label: "Never" },
+      { value: "morning", label: "Morning" },
+      { value: "afternoon", label: "Afternoon" },
+      { value: "evening_or_during_sleep", label: "Evening/during sleep" },
+      { value: "na", label: "N/A" }
     ],
-    risk_score_yes: 0,
-    risk_score_no: 45, // Increased from 40
-    priority: "medium",
-    explanation: "Hot water is essential for proper hygiene and health",
-    response_type: "multiple_choice"
+    priority: "medium"
   },
   {
-    item_id: "HALST_31",
-    category: "bathroom",
-    section: "Bathroom Environment",
-    subcategory: "plumbing_issues",
-    question_text: "Do you have any plumbing problems in your bathroom?",
+    item_id: "E7",
+    section: "Bedroom (Day 8)",
+    question_text: "In the past week, when did you normally use an electric heater?",
+    response_type: "multiple_choice",
     response_options: [
-      { value: "yes", label: "Yes", weight: 1 },
-      { value: "no", label: "No", weight: 0 },
-      { value: "minor", label: "Minor issues", weight: 0.4 }
+      { value: "never", label: "Never" },
+      { value: "morning", label: "Morning" },
+      { value: "afternoon", label: "Afternoon" },
+      { value: "evening_or_during_sleep", label: "Evening/during sleep" },
+      { value: "na", label: "N/A" }
     ],
-    risk_score_yes: 70, // Increased from 60
-    risk_score_no: 0,
-    priority: "high",
-    explanation: "Plumbing problems can cause water damage and unsanitary conditions",
-    response_type: "multiple_choice"
+    priority: "low"
   },
   {
-    item_id: "HALST_32",
-    category: "bathroom",
-    section: "Bathroom Environment",
-    subcategory: "privacy_security",
-    question_text: "Does your bathroom provide adequate privacy and security?",
+    item_id: "E8",
+    section: "Bedroom (Day 8)",
+    question_text: "In the past week, when did you normally use an air purifier?",
+    response_type: "multiple_choice",
     response_options: [
-      { value: "yes", label: "Yes", weight: 0 },
-      { value: "no", label: "No", weight: 1 },
-      { value: "concerns", label: "Some concerns", weight: 0.5 }
+      { value: "never", label: "Never" },
+      { value: "morning", label: "Morning" },
+      { value: "afternoon", label: "Afternoon" },
+      { value: "evening_or_during_sleep", label: "Evening/during sleep" },
+      { value: "na", label: "N/A" }
     ],
-    risk_score_yes: 0,
-    risk_score_no: 40, // Increased from 35
-    priority: "medium",
-    explanation: "Bathroom privacy affects comfort and mental well-being",
-    response_type: "multiple_choice"
-  },
-
-  // Living Areas Section
-  {
-    item_id: "HALST_33",
-    category: "living_room",
-    section: "Living Areas",
-    subcategory: "air_quality",
-    question_text: "How would you rate the air quality in your living areas?",
-    response_options: [
-      { value: "excellent", label: "Excellent", weight: 0 },
-      { value: "good", label: "Good", weight: 0.2 },
-      { value: "fair", label: "Fair", weight: 0.5 },
-      { value: "poor", label: "Poor", weight: 1 }
-    ],
-    risk_score_yes: 75, // Increased from 65
-    risk_score_no: 0,
-    priority: "high",
-    explanation: "Poor air quality in living areas affects daily comfort and health",
-    response_type: "multiple_choice"
+    priority: "low"
   },
   {
-    item_id: "HALST_34",
-    category: "living_room",
-    section: "Living Areas",
-    subcategory: "dust_control",
-    question_text: "How often do you need to dust your living areas?",
+    item_id: "E9a",
+    section: "Bedroom (Day 8)",
+    question_text: "In the past week, when did you normally use an electric fan?",
+    response_type: "multiple_choice",
     response_options: [
-      { value: "weekly", label: "Weekly or less", weight: 0 },
-      { value: "few_days", label: "Every few days", weight: 0.3 },
-      { value: "daily", label: "Daily", weight: 0.7 },
-      { value: "constantly", label: "Constantly", weight: 1 }
+      { value: "never", label: "Never" },
+      { value: "morning", label: "Morning" },
+      { value: "afternoon", label: "Afternoon" },
+      { value: "evening_or_during_sleep", label: "Evening/during sleep" },
+      { value: "na", label: "N/A" }
     ],
-    risk_score_yes: 55, // Increased from 45
-    risk_score_no: 0,
-    priority: "medium",
-    explanation: "Excessive dust indicates poor air circulation and filtration",
-    response_type: "multiple_choice"
+    priority: "low"
   },
   {
-    item_id: "HALST_35",
-    category: "living_room",
-    section: "Living Areas",
-    subcategory: "allergen_control",
-    question_text: "Do you or family members experience allergy symptoms at home?",
+    item_id: "E9b",
+    section: "Bedroom (Day 8)",
+    question_text: "What type of fan was used?",
+    response_type: "multiple_choice",
     response_options: [
-      { value: "yes", label: "Yes, frequently", weight: 1 },
-      { value: "no", label: "No", weight: 0 },
-      { value: "sometimes", label: "Sometimes", weight: 0.5 },
-      { value: "seasonal", label: "Only seasonally", weight: 0.3 }
+      { value: "standing_fan", label: "Standing fan" },
+      { value: "floor_circulating_fan_box_fan", label: "Floor circulating fan/box fan" },
+      { value: "ceiling_fan", label: "Ceiling fan" },
+      { value: "wall_fan", label: "Wall fan" },
+      { value: "other", label: "Other" }
     ],
-    risk_score_yes: 60, // Increased from 50
-    risk_score_no: 0,
-    priority: "medium",
-    explanation: "Indoor allergy symptoms suggest environmental triggers in the home",
-    response_type: "multiple_choice"
+    conditional: { question_id: "E9a", value_not: ["never", "na"] },
+    other_specify: true,
+    priority: "low"
   },
   {
-    item_id: "HALST_36",
-    category: "living_room",
-    section: "Living Areas",
-    subcategory: "tobacco_smoke",
-    question_text: "Is there tobacco smoking in your home?",
-    response_options: [
-      { value: "yes", label: "Yes, regularly", weight: 1 },
-      { value: "no", label: "No", weight: 0 },
-      { value: "occasionally", label: "Occasionally", weight: 0.6 },
-      { value: "outdoors_only", label: "Outdoors only", weight: 0.2 }
-    ],
-    risk_score_yes: 95, // Increased from 85 - highest risk
-    risk_score_no: 0,
-    priority: "critical",
-    explanation: "Indoor tobacco smoke is a major health hazard for all residents",
-    response_type: "multiple_choice"
+    item_id: "E10",
+    section: "Bedroom (Day 8)",
+    question_text: "In the past week, how many people regularly slept in this room?",
+    response_type: "numeric",
+    response_options: "",
+    min: 0,
+    priority: "low"
   },
   {
-    item_id: "HALST_37",
-    category: "living_room",
-    section: "Living Areas",
-    subcategory: "chemical_storage",
-    question_text: "Do you store household chemicals, cleaning products, or pesticides in living areas?",
+    item_id: "E12",
+    section: "Bedroom (Day 8)",
+    question_text: "In the past week, how did you clean your bedroom floor?",
+    response_type: "multiple_choice",
     response_options: [
-      { value: "yes", label: "Yes", weight: 1 },
-      { value: "no", label: "No", weight: 0 },
-      { value: "some", label: "Some products", weight: 0.5 }
+      { value: "did_not_clean", label: "Did not clean" },
+      { value: "vacuum", label: "Vacuum" },
+      { value: "broom", label: "Broom" },
+      { value: "dry_mop", label: "Dry mop (swiffer)" },
+      { value: "wet_mop", label: "Wet mop" },
+      { value: "robot_vacuum", label: "Robot vacuum" },
+      { value: "other", label: "Other" }
     ],
-    risk_score_yes: 70, // Increased from 60
-    risk_score_no: 0,
-    priority: "high",
-    explanation: "Chemical storage in living areas poses exposure risks",
-    response_type: "multiple_choice"
+    other_specify: true,
+    priority: "low"
   },
   {
-    item_id: "HALST_38",
-    category: "living_room",
-    section: "Living Areas",
-    subcategory: "pet_dander",
-    question_text: "Do you have pets that spend time in your living areas?",
+    item_id: "E13",
+    section: "Bedroom (Day 8)",
+    question_text: "In which of the past three months did you wash your bedding?",
+    response_type: "multiple_choice",
     response_options: [
-      { value: "yes", label: "Yes", weight: 0.4 },
-      { value: "no", label: "No", weight: 0 },
-      { value: "outdoor_only", label: "Outdoor pets only", weight: 0.1 }
+      { value: "last_month", label: "Last month" },
+      { value: "two_months_ago", label: "Two months ago" },
+      { value: "three_months_ago", label: "Three months ago" },
+      { value: "not_washed_in_past_three_months", label: "Not washed in the past three months" }
     ],
-    risk_score_yes: 40, // Increased from 35
-    risk_score_no: 0,
-    priority: "low",
-    explanation: "Pet dander can trigger allergies in sensitive individuals",
-    response_type: "multiple_choice"
+    priority: "medium"
   },
   {
-    item_id: "HALST_39",
-    category: "living_room",
-    section: "Living Areas",
-    subcategory: "carpet_condition",
-    question_text: "What is the condition of carpets or rugs in your living areas?",
+    item_id: "E14a",
+    section: "Bedroom (Day 8)",
+    question_text: "In the past week, did you cook food or boil water in the bedroom?",
+    response_type: "multiple_choice",
     response_options: [
-      { value: "excellent", label: "Excellent/New", weight: 0 },
-      { value: "good", label: "Good condition", weight: 0.2 },
-      { value: "fair", label: "Fair condition", weight: 0.5 },
-      { value: "poor", label: "Poor/Old", weight: 0.8 },
-      { value: "no_carpet", label: "No carpets/rugs", weight: 0 }
+      { value: "yes", label: "Yes" },
+      { value: "no", label: "No" }
     ],
-    risk_score_yes: 50, // Increased from 40
-    risk_score_no: 0,
-    priority: "medium",
-    explanation: "Old carpets harbor allergens, dust mites, and contaminants",
-    response_type: "multiple_choice"
+    priority: "high"
   },
   {
-    item_id: "HALST_40",
-    category: "living_room",
-    section: "Living Areas",
-    subcategory: "air_fresheners",
-    question_text: "Do you regularly use air fresheners or scented products in living areas?",
+    item_id: "I2e",
+    section: "Bedroom (Day 8)",
+    question_text: "Is it easy to turn the lights on and off from the bed?",
+    response_type: "multiple_choice",
     response_options: [
-      { value: "yes", label: "Yes, frequently", weight: 1 },
-      { value: "no", label: "No", weight: 0 },
-      { value: "occasionally", label: "Occasionally", weight: 0.5 }
+      { value: "yes", label: "Yes" },
+      { value: "no", label: "No" }
     ],
-    risk_score_yes: 45, // Increased from 35
-    risk_score_no: 0,
-    priority: "low",
-    explanation: "Artificial fragrances can trigger respiratory sensitivity",
-    response_type: "multiple_choice"
+    priority: "low"
+  },
+  {
+    item_id: "I5a",
+    section: "Bedroom (Day 8)",
+    question_text: "Is it easy for you to get in and out of bed?",
+    response_type: "multiple_choice",
+    response_options: [
+      { value: "yes", label: "Yes" },
+      { value: "no", label: "No" }
+    ],
+    priority: "medium"
+  },
+  {
+    item_id: "I5b",
+    section: "Bedroom (Day 8)",
+    question_text: "Is there a bedside rail or place for a walker or cane for easy access when getting out of bed?",
+    response_type: "multiple_choice",
+    response_options: [
+      { value: "yes", label: "Yes" },
+      { value: "no", label: "No" },
+      { value: "na", label: "N/A (does not use a cane or walker)" }
+    ],
+    priority: "medium"
+  },
+  {
+    item_id: "E15a",
+    section: "Bedroom (Day 8)",
+    question_text: "In the past week, were there any sources of indoor pollution in your bedroom?",
+    response_type: "multiple_choice",
+    response_options: [
+      { value: "yes", label: "Yes" },
+      { value: "no", label: "No" }
+    ],
+    priority: "medium"
   },
 
-  // General Conditions Section
+  // General Section (30 items)
   {
-    item_id: "HALST_41",
-    category: "general",
-    section: "General Conditions",
-    subcategory: "overall_comfort",
-    question_text: "How comfortable do you feel in your home environment overall?",
-    response_options: [
-      { value: "very_comfortable", label: "Very comfortable", weight: 0 },
-      { value: "comfortable", label: "Comfortable", weight: 0.2 },
-      { value: "somewhat_comfortable", label: "Somewhat comfortable", weight: 0.5 },
-      { value: "uncomfortable", label: "Uncomfortable", weight: 1 }
-    ],
-    risk_score_yes: 60, // Increased from 50
-    risk_score_no: 0,
-    priority: "medium",
-    explanation: "Overall comfort reflects environmental health and well-being",
-    response_type: "multiple_choice"
+    item_id: "D1",
+    section: "General",
+    question_text: "How old is this building?",
+    response_type: "numeric",
+    response_options: "",
+    min: 0,
+    priority: "low"
   },
   {
-    item_id: "HALST_42",
-    category: "general",
-    section: "General Conditions",
-    subcategory: "health_symptoms",
-    question_text: "Do you experience health symptoms that you think might be related to your home environment?",
-    response_options: [
-      { value: "yes", label: "Yes, frequently", weight: 1 },
-      { value: "no", label: "No", weight: 0 },
-      { value: "sometimes", label: "Sometimes", weight: 0.6 },
-      { value: "not_sure", label: "Not sure", weight: 0.4 }
-    ],
-    risk_score_yes: 80, // Increased from 70
-    risk_score_no: 0,
-    priority: "high",
-    explanation: "Home-related health symptoms indicate environmental hazards",
-    response_type: "multiple_choice"
+    item_id: "D2",
+    section: "General",
+    question_text: "How many people reside in this home?",
+    response_type: "numeric",
+    response_options: "",
+    min: 0,
+    priority: "low"
   },
   {
-    item_id: "HALST_43",
-    category: "general",
-    section: "General Conditions",
-    subcategory: "maintenance_ability",
-    question_text: "Are you able to maintain your home environment as you would like?",
+    item_id: "D3",
+    section: "General",
+    question_text: "Do you have any indoor pets? (excluding fish)",
+    response_type: "multiple_choice",
     response_options: [
-      { value: "yes", label: "Yes", weight: 0 },
-      { value: "no", label: "No", weight: 1 },
-      { value: "partially", label: "Partially", weight: 0.6 },
-      { value: "need_help", label: "Need help", weight: 0.8 }
+      { value: "none", label: "None" },
+      { value: "dog", label: "Dog" },
+      { value: "cat", label: "Cat" },
+      { value: "other", label: "Other" }
     ],
-    risk_score_yes: 0,
-    risk_score_no: 55, // Increased from 45
-    priority: "medium",
-    explanation: "Inability to maintain home affects environmental health conditions",
-    response_type: "multiple_choice"
+    other_specify: true,
+    priority: "low"
   },
   {
-    item_id: "HALST_44",
-    category: "general",
-    section: "General Conditions",
-    subcategory: "professional_assessment",
-    question_text: "Have you had a professional assessment of your home environment?",
+    item_id: "D4a",
+    section: "General",
+    question_text: "In the past week, did you burn incense indoors?",
+    response_type: "multiple_choice",
     response_options: [
-      { value: "yes_recent", label: "Yes, recently", weight: 0 },
-      { value: "yes_old", label: "Yes, but long ago", weight: 0.4 },
-      { value: "no", label: "No", weight: 0.6 },
-      { value: "not_applicable", label: "Not applicable", weight: 0 }
+      { value: "yes", label: "Yes" },
+      { value: "no", label: "No" }
     ],
-    risk_score_yes: 35, // Increased from 30
-    risk_score_no: 0,
-    priority: "low",
-    explanation: "Professional assessment helps identify hidden environmental issues",
-    response_type: "multiple_choice"
+    priority: "medium"
   },
   {
-    item_id: "HALST_45",
-    category: "general",
-    section: "General Conditions",
-    subcategory: "environmental_concerns",
-    question_text: "Do you have specific environmental concerns about your home?",
+    item_id: "D5a",
+    section: "General",
+    question_text: "In the past week, were there any sources of smoke indoors apart from incense burning and cooking?",
+    response_type: "multiple_choice",
     response_options: [
-      { value: "yes", label: "Yes, multiple concerns", weight: 1 },
-      { value: "no", label: "No concerns", weight: 0 },
-      { value: "few", label: "A few concerns", weight: 0.5 },
-      { value: "one", label: "One main concern", weight: 0.3 }
+      { value: "yes", label: "Yes" },
+      { value: "no", label: "No" }
     ],
-    risk_score_yes: 65, // Increased from 55
-    risk_score_no: 0,
-    priority: "medium",
-    explanation: "Environmental concerns indicate awareness of potential health risks",
-    response_type: "multiple_choice"
+    priority: "high"
   },
   {
-    item_id: "HALST_46",
-    category: "general",
-    section: "General Conditions",
-    subcategory: "improvement_plans",
-    question_text: "Do you have plans to improve your home environment?",
-    response_options: [
-      { value: "yes_active", label: "Yes, actively planning", weight: 0 },
-      { value: "yes_future", label: "Yes, for the future", weight: 0.2 },
-      { value: "want_but_unable", label: "Want to but unable", weight: 0.8 },
-      { value: "no_plans", label: "No plans", weight: 0.4 }
-    ],
-    risk_score_yes: 50, // Increased from 40
-    risk_score_no: 0,
-    priority: "medium",
-    explanation: "Inability to improve environment indicates resource or knowledge barriers",
-    response_type: "multiple_choice"
+    item_id: "D5b_count",
+    section: "General",
+    question_text: "How many times was this source of smoke burned?",
+    response_type: "numeric",
+    response_options: "",
+    min: 0,
+    conditional: { question_id: "D5a", value: "yes" },
+    priority: "medium"
   },
   {
-    item_id: "HALST_47",
-    category: "general",
-    section: "General Conditions",
-    subcategory: "seasonal_variations",
-    question_text: "Do environmental conditions in your home vary significantly by season?",
+    item_id: "D5c_floors",
+    section: "General",
+    question_text: "On which floor was this source of smoke burned?",
+    response_type: "multi_select",
     response_options: [
-      { value: "yes_major", label: "Yes, major variations", weight: 0.8 },
-      { value: "yes_minor", label: "Yes, minor variations", weight: 0.3 },
-      { value: "no", label: "No significant variation", weight: 0 },
-      { value: "not_sure", label: "Not sure", weight: 0.2 }
+      { value: "groundfloor", label: "Ground floor" },
+      { value: "1st3rdfloor", label: "1st-3rd floor" },
+      { value: "4th6thfloor", label: "4th-6th floor" },
+      { value: "7thfloorabove", label: "7th floor and above" }
     ],
-    risk_score_yes: 45, // Increased from 35
-    risk_score_no: 0,
-    priority: "low",
-    explanation: "Seasonal variations may indicate temperature or humidity control issues",
-    response_type: "multiple_choice"
+    conditional: { question_id: "D5a", value: "yes" },
+    priority: "medium"
   },
   {
-    item_id: "HALST_48",
-    category: "general",
-    section: "General Conditions",
-    subcategory: "satisfaction",
-    question_text: "Overall, how satisfied are you with your home's environmental health?",
+    item_id: "D6a",
+    section: "General",
+    question_text: "Does this home have an indoor gas water heater?",
+    response_type: "multiple_choice",
     response_options: [
-      { value: "very_satisfied", label: "Very satisfied", weight: 0 },
-      { value: "satisfied", label: "Satisfied", weight: 0.2 },
-      { value: "neutral", label: "Neutral", weight: 0.4 },
-      { value: "dissatisfied", label: "Dissatisfied", weight: 0.8 },
-      { value: "very_dissatisfied", label: "Very dissatisfied", weight: 1 }
+      { value: "yes", label: "Yes" },
+      { value: "no", label: "No" }
     ],
-    risk_score_yes: 70, // Increased from 60
-    risk_score_no: 0,
-    priority: "high",
-    explanation: "Dissatisfaction with home environment indicates multiple health risks",
-    response_type: "multiple_choice"
+    priority: "high"
+  },
+  {
+    item_id: "D6b",
+    section: "General",
+    question_text: "Which floor is the indoor gas water heater located?",
+    response_type: "multiple_choice",
+    response_options: [
+      { value: "groundfloor", label: "Ground floor" },
+      { value: "1st3rdfloor", label: "1st-3rd floor" },
+      { value: "4th6thfloor", label: "4th-6th floor" },
+      { value: "7thfloorabove", label: "7th floor and above" }
+    ],
+    conditional: { question_id: "D6a", value: "yes" },
+    priority: "high"
+  },
+  {
+    item_id: "D6c",
+    section: "General",
+    question_text: "Does this gas water heater have a vent to the outdoors?",
+    response_type: "multiple_choice",
+    response_options: [
+      { value: "yes", label: "Yes" },
+      { value: "no", label: "No" }
+    ],
+    conditional: { question_id: "D6a", value: "yes" },
+    priority: "critical"
+  },
+  {
+    item_id: "D7",
+    section: "General",
+    question_text: "Does this home have a functional smoke detector?",
+    response_type: "multiple_choice",
+    response_options: [
+      { value: "yes", label: "Yes" },
+      { value: "no", label: "No" },
+      { value: "unsure", label: "Unsure" }
+    ],
+    priority: "high"
+  },
+  {
+    item_id: "D8",
+    section: "General",
+    question_text: "Does this home have a functional carbon monoxide detector?",
+    response_type: "multiple_choice",
+    response_options: [
+      { value: "yes", label: "Yes" },
+      { value: "no", label: "No" },
+      { value: "unsure", label: "Unsure" }
+    ],
+    priority: "critical"
+  },
+  {
+    item_id: "I1a",
+    section: "General",
+    question_text: "Are rugs and floor mats without rolled-up edges?",
+    response_type: "multiple_choice",
+    response_options: [
+      { value: "yes", label: "Yes" },
+      { value: "no", label: "No" },
+      { value: "na", label: "N/A (no floor mats)" }
+    ],
+    priority: "medium"
+  },
+  {
+    item_id: "I1b",
+    section: "General",
+    question_text: "Are non-slip mats placed under floor mats?",
+    response_type: "multiple_choice",
+    response_options: [
+      { value: "yes", label: "Yes" },
+      { value: "no", label: "No" },
+      { value: "na", label: "N/A (no floor mats)" }
+    ],
+    priority: "medium"
+  },
+  {
+    item_id: "I1c",
+    section: "General",
+    question_text: "Are all cords and furniture clear of walkways and neatly stowed away to avoid tripping?",
+    response_type: "multiple_choice",
+    response_options: [
+      { value: "yes", label: "Yes" },
+      { value: "no", label: "No" }
+    ],
+    priority: "high"
+  },
+  {
+    item_id: "I2a",
+    section: "General",
+    question_text: "Are the indoor lights bright?",
+    response_type: "multiple_choice",
+    response_options: [
+      { value: "yes", label: "Yes" },
+      { value: "no", label: "No" }
+    ],
+    priority: "medium"
+  },
+  {
+    item_id: "I2d",
+    section: "General",
+    question_text: "Are the light switches near doors and easy to reach?",
+    response_type: "multiple_choice",
+    response_options: [
+      { value: "yes", label: "Yes" },
+      { value: "no", label: "No" },
+      { value: "na", label: "N/A (no stairs)" }
+    ],
+    priority: "low"
+  },
+  {
+    item_id: "I2b",
+    section: "General",
+    question_text: "Are the stairs adequately lit?",
+    response_type: "multiple_choice",
+    response_options: [
+      { value: "yes", label: "Yes" },
+      { value: "no", label: "No" },
+      { value: "na", label: "N/A (no stairs)" }
+    ],
+    priority: "high"
+  },
+  {
+    item_id: "I3a",
+    section: "General",
+    question_text: "Is there a light switch on the upper and lower floors of the stairs?",
+    response_type: "multiple_choice",
+    response_options: [
+      { value: "yes", label: "Yes" },
+      { value: "no", label: "No" },
+      { value: "na", label: "N/A (no stairs)" }
+    ],
+    priority: "medium"
+  },
+  {
+    item_id: "I3b",
+    section: "General",
+    question_text: "Are there luminous anti-slip strips on the front edges of stairs?",
+    response_type: "multiple_choice",
+    response_options: [
+      { value: "yes", label: "Yes" },
+      { value: "no", label: "No" },
+      { value: "na", label: "N/A (no stairs)" }
+    ],
+    priority: "medium"
+  },
+  {
+    item_id: "I3c",
+    section: "General",
+    question_text: "Are there sturdy handrails alongside the stairs?",
+    response_type: "multiple_choice",
+    response_options: [
+      { value: "yes", label: "Yes" },
+      { value: "no", label: "No" },
+      { value: "na", label: "N/A (no stairs)" }
+    ],
+    priority: "high"
+  },
+  {
+    item_id: "I6a",
+    section: "General",
+    question_text: "Are the floors cleared of clutter?",
+    response_type: "multiple_choice",
+    response_options: [
+      { value: "yes", label: "Yes" },
+      { value: "no", label: "No" }
+    ],
+    priority: "high"
+  },
+  {
+    item_id: "I6c",
+    section: "General",
+    question_text: "Do you wipe up spilled water immediately?",
+    response_type: "multiple_choice",
+    response_options: [
+      { value: "yes", label: "Yes" },
+      { value: "no", label: "No" }
+    ],
+    priority: "high"
+  },
+  {
+    item_id: "I6d",
+    section: "General",
+    question_text: "Is the phone easily accessible?",
+    response_type: "multiple_choice",
+    response_options: [
+      { value: "yes", label: "Yes" },
+      { value: "no", label: "No" }
+    ],
+    priority: "low"
+  },
+  {
+    item_id: "I6e",
+    section: "General",
+    question_text: "Do you wear shoes with non-slip soles?",
+    response_type: "multiple_choice",
+    response_options: [
+      { value: "yes", label: "Yes" },
+      { value: "no", label: "No" }
+    ],
+    priority: "medium"
+  },
+  {
+    item_id: "I6f",
+    section: "General",
+    question_text: "Are loose-fitting clothes or long pants easy to trip over? Please check that your clothes fit properly",
+    response_type: "multiple_choice",
+    response_options: [
+      { value: "yes", label: "Yes" },
+      { value: "no", label: "No" },
+      { value: "na", label: "N/A (clothes fit well)" }
+    ],
+    priority: "low"
+  },
+  {
+    item_id: "I7a",
+    section: "General",
+    question_text: "Can you easily maintain your balance when walking with a cane or walker?",
+    response_type: "multiple_choice",
+    response_options: [
+      { value: "yes", label: "Yes" },
+      { value: "no", label: "No" },
+      { value: "na", label: "N/A (does not use a cane or walker)" }
+    ],
+    priority: "medium"
+  },
+  {
+    item_id: "I7b",
+    section: "General",
+    question_text: "Does your cane or walker make you feel comfortable?",
+    response_type: "multiple_choice",
+    response_options: [
+      { value: "yes", label: "Yes" },
+      { value: "no", label: "No" },
+      { value: "na", label: "N/A (does not use a cane or walker)" }
+    ],
+    priority: "low"
+  },
+  {
+    item_id: "I7c",
+    section: "General",
+    question_text: "Can you use your cane and walker in your home without obstruction from furniture?",
+    response_type: "multiple_choice",
+    response_options: [
+      { value: "yes", label: "Yes" },
+      { value: "no", label: "No" },
+      { value: "na", label: "N/A (does not use a cane or walker)" }
+    ],
+    priority: "medium"
+  },
+
+  // Kitchen Section (13 items)
+  {
+    item_id: "G1a",
+    section: "Kitchen",
+    question_text: "In the past week, how many times did anyone in the household use a gas stove?",
+    response_type: "numeric",
+    response_options: "",
+    min: 0,
+    priority: "medium"
+  },
+  {
+    item_id: "G1b",
+    section: "Kitchen",
+    question_text: "In the past week, how many times did anyone in the household use an electric/induction cooker?",
+    response_type: "numeric",
+    response_options: "",
+    min: 0,
+    priority: "low"
+  },
+  {
+    item_id: "G1c",
+    section: "Kitchen",
+    question_text: "In the past week, how many times did anyone in the household use a rice cooker?",
+    response_type: "numeric",
+    response_options: "",
+    min: 0,
+    priority: "low"
+  },
+  {
+    item_id: "G1d",
+    section: "Kitchen",
+    question_text: "In the past week, how many times did anyone in the household use an air fryer?",
+    response_type: "numeric",
+    response_options: "",
+    min: 0,
+    priority: "low"
+  },
+  {
+    item_id: "G1e",
+    section: "Kitchen",
+    question_text: "In the past week, how many times did anyone in the household use a microwave?",
+    response_type: "numeric",
+    response_options: "",
+    min: 0,
+    priority: "low"
+  },
+  {
+    item_id: "G1f",
+    section: "Kitchen",
+    question_text: "In the past week, how many times did anyone in the household use an oven?",
+    response_type: "numeric",
+    response_options: "",
+    min: 0,
+    priority: "low"
+  },
+  {
+    item_id: "G1g",
+    section: "Kitchen",
+    question_text: "In the past week, did anyone in the household use any other cooking appliances?",
+    response_type: "multiple_choice",
+    response_options: [
+      { value: "yes", label: "Yes" },
+      { value: "no", label: "No" }
+    ],
+    priority: "low"
+  },
+  {
+    item_id: "G2",
+    section: "Kitchen",
+    question_text: "In the past week, how many times did anyone cook with frying, stir-frying, or deep-frying?",
+    response_type: "numeric",
+    response_options: "",
+    min: 0,
+    priority: "medium"
+  },
+  {
+    item_id: "G3",
+    section: "Kitchen",
+    question_text: "In the past week, how often was the range hood used when cooking with the gas stove?",
+    response_type: "multiple_choice",
+    response_options: [
+      { value: "never", label: "Never" },
+      { value: "sometimes", label: "Sometimes" },
+      { value: "every_time", label: "Every time" },
+      { value: "na", label: "N/A (no range hood)" }
+    ],
+    priority: "high"
+  },
+  {
+    item_id: "G4",
+    section: "Kitchen",
+    question_text: "In the past week, when did you normally open exterior windows or doors?",
+    response_type: "multiple_choice",
+    response_options: [
+      { value: "never", label: "Never" },
+      { value: "during_after_cooking", label: "During/after cooking" },
+      { value: "always", label: "Always" },
+      { value: "na", label: "N/A (no exterior openings)" }
+    ],
+    priority: "medium"
+  },
+  {
+    item_id: "G5a",
+    section: "Kitchen",
+    question_text: "In the past week, how many times did you use a commercial cleaner to clean the kitchen?",
+    response_type: "numeric",
+    response_options: "",
+    min: 0,
+    priority: "low"
+  },
+  {
+    item_id: "G5c",
+    section: "Kitchen",
+    question_text: "In the past week, have you used anything else to clean the kitchen?",
+    response_type: "multiple_choice",
+    response_options: [
+      { value: "yes", label: "Yes" },
+      { value: "no", label: "No" }
+    ],
+    priority: "low"
+  },
+  {
+    item_id: "I2c",
+    section: "Kitchen",
+    question_text: "Are the kitchen and kitchen countertops well-lit?",
+    response_type: "multiple_choice",
+    response_options: [
+      { value: "yes", label: "Yes" },
+      { value: "no", label: "No" },
+      { value: "na", label: "N/A (no kitchen)" }
+    ],
+    priority: "medium"
+  },
+
+  // Bathroom Section (6 items)
+  {
+    item_id: "H1",
+    section: "Bathroom",
+    question_text: "What is the combined area of visible mold?",
+    response_type: "multiple_choice",
+    response_options: [
+      { value: "none", label: "None" },
+      { value: "less_than_a4_paper", label: "Less than A4 paper" },
+      { value: "more_than_a4_paper_and_less_than_standard_door", label: "More than A4 paper and less than a standard door" },
+      { value: "more_than_standard_door", label: "More than a standard door" }
+    ],
+    priority: "critical"
+  },
+  {
+    item_id: "H2",
+    section: "Bathroom",
+    question_text: "In the past week, when did you normally open the bathroom window?",
+    response_type: "multiple_choice",
+    response_options: [
+      { value: "never", label: "Never" },
+      { value: "during_after_bathing", label: "During/after bathing" },
+      { value: "always", label: "Always" },
+      { value: "na", label: "N/A (no window)" }
+    ],
+    priority: "medium"
+  },
+  {
+    item_id: "H3",
+    section: "Bathroom",
+    question_text: "In the past week, when not in use, when was the bathroom door open?",
+    response_type: "multiple_choice",
+    response_options: [
+      { value: "never", label: "Never" },
+      { value: "sometimes", label: "Sometimes" },
+      { value: "always", label: "Always (including no door)" }
+    ],
+    priority: "low"
+  },
+  {
+    item_id: "H4",
+    section: "Bathroom",
+    question_text: "Is there a bath tub?",
+    response_type: "multiple_choice",
+    response_options: [
+      { value: "yes", label: "Yes" },
+      { value: "no", label: "No" }
+    ],
+    priority: "low"
+  },
+  {
+    item_id: "H5a",
+    section: "Bathroom",
+    question_text: "In the past week, how many times did you use a commercial cleaner to clean the bathroom?",
+    response_type: "numeric",
+    response_options: "",
+    min: 0,
+    priority: "low"
+  },
+  {
+    item_id: "H5c",
+    section: "Bathroom",
+    question_text: "In the past week, have you used anything else to clean the bathroom?",
+    response_type: "multiple_choice",
+    response_options: [
+      { value: "yes", label: "Yes" },
+      { value: "no", label: "No" }
+    ],
+    priority: "low"
+  },
+
+  // Safe Section (3 items)
+  {
+    item_id: "I4a",
+    section: "Safe",
+    question_text: "Does the bathroom floor have anti-slip protection?",
+    response_type: "multiple_choice",
+    response_options: [
+      { value: "yes", label: "Yes" },
+      { value: "no", label: "No" }
+    ],
+    priority: "high"
+  },
+  {
+    item_id: "I4b",
+    section: "Safe",
+    question_text: "Are there grab bars installed next to the shower or toilet?",
+    response_type: "multiple_choice",
+    response_options: [
+      { value: "yes", label: "Yes" },
+      { value: "no", label: "No" }
+    ],
+    priority: "high"
+  },
+  {
+    item_id: "I6b",
+    section: "Safe",
+    question_text: "Are bathing supplies and towels within reach without having to bend down?",
+    response_type: "multiple_choice",
+    response_options: [
+      { value: "yes", label: "Yes" },
+      { value: "no", label: "No" }
+    ],
+    priority: "medium"
   }
 ];
