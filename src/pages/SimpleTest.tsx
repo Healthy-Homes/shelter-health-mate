@@ -1,7 +1,6 @@
-// src/pages/SimpleTest.tsx - With Question Translation Supports and Export Modal
+// src/pages/SimpleTest.tsx - Fixed with proper multi-select detection
 
 import React, { useState } from 'react';
-
 import { useTranslation } from 'react-i18next';
 import LanguageSwitcher from '../components/LanguageSwitcher';
 import { ExportModal } from '../components/reports/ExportModal';
@@ -19,19 +18,20 @@ import { SDOH_QUESTIONS } from '../data/sdohChecklist';
 type HomeChecklistType = 'taiwan' | 'us' | null;
 type AssessmentPhase = 'selection' | 'assessment' | 'results';
 
-// Section constants with translation keys
+// Updated Taiwan sections to match HALST data
 const TAIWAN_SECTIONS = [
-  "layoutAndBuilding",
-  "bedroomEnvironment", 
-  "kitchenEnvironment",
-  "bathroomEnvironment",
-  "livingAreas",
-  "generalConditions"
+  "layout",
+  "bedroomDay1",
+  "bedroomDay8",
+  "general",
+  "kitchen",
+  "bathroom",
+  "safe"
 ];
 
 const US_SECTIONS = [
   "yardAndExterior",
-  "exteriorRoof", 
+  "exteriorRoof",
   "basementCrawlspace",
   "hvacEquipment",
   "attic",
@@ -46,7 +46,7 @@ const ELDER_SECTIONS = [
   "floors",
   "stairsSteps",
   "kitchen",
-  "bedrooms", 
+  "bedrooms",
   "bathrooms",
   "livingAreas",
   "fireSafety",
@@ -63,14 +63,15 @@ const SDOH_SECTIONS = [
   "stressAndSafety"
 ];
 
-// Section mapping for backwards compatibility with existing questions
+// Updated section mapping for Taiwan HALST
 const SECTION_MAPPING: Record<string, string> = {
-  "layoutAndBuilding": "Layout and Building Structure",
-  "bedroomEnvironment": "Bedroom Environment",
-  "kitchenEnvironment": "Kitchen Environment",
-  "bathroomEnvironment": "Bathroom Environment",
-  "livingAreas": "Living Areas",
-  "generalConditions": "General Conditions",
+  "layout": "Layout",
+  "bedroomDay1": "Bedroom (Day 1)",
+  "bedroomDay8": "Bedroom (Day 8)",
+  "general": "General",
+  "kitchen": "Kitchen",
+  "bathroom": "Bathroom",
+  "safe": "Safe",
   "yardAndExterior": "Yard and Exterior",
   "exteriorRoof": "Exterior Roof, Walls, and Windows",
   "basementCrawlspace": "Basement and Crawlspace",
@@ -83,9 +84,9 @@ const SECTION_MAPPING: Record<string, string> = {
   "garage": "Garage",
   "floors": "Floors",
   "stairsSteps": "Stairs and Steps",
-  "kitchen": "Kitchen",
   "bedrooms": "Bedrooms",
   "bathrooms": "Bathrooms",
+  "livingAreas": "Living Areas",
   "fireSafety": "Fire Safety",
   "electricalSafety": "Electrical Safety",
   "medications": "Medications",
@@ -97,332 +98,64 @@ const SECTION_MAPPING: Record<string, string> = {
   "stressAndSafety": "Stress and Safety"
 };
 
-// Assessment type mapping for translation keys
-const ASSESSMENT_TYPE_MAP: Record<string, string> = {
-  'HALST': 'taiwan',
-  'US': 'us', 
-  'ELDER': 'elder',
-  'SDOH': 'sdoh'
-};
-
-// Helper functions for response options compatibility
+// Helper functions
 const getResponseOptions = (question: ChecklistItem): string[] => {
   if (Array.isArray(question.response_options)) {
-    // New format: array of objects
     return question.response_options.map(opt => opt.value);
   } else {
-    // Old format: comma-separated string
     return question.response_options.split(',').map(opt => opt.trim());
   }
 };
 
-const getResponseLabel = (question: ChecklistItem, value: string, t: any): string => {
-  console.log('🔍 DEBUG - getResponseLabel called with:', { value, questionId: question.item_id });
-  
-  // Exact mappings based on VALUES from Taiwan HALST response data
-  const exactMappings: { [key: string]: string } = {
-    // Housing types (VALUES from your checklist data)
-    'apartment': 'apartment',
-    'house': 'house', 
-    'dormitory': 'dormitory',
-    'other': 'other',
-    
-    // Floor levels  
-    'ground': 'groundfloor',
-    '1_3': '1st3rdfloor', 
-    '4_6': '4th6thfloor',
-    'above_6': 'above6thfloor',
-    
-    // Basic responses
-    'yes': 'yes',
-    'no': 'no',
-    'not_sure': 'notsure',
-    'partial': 'partially',           // ← FROM DEBUG: "partial" 
-    'partially': 'partially',
-    'sometimes': 'sometimes',         // ← FROM DEBUG: "sometimes"
-    'occasionally': 'occasionally',
-    
-    // Quality ratings  
-    'excellent': 'excellent',
-    'good': 'good',
-    'fair': 'fair', 
-    'poor': 'poor',
-    
-    // Building age
-    'new': 'lessthan10years',
-    'moderate': '1030years', 
-    'old': 'morethan30years',
-    
-    // Frequency with modifiers
-    'yes_regularly': 'yesregularly',
-    'yes_frequently': 'yesfrequently',
-    
-    // Time frequencies
-    'weekly': 'weekly',
-    'biweekly': 'every2weeks',
-    'monthly': 'monthly',
-    'rarely': 'rarely',
-    
-    // Partial quantities
-    'some': 'someappliances',
-    'some_products': 'someproducts',
-    
-    // Comfort levels
-    'very_comfortable': 'verycomfortable',
-    'comfortable': 'comfortable', 
-    'somewhat_comfortable': 'somewhatcomfortable',
-    'uncomfortable': 'uncomfortable',
-    
-    // Special cases from your debug output
-    'outdoor_only': 'outdoorpetsonly',
-    'no_carpet': 'nocarpetsrugs',
-    'excellent_new': 'excellentnew',
-    'good_condition': 'goodcondition',
-    'fair_condition': 'faircondition', 
-    'poor_old': 'poorold',
-    
-    // Condition modifiers
-    'inadequate': 'inadequate',
-    'poor_circulation': 'poorcirculation',
-    'moderate_amount': 'moderateamount',
-    'minor': 'minorissues',          // ← FROM DEBUG: "minor"
-    'minor_issues': 'minorissues',
-    'minor_amounts': 'minoramounts',
-    'limited': 'limitedstorage',
-    'some_need_repair': 'someneedrepair',
-    'poor_ventilation': 'poorventilation',
-    'variable': 'variablepressure',
-    'inconsistent': 'inconsistent',
-    'concerns': 'someconcerns',
-    
-    // Frequency options
-    'weekly_less': 'weeklyorless',
-    'few_days': 'everyfewdays',
-    'daily': 'daily',
-    'constantly': 'constantly',
-    'seasonal': 'onlyseasonally',
-    'outdoors_only': 'outdoorsonly',
-    
-    // Additional options from debug
-    'barely': 'barelyAdequate',      // ← FROM DEBUG: "barely"
-    'barely_adequate': 'barelyAdequate',
-    'have_concerns': 'havesomeconcerns',
-    'some_issues': 'someneedrepair',
-  'need_help': 'needhelp',
-  'yes_recent': 'yesrecently', 
-  'yes_old': 'yeslongago',
-  'not_applicable': 'notapplicable',
-  'few': 'afewconcerns',
-  'one': 'onemainconcern',
-  'yes_active': 'yesactivelyplanning',
-  'yes_future': 'yesforthefuture',
-  'want_but_unable': 'wantbutunable',
-  'no_plans': 'noplans',
-  'yes_major': 'yesmajorvarations',
-  'yes_minor': 'yesminorvarations', 
-  'very_satisfied': 'verysatisfied',
-  'satisfied': 'satisfied',
-  'neutral': 'neutral',
-  'dissatisfied': 'dissatisfied',
-  'very_dissatisfied': 'verydissatisfied',
-    // US-specific mappings (add these, remove duplicate not_applicable):
-'unsure': 'notsure', 
-'very_poor': 'verypoor',
-'not_working': 'notworking',
-'none': 'none',
-'severe': 'severe',
-    // Add these to your existing exactMappings object:
-'often_true': 'oftentrue',
-'sometimes_true': 'sometimestrue', 
-'never_true': 'nevertrue',
-'own': 'own',
-'temporary': 'temporary',
-'transitional': 'transitional',
-'less_than_once_week': 'lessthanoceweek',
-'1_2_times_week': '12timesweek',
-'3_5_times_week': '35timesweek',
-'5_or_more_times_week': '5ormoretimesweek',
-'not_at_all': 'notatall',
-'a_little_bit': 'alittlebit',
-'quite_a_bit': 'quiteabit',
-'very_much': 'verymuch',
-'no_stairs': 'nostairs',
-'no_tub_shower': 'notubshower',
-'no_smoke_alarms': 'nosmokealarms',
-'dont_use_these': 'dontusethese',
-'no_medications': 'nomedications',
-'no_gas_appliances': 'nogasappliances',
-'no_hvac_system': 'nohvacsystem',
-    'somewhat': 'somewhat'
-  };
-  
-  // First try direct translation of the value
-  if (exactMappings[value]) {
-    const translationKey = `questions.common.responses.${exactMappings[value]}`;
-    const translated = t(translationKey);
-    console.log('🔍 DEBUG - Translation attempt (direct value):', { 
-      originalValue: value, 
-      mappedKey: exactMappings[value], 
-      translationKey, 
-      translated 
-    });
-    if (translated !== translationKey) {
-      return translated;
-    }
-  }
-  
-  // If we have response_options array, get the label and try to translate it
-  if (Array.isArray(question.response_options)) {
-    const option = question.response_options.find(opt => opt.value === value);
-    if (option) {
-      // Try to find translation mapping for the label
-      const labelMappings: { [key: string]: string } = {
-        'Apartment': 'apartment',
-        'House': 'house',
-        'Dormitory': 'dormitory', 
-        'Other': 'other',
-        'Ground floor': 'groundfloor',
-        '1st-3rd floor': '1st3rdfloor',
-        '4th-6th floor': '4th6thfloor',
-        'Above 6th floor': 'above6thfloor',
-        'Yes': 'yes',
-        'No': 'no',
-        'Not sure': 'notsure',
-        'Partially': 'partially',
-        'Sometimes': 'sometimes',
-        'Occasionally': 'occasionally',
-        'Excellent': 'excellent',
-        'Good': 'good',
-        'Fair': 'fair',
-        'Poor': 'poor',
-        'Less than 10 years': 'lessthan10years',
-        '10-30 years': '1030years',
-        'More than 30 years': 'morethan30years',
-        'Very comfortable': 'verycomfortable',
-        'Comfortable': 'comfortable',
-        'Somewhat comfortable': 'somewhatcomfortable', 
-        'Uncomfortable': 'uncomfortable',
-        'Barely adequate': 'barelyAdequate',
-        'Minor issues': 'minorissues',
-        'Minor amounts': 'minoramounts'
-      };
-      
-      if (labelMappings[option.label]) {
-        const translationKey = `questions.common.responses.${labelMappings[option.label]}`;
-        const translated = t(translationKey);
-        console.log('🔍 DEBUG - Translation attempt (label):', { 
-          originalLabel: option.label, 
-          mappedKey: labelMappings[option.label], 
-          translationKey, 
-          translated 
-        });
-        if (translated !== translationKey) {
-          return translated;
-        }
-      }
-      
-      // Fallback to original label if no translation found
-      console.log('🔍 DEBUG - No translation found for label, returning original:', option.label);
-      return option.label;
-    }
-  }
-  
-  // Final fallback: return original value
-  console.log('🔍 DEBUG - No translation found, returning original value:', value);
-  return value;
+// Fixed: Use exact key lookup without string manipulation
+const getResponseLabel = (q: ChecklistItem, value: string, t: any): string => {
+  const key = `questions.common.responses.${value}`;
+  const translated = t(key);
+  if (translated !== key) return translated;
+  const opt = Array.isArray(q.response_options) ? q.response_options.find(o => o.value === value) : undefined;
+  return opt?.label ?? value;
 };
 
-// Helper function to get translated question text
 const getQuestionText = (question: ChecklistItem, t: any): string => {
-  // Handle different ID formats
-  let assessmentType: string;
-  
-  if (question.item_id.includes('_')) {
-    // Format: "HALST_1" -> "HALST"
-    assessmentType = question.item_id.split('_')[0];
-  } else {
-    // Format: "US001" -> "US"  
-    assessmentType = question.item_id.match(/^[A-Z]+/)?.[0] || '';
-  }
-  
-  console.log('🔍 DEBUG - getQuestionText called:', {
-    questionId: question.item_id,
-    assessmentType,
-    hasUnderscore: question.item_id.includes('_')
-  });
-  
-  // Map to translation namespace
-  const translationNamespace = ASSESSMENT_TYPE_MAP[assessmentType];
-  
-  console.log('🔍 DEBUG - Translation namespace lookup:', {
-    assessmentType,
-    translationNamespace,
-    ASSESSMENT_TYPE_MAP
-  });
-  
-  if (translationNamespace) {
-    const translationKey = `questions.${translationNamespace}.${question.item_id}.question`;
-    const translated = t(translationKey);
-    
-    console.log('🔍 DEBUG - Question translation attempt:', {
-      translationKey,
-      translated: translated.substring(0, 50) + '...',
-      isTranslated: translated !== translationKey
-    });
-    
-    if (translated !== translationKey) {
-      return translated;
-    }
-  }
-  
-  console.log('🔍 DEBUG - Using fallback text for:', question.item_id);
-  return question.question;
+  // For HALST questions, just return the question_text directly
+  // since it's already in English
+  return question.question_text;
 };
 
-// Helper function to get translated explanation
-const getQuestionExplanation = (question: ChecklistItem, t: any): string => {
-  // Extract assessment type from question ID
-  const idParts = question.item_id.split('_');
-  const assessmentType = idParts[0];
-  
-  // Map to translation namespace
-  const translationNamespace = ASSESSMENT_TYPE_MAP[assessmentType];
-  
-  if (translationNamespace && question.explanation) {
-    const translationKey = `questions.${translationNamespace}.${question.item_id}.explanation`;
-    const translated = t(translationKey);
-    
-    // If translation exists and is different from the key, use it
-    if (translated !== translationKey) {
-      return translated;
-    }
-  }
-  
-  // Fallback to original explanation or empty string
-  return question.explanation || '';
-};
-
-// Helper function to get questions by section - now handles both key and full name
 const getQuestionsBySection = (questions: ChecklistItem[], sectionKey: string): ChecklistItem[] => {
   const sectionName = SECTION_MAPPING[sectionKey] || sectionKey;
   return questions.filter(q => q.section === sectionName);
 };
 
-// Helper function to get translated section names in results
 const getSectionDisplayName = (sectionName: string, t: any): string => {
-  // Find the section key that matches the English name
   const sectionKey = Object.keys(SECTION_MAPPING).find(key => SECTION_MAPPING[key] === sectionName);
-  
   if (sectionKey) {
     return t(`sections.names.${sectionKey}`);
   }
-  
-  // Fallback to original name if no translation found
   return sectionName;
 };
 
+// Fixed: Check if question is multi-select based on response_type
+const isMultiSelect = (q: ChecklistItem): boolean => q.response_type === 'multi_select';
+
+// Fixed: Handle multi-select parents in conditionals
+const shouldShowQuestion = (q: ChecklistItem, responses: ResponseMap): boolean => {
+  const c = q.conditional;
+  if (!c) return true;
+  const parent = responses[c.question_id];
+  if (parent == null || parent === '') return false;
+
+  const parentSet = new Set(String(parent).split('|').filter(Boolean));
+
+  if (c.value !== undefined) return parentSet.has(c.value);
+  if (c.value_not !== undefined) {
+    const nots = Array.isArray(c.value_not) ? c.value_not : [c.value_not];
+    return !nots.some(n => parentSet.has(n));
+  }
+  return true;
+};
+
 export default function SimpleTest() {
-  // Add translation hook
   const { t } = useTranslation();
 
   // State management
@@ -439,19 +172,16 @@ export default function SimpleTest() {
   const getCurrentQuestions = (): ChecklistItem[] => {
     let questions: ChecklistItem[] = [];
     
-    // Add home checklist questions
     if (homeChecklistType === 'taiwan') {
       questions = [...questions, ...TAIWAN_HALST_QUESTIONS];
     } else if (homeChecklistType === 'us') {
       questions = [...questions, ...US_HEALTHY_HOMES_QUESTIONS];
     }
     
-    // Add Elder Safety if selected
     if (includeElderSafety) {
       questions = [...questions, ...ELDER_SAFETY_QUESTIONS];
     }
     
-    // Add SDOH if selected
     if (includeSDOH) {
       questions = [...questions, ...SDOH_QUESTIONS];
     }
@@ -462,19 +192,16 @@ export default function SimpleTest() {
   const getCurrentSections = (): string[] => {
     let sections: string[] = [];
     
-    // Add home checklist sections
     if (homeChecklistType === 'taiwan') {
       sections = [...sections, ...TAIWAN_SECTIONS];
     } else if (homeChecklistType === 'us') {
       sections = [...sections, ...US_SECTIONS];
     }
     
-    // Add Elder Safety sections if selected
     if (includeElderSafety) {
       sections = [...sections, ...ELDER_SECTIONS];
     }
     
-    // Add SDOH sections if selected
     if (includeSDOH) {
       sections = [...sections, ...SDOH_SECTIONS];
     }
@@ -522,14 +249,9 @@ export default function SimpleTest() {
     setCurrentSectionIndex(sectionIndex);
   };
 
-  // Calculate results
+  // Fixed: Use correct signature for calculateOverallRisk
   const calculateResults = () => {
-    const itemRisks = currentQuestions.map(question => {
-      const userResponse = responses[question.item_id] || '';
-      return calculateItemRisk(question, userResponse);
-    });
-    
-    return calculateOverallRisk(itemRisks);
+    return calculateOverallRisk(currentQuestions, responses);
   };
 
   // Reset assessment
@@ -543,7 +265,7 @@ export default function SimpleTest() {
     setSectionNotes({});
   };
 
-  // Start assessment - FIXED: Now allows SDOH alone
+  // Start assessment
   const startAssessment = () => {
     if (homeChecklistType || includeElderSafety || includeSDOH) {
       setPhase('assessment');
@@ -552,19 +274,22 @@ export default function SimpleTest() {
 
   // Calculate progress
   const getTotalAnsweredQuestions = () => {
-    return Object.keys(responses).filter(key => responses[key] !== '').length;
+    return Object.keys(responses).filter(key => 
+      !key.endsWith('__other') && responses[key] !== ''
+    ).length;
   };
 
   const getSectionProgress = (sectionKey: string) => {
     const questions = getQuestionsBySection(currentQuestions, sectionKey);
-    const answered = questions.filter(q => responses[q.item_id]).length;
+    const answered = questions.filter(q => 
+      shouldShowQuestion(q, responses) && responses[q.item_id]
+    ).length;
     return { total: questions.length, answered, percentage: Math.round((answered / questions.length) * 100) };
   };
 
   // Render functions
   const renderSelectionPhase = () => (
     <div className="max-w-4xl mx-auto p-6">
-      {/* Header with Language Switcher */}
       <div className="flex justify-between items-center mb-8">
         <div className="text-center flex-1">
           <h1 className="text-3xl font-bold text-gray-900 mb-4">{t('assessment.title')}</h1>
@@ -574,7 +299,6 @@ export default function SimpleTest() {
       </div>
 
       <div className="space-y-6">
-        {/* Home Inspection Choice */}
         <div className="bg-white p-6 rounded-lg shadow-md border">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('assessment.homeInspection')}</h2>
           <p className="text-gray-600 mb-4">{t('assessment.chooseRegion')}</p>
@@ -627,7 +351,6 @@ export default function SimpleTest() {
           </div>
         </div>
 
-        {/* Elder Safety Assessment */}
         <div className="bg-orange-50 p-6 rounded-lg shadow-md border border-orange-200">
           <label className="flex items-start cursor-pointer">
             <input
@@ -645,7 +368,6 @@ export default function SimpleTest() {
           </label>
         </div>
 
-        {/* SDOH Assessment */}
         <div className="bg-purple-50 p-6 rounded-lg shadow-md border border-purple-200">
           <label className="flex items-start cursor-pointer">
             <input
@@ -663,7 +385,6 @@ export default function SimpleTest() {
           </label>
         </div>
 
-        {/* Assessment Summary */}
         {(homeChecklistType || includeElderSafety || includeSDOH) && (
           <div className="bg-blue-50 p-6 rounded-lg border border-blue-200">
             <h3 className="font-semibold text-gray-900 mb-2">{t('assessment.assessmentSummary')}</h3>
@@ -675,7 +396,6 @@ export default function SimpleTest() {
           </div>
         )}
 
-        {/* Action Buttons */}
         <div className="flex justify-between items-center pt-6">
           <div className="flex space-x-4">
             <a 
@@ -711,7 +431,6 @@ export default function SimpleTest() {
 
   const renderAssessmentPhase = () => (
     <div className="max-w-6xl mx-auto p-6">
-      {/* Header with Language Switcher */}
       <div className="mb-6">
         <div className="flex justify-between items-center mb-4">
           <h1 className="text-2xl font-bold text-gray-900">{t('assessment.title')}</h1>
@@ -723,7 +442,6 @@ export default function SimpleTest() {
           </div>
         </div>
         
-        {/* Progress Bar */}
         <div className="w-full bg-gray-200 rounded-full h-2">
           <div 
             className="bg-blue-600 h-2 rounded-full transition-all duration-300"
@@ -733,7 +451,6 @@ export default function SimpleTest() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* Section Navigation */}
         <div className="lg:col-span-1">
           <div className="bg-white rounded-lg shadow-md p-4 sticky top-6">
             <h2 className="font-semibold text-gray-900 mb-4">{t('sections.progress', { current: currentSectionIndex + 1, total: currentSections.length })}</h2>
@@ -779,10 +496,8 @@ export default function SimpleTest() {
           </div>
         </div>
 
-        {/* Questions Area */}
         <div className="lg:col-span-3">
           <div className="bg-white rounded-lg shadow-md">
-            {/* Section Header */}
             <div className="p-6 border-b border-gray-200">
               <h2 className="text-xl font-bold text-gray-900 mb-2">{t(`sections.names.${currentSectionKey}`)}</h2>
               <div className="flex justify-between items-center text-sm text-gray-600">
@@ -791,46 +506,92 @@ export default function SimpleTest() {
               </div>
             </div>
 
-            {/* Questions */}
             <div className="p-6 space-y-6">
               {sectionQuestions.map((question) => {
-                const responseOptions = getResponseOptions(question);
+                if (!shouldShowQuestion(question, responses)) {
+                  return null;
+                }
+
                 const currentResponse = responses[question.item_id] || '';
-                const questionText = getQuestionText(question, t);
-                const explanationText = getQuestionExplanation(question, t);
+                const showOtherSpecify = (question as any).other_specify && currentResponse === 'other';
                 
                 return (
                   <div key={question.item_id} className="border-b border-gray-100 pb-6 last:border-b-0">
                     <h3 className="text-lg font-medium text-gray-900 mb-3">
-                      {questionText}
+                      {getQuestionText(question, t)}
                     </h3>
-                    
-                    {explanationText && (
-                      <p className="text-sm text-gray-600 mb-4">{explanationText}</p>
-                    )}
 
-                    <div className="space-y-2">
-                      {responseOptions.map((option) => (
-                        <label key={option} className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
-                          <input
-                            type="radio"
-                            name={question.item_id}
-                            value={option}
-                            checked={currentResponse === option}
-                            onChange={(e) => handleResponse(question.item_id, e.target.value)}
-                            className="mr-3"
-                          />
-                          <span className="text-gray-800">
-                            {getResponseLabel(question, option, t)}
-                          </span>
-                        </label>
-                      ))}
-                    </div>
+                    {question.response_type === 'numeric' ? (
+                      <input
+                        type="number"
+                        value={currentResponse}
+                        onChange={(e) => handleResponse(question.item_id, e.target.value)}
+                        min={question.min}
+                        max={question.max}
+                        className="w-32 p-2 border rounded-lg"
+                        placeholder="Enter value"
+                      />
+                    ) : question.response_type === 'multiple_choice' || question.response_type === 'multi_select' || question.response_type === 'binary' ? (
+                      <div className="space-y-2">
+                        {(() => {
+                          const opts = getResponseOptions(question);
+                          if (isMultiSelect(question)) {
+                            // Fixed: Multi-select with checkboxes
+                            const set = new Set((responses[question.item_id] || '').split('|').filter(Boolean));
+                            return opts.map(opt => (
+                              <label key={opt} className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+                                <input
+                                  type="checkbox"
+                                  checked={set.has(opt)}
+                                  onChange={(e) => {
+                                    const next = new Set(set);
+                                    e.target.checked ? next.add(opt) : next.delete(opt);
+                                    handleResponse(question.item_id, Array.from(next).join('|'));
+                                  }}
+                                  className="mr-3"
+                                />
+                                <span className="text-gray-800">
+                                  {getResponseLabel(question, opt, t)}
+                                </span>
+                              </label>
+                            ));
+                          } else {
+                            // Single select with radios
+                            return opts.map((option) => (
+                              <label key={option} className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+                                <input
+                                  type="radio"
+                                  name={question.item_id}
+                                  value={option}
+                                  checked={currentResponse === option}
+                                  onChange={(e) => handleResponse(question.item_id, e.target.value)}
+                                  className="mr-3"
+                                />
+                                <span className="text-gray-800">
+                                  {getResponseLabel(question, option, t)}
+                                </span>
+                              </label>
+                            ));
+                          }
+                        })()}
+                      </div>
+                    ) : null}
+
+                    {showOtherSpecify && (
+                      <div className="mt-3">
+                        <input
+                          type="text"
+                          placeholder="Please specify..."
+                          value={responses[`${question.item_id}__other`] || ''}
+                          onChange={(e) => handleResponse(`${question.item_id}__other`, e.target.value)}
+                          className="w-full p-2 border rounded-lg"
+                        />
+                      </div>
+                    )}
                   </div>
                 );
               })}
 
-              {/* Section Notes */}
               <div className="bg-gray-50 p-4 rounded-lg">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   {t('sections.sectionNotes')}
@@ -849,7 +610,6 @@ export default function SimpleTest() {
               </div>
             </div>
 
-            {/* Navigation */}
             <div className="p-6 border-t border-gray-200 flex justify-between">
               <button
                 onClick={goToPreviousSection}
@@ -883,7 +643,6 @@ export default function SimpleTest() {
 
     return (
       <div className="max-w-4xl mx-auto p-6">
-        {/* Header with Language Switcher */}
         <div className="flex justify-between items-center mb-8">
           <div className="text-center flex-1">
             <h1 className="text-3xl font-bold text-gray-900 mb-4">{t('results.title')}</h1>
@@ -893,7 +652,6 @@ export default function SimpleTest() {
         </div>
 
         <div className="bg-white rounded-lg shadow-md">
-          {/* Overall Score */}
           <div className="p-8 border-b border-gray-200">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
               <div className="p-6 bg-red-50 rounded-lg">
@@ -903,18 +661,16 @@ export default function SimpleTest() {
               </div>
               
               <div className={`p-6 rounded-lg ${
-                results.risk_level === 'Critical' ? 'bg-red-100' :
-                results.risk_level === 'High' ? 'bg-orange-100' :
-                results.risk_level === 'Elevated' ? 'bg-yellow-100' :
-                results.risk_level === 'Moderate' ? 'bg-blue-100' : 'bg-green-100'
+                results.risk_level === 'critical' ? 'bg-red-100' :
+                results.risk_level === 'high' ? 'bg-orange-100' :
+                results.risk_level === 'medium' ? 'bg-yellow-100' : 'bg-green-100'
               }`}>
                 <div className={`text-3xl font-bold ${
-                  results.risk_level === 'Critical' ? 'text-red-600' :
-                  results.risk_level === 'High' ? 'text-orange-600' :
-                  results.risk_level === 'Elevated' ? 'text-yellow-600' :
-                  results.risk_level === 'Moderate' ? 'text-blue-600' : 'text-green-600'
+                  results.risk_level === 'critical' ? 'text-red-600' :
+                  results.risk_level === 'high' ? 'text-orange-600' :
+                  results.risk_level === 'medium' ? 'text-yellow-600' : 'text-green-600'
                 }`}>
-                  {t(`results.riskLevels.${results.risk_level.toLowerCase()}`)}
+                  {t(`results.riskLevels.${(results.risk_level || '').toLowerCase()}`)}
                 </div>
                 <div className="text-gray-800">{t('results.riskLevel')}</div>
               </div>
@@ -927,7 +683,6 @@ export default function SimpleTest() {
             </div>
           </div>
 
-          {/* Issues Summary */}
           {results.questions_with_issues > 0 && (
             <div className="p-6 border-b border-gray-200">
               <h2 className="text-xl font-bold text-gray-900 mb-4">{t('results.issuesIdentified')}</h2>
@@ -942,12 +697,11 @@ export default function SimpleTest() {
             </div>
           )}
 
-          {/* Priority Interventions */}
           {results.priority_interventions.length > 0 && (
             <div className="p-6 border-b border-gray-200">
               <h2 className="text-xl font-bold text-gray-900 mb-4">{t('results.priorityInterventions')}</h2>
               <div className="space-y-3">
-                {results.priority_interventions.slice(0, 10).map((intervention, index) => (
+                {results.priority_interventions.slice(0, 10).map((intervention) => (
                   <div key={intervention.item_id} className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
                     <div className="flex-1">
                       <div className="font-medium text-gray-900">{getSectionDisplayName(intervention.section, t)}</div>
@@ -968,7 +722,6 @@ export default function SimpleTest() {
             </div>
           )}
 
-          {/* Section Notes Summary */}
           {Object.keys(sectionNotes).length > 0 && (
             <div className="p-6 border-b border-gray-200">
               <h2 className="text-xl font-bold text-gray-900 mb-4">{t('results.sectionNotes')}</h2>
@@ -985,7 +738,6 @@ export default function SimpleTest() {
             </div>
           )}
 
-          {/* Action Buttons */}
           <div className="p-6">
             <div className="flex justify-between items-center">
               <button
@@ -1024,7 +776,6 @@ export default function SimpleTest() {
       {phase === 'assessment' && renderAssessmentPhase()}
       {phase === 'results' && renderResultsPhase()}
       
-      {/* Export Modal */}
       <ExportModal
         isOpen={showExportModal}
         onClose={() => setShowExportModal(false)}
