@@ -117,12 +117,37 @@ const getResponseLabel = (q: ChecklistItem, value: string, t: any): string => {
 };
 
 const getQuestionText = (question: ChecklistItem, t: any): string => {
-  // Try to get translated question first for Taiwan HALST
+  // Try to get translated question for Taiwan HALST
   if (question.item_id && TAIWAN_HALST_QUESTIONS.some(q => q.item_id === question.item_id)) {
     const translationKey = `questions.taiwan.${question.item_id}.question`;
     const translated = t(translationKey);
-    
-    // If translation exists (not the same as the key), use it
+    if (translated !== translationKey) {
+      return translated;
+    }
+  }
+  
+  // Try US Healthy Homes translations
+  if (question.item_id && US_HEALTHY_HOMES_QUESTIONS.some(q => q.item_id === question.item_id)) {
+    const translationKey = `questions.us.${question.item_id}.question`;
+    const translated = t(translationKey);
+    if (translated !== translationKey) {
+      return translated;
+    }
+  }
+  
+  // Try Elder Safety translations
+  if (question.item_id && ELDER_SAFETY_QUESTIONS.some(q => q.item_id === question.item_id)) {
+    const translationKey = `questions.elder.${question.item_id}.question`;
+    const translated = t(translationKey);
+    if (translated !== translationKey) {
+      return translated;
+    }
+  }
+  
+  // Try SDOH translations
+  if (question.item_id && SDOH_QUESTIONS.some(q => q.item_id === question.item_id)) {
+    const translationKey = `questions.sdoh.${question.item_id}.question`;
+    const translated = t(translationKey);
     if (translated !== translationKey) {
       return translated;
     }
