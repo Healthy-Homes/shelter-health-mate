@@ -109,11 +109,21 @@ const getResponseOptions = (question: ChecklistItem): string[] => {
 
 // Fixed: Use exact key lookup without string manipulation
 const getResponseLabel = (q: ChecklistItem, value: string, t: any): string => {
+  // First try the value directly
   const key = `questions.common.responses.${value}`;
   const translated = t(key);
   if (translated !== key) return translated;
+  
+  // If not found, try to get the label from response_options and translate that
   const opt = Array.isArray(q.response_options) ? q.response_options.find(o => o.value === value) : undefined;
-  return opt?.label ?? value;
+  if (opt?.label) {
+    const labelKey = `questions.common.responses.${opt.label}`;
+    const labelTranslated = t(labelKey);
+    if (labelTranslated !== labelKey) return labelTranslated;
+    return opt.label;
+  }
+  
+  return value;
 };
 
 const getQuestionText = (question: ChecklistItem, t: any): string => {
