@@ -117,8 +117,18 @@ const getResponseLabel = (q: ChecklistItem, value: string, t: any): string => {
 };
 
 const getQuestionText = (question: ChecklistItem, t: any): string => {
-  // For HALST questions, just return the question_text directly
-  // since it's already in English
+  // Try to get translated question first for Taiwan HALST
+  if (question.item_id && TAIWAN_HALST_QUESTIONS.some(q => q.item_id === question.item_id)) {
+    const translationKey = `questions.taiwan.${question.item_id}.question`;
+    const translated = t(translationKey);
+    
+    // If translation exists (not the same as the key), use it
+    if (translated !== translationKey) {
+      return translated;
+    }
+  }
+  
+  // Fall back to the English question_text from the data
   return question.question_text;
 };
 
