@@ -106,7 +106,7 @@ export const US_HEALTHY_HOMES_QUESTIONS: ChecklistItem[] = [
     subcategory: "siding",
     question_key: "Is exterior siding in good condition?",
     question_text: "Is exterior siding/walls in good condition (no cracks, holes)?",
-    response_type: "scale",
+    response_type: "binary",
     response_options: [
   { value: "yes", label: "Yes" },
   { value: "no", label: "No" }
