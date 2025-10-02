@@ -778,7 +778,8 @@ const startAssessment = () => {
 
         <div className="bg-white rounded-lg shadow-md">
           <div className="p-8 border-b border-gray-200">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+            <div className="text-center">
+             {/* Risk Score Box - Commented Out
               <div className="p-6 bg-red-50 rounded-lg">
                 <div className="text-3xl font-bold text-red-600">{results.risk_score}</div>
                 <div className="text-red-800">{t('results.riskScore')}</div>
@@ -799,6 +800,7 @@ const startAssessment = () => {
                 </div>
                 <div className="text-gray-800">{t('results.riskLevel')}</div>
               </div>
+              */}
               
               <div className="p-6 bg-blue-50 rounded-lg">
                 <div className="text-3xl font-bold text-blue-600">{completionRate}%</div>
