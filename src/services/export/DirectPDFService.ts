@@ -2,7 +2,7 @@
 import jsPDF from 'jspdf';
 import { ChecklistItem, ResponseMap } from '../../types/checklist';
 // Logo as base64
-const SHELTER_HEALTH_LOGO = '';  // Empty for now
+const SHELTER_HEALTH_LOGO_URL = '/shelter-health-logo.png';
 
 export class DirectPDFService {
   private pageHeight = 280;
@@ -78,11 +78,15 @@ export class DirectPDFService {
 this.doc.setFillColor(59, 130, 246);
 this.doc.rect(0, 0, 210, 30, 'F');
 
-// Add logo on right side of header
-try {
-  this.doc.addImage(SHELTER_HEALTH_LOGO, 'PNG', 165, 5, 35, 20);
-} catch (error) {
-  console.log('Logo failed to load:', error);
+// Add logo on right side of header (loaded from URL)
+const img = new Image();
+img.src = SHELTER_HEALTH_LOGO_URL;
+if (img.complete) {
+  try {
+    this.doc.addImage(img, 'PNG', 165, 5, 35, 20);
+  } catch (error) {
+    console.log('Logo failed to load:', error);
+  }
 }
 
 this.doc.setTextColor(255, 255, 255);
