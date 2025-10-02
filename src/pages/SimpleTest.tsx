@@ -212,7 +212,11 @@ export default function SimpleTest() {
   const [responses, setResponses] = useState<ResponseMap>({});
   const [sectionNotes, setSectionNotes] = useState<SectionNotes>({});
   const [showExportModal, setShowExportModal] = useState(false);
-
+const [consentGiven, setConsentGiven] = useState(false);
+const [residentName, setResidentName] = useState('');
+const [numberOfResidents, setNumberOfResidents] = useState(1);
+const [tenureMonths, setTenureMonths] = useState('');
+  
   // Get current questions and sections
   const getCurrentQuestions = (): ChecklistItem[] => {
     let questions: ChecklistItem[] = [];
@@ -311,11 +315,35 @@ export default function SimpleTest() {
   };
 
   // Start assessment
-  const startAssessment = () => {
-    if (homeChecklistType || includeElderSafety || includeSDOH) {
-      setPhase('assessment');
-    }
+const startAssessment = () => {
+  // Validate consent and required fields
+  if (!consentGiven) {
+    alert(t('consent.required', 'Please provide consent to continue'));
+    return;
+  }
+  
+  if (!residentName.trim()) {
+    alert(t('resident.nameRequired', 'Please enter resident name or ID'));
+    return;
+  }
+  
+  if (!homeChecklistType && !includeElderSafety && !includeSDOH) {
+    alert(t('assessment.selectAtLeastOne', 'Please select at least one assessment'));
+    return;
+  }
+  
+  // Store resident info
+  const residentInfo = {
+    name: residentName,
+    numberOfResidents,
+    tenureMonths,
+    consentGiven,
+    consentDate: new Date().toISOString()
   };
+  
+  localStorage.setItem('residentInfo', JSON.stringify(residentInfo));
+  setPhase('assessment');
+};
 
   // Calculate progress
   const getTotalAnsweredQuestions = () => {
@@ -343,6 +371,72 @@ export default function SimpleTest() {
         <LanguageSwitcher />
       </div>
 
+{/* Consent Section */}
+<div className="bg-green-50 p-6 rounded-lg shadow-md border border-green-200 mb-6">
+  <h2 className="text-xl font-semibold text-gray-900 mb-4">
+    {t('consent.title', 'Consent for Home Health Assessment')}
+  </h2>
+  <p className="text-gray-700 mb-4">
+    {t('consent.text', 'This assessment will help identify potential health and safety concerns in your living environment. Your responses will be kept confidential and used solely for improving your home health conditions.')}
+  </p>
+  <label className="flex items-start cursor-pointer">
+    <input
+      type="checkbox"
+      checked={consentGiven}
+      onChange={(e) => setConsentGiven(e.target.checked)}
+      className="mt-1 mr-3 text-green-600"
+    />
+    <span className="text-gray-800">
+      {t('consent.agree', 'I consent to participate in this home health assessment')}
+    </span>
+  </label>
+</div>
+
+{/* Resident Information Section */}
+<div className="bg-blue-50 p-6 rounded-lg shadow-md border border-blue-200 mb-6">
+  <h2 className="text-xl font-semibold text-gray-900 mb-4">
+    {t('resident.title', 'Resident Information')}
+  </h2>
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">
+        {t('resident.nameLabel', 'Name/ID')}*
+      </label>
+      <input
+        type="text"
+        placeholder={t('resident.namePlaceholder', 'Enter name or ID')}
+        value={residentName}
+        onChange={(e) => setResidentName(e.target.value)}
+        className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+      />
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">
+        {t('resident.countLabel', 'Number of Residents')}
+      </label>
+      <input
+        type="number"
+        min="1"
+        value={numberOfResidents}
+        onChange={(e) => setNumberOfResidents(parseInt(e.target.value) || 1)}
+        className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+      />
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">
+        {t('resident.tenureLabel', 'Months in Residence')}
+      </label>
+      <input
+        type="text"
+        placeholder={t('resident.tenurePlaceholder', 'e.g., 12')}
+        value={tenureMonths}
+        onChange={(e) => setTenureMonths(e.target.value)}
+        className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+      />
+    </div>
+  </div>
+</div>
+      
       <div className="space-y-6">
         <div className="bg-white p-6 rounded-lg shadow-md border">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('assessment.homeInspection')}</h2>
@@ -827,6 +921,13 @@ export default function SimpleTest() {
         results={calculateResults()}
         responses={responses}
         questions={currentQuestions}
+          residentInfo={{
+    name: residentName,
+    numberOfResidents,
+    tenureMonths,
+    consentGiven,
+    consentDate: new Date().toISOString()
+  }}
       />
     </div>
   );
