@@ -159,38 +159,22 @@ export class PDFReportService {
           </div>
         </div>
 
-        <!-- Executive Summary -->
+       <!-- Executive Summary -->
         <div class="executive-summary" style="margin-bottom: 30px;">
           <h2 style="color: #1f2937; font-size: 18px; margin: 0 0 15px 0; font-weight: bold;">
-            ${isEnglish ? 'Executive Summary' : '執行摘要'}
+            ${isEnglish ? 'Assessment Summary' : '評估摘要'}
           </h2>
           
           <div style="display: flex; gap: 20px; margin-bottom: 20px;">
-            <div style="flex: 1; background: #fef2f2; padding: 15px; border-radius: 8px; border-left: 4px solid #dc2626;">
-              <div style="font-size: 24px; font-weight: bold; color: #dc2626;">${results.risk_score}</div>
-              <div style="font-size: 12px; color: #7f1d1d;">${isEnglish ? 'Risk Score' : '風險評分'}</div>
-              <div style="font-size: 10px; color: #7f1d1d;">${isEnglish ? 'out of 100' : '滿分 100 分'}</div>
-            </div>
-            
-            <div style="flex: 1; background: ${this.getRiskLevelColor(results.risk_level).bg}; padding: 15px; border-radius: 8px; border-left: 4px solid ${this.getRiskLevelColor(results.risk_level).border};">
-              <div style="font-size: 24px; font-weight: bold; color: ${this.getRiskLevelColor(results.risk_level).text};">
-                ${isEnglish ? results.risk_level : this.translateRiskLevel(results.risk_level)}
-              </div>
-              <div style="font-size: 12px; color: ${this.getRiskLevelColor(results.risk_level).text};">
-                ${isEnglish ? 'Risk Level' : '風險等級'}
-              </div>
-            </div>
-            
             <div style="flex: 1; background: #eff6ff; padding: 15px; border-radius: 8px; border-left: 4px solid #2563eb;">
               <div style="font-size: 24px; font-weight: bold; color: #2563eb;">${completionRate}%</div>
               <div style="font-size: 12px; color: #1e40af;">${isEnglish ? 'Completion Rate' : '完成率'}</div>
               <div style="font-size: 10px; color: #1e40af;">
-                ${Object.keys(responses).length}/${questions.length} ${isEnglish ? 'questions' : '題'}
+                ${Object.keys(responses).length}/${questions.length} ${isEnglish ? 'questions answered' : '題已回答'}
               </div>
             </div>
           </div>
         </div>
-
        <!-- Items Requiring Attention -->
 <div class="issues-section" style="margin-bottom: 30px;">
   <h2 style="color: #1f2937; font-size: 18px; margin: 0 0 15px 0; font-weight: bold;">
@@ -199,38 +183,7 @@ export class PDFReportService {
   ${this.generateIssuesList(questions, responses, isEnglish)}
 </div>
 
-        <!-- Priority Interventions -->
-        <div class="interventions" style="margin-bottom: 30px;">
-          <h2 style="color: #1f2937; font-size: 18px; margin: 0 0 15px 0; font-weight: bold;">
-            ${isEnglish ? 'Priority Interventions' : '優先處理事項'}
-          </h2>
-          
-          ${results.priority_interventions.slice(0, 10).map((intervention, index) => `
-            <div style="margin-bottom: 15px; padding: 12px; border-radius: 6px; background: #f9fafb; border-left: 3px solid ${this.getPriorityColor(intervention.priority)};">
-              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
-                <div style="flex: 1;">
-                  <div style="font-weight: bold; color: #1f2937; margin-bottom: 4px;">
-                    ${intervention.section}
-                  </div>
-                  ${intervention.explanation ? `
-                    <div style="font-size: 12px; color: #6b7280; margin-bottom: 8px;">
-                      ${intervention.explanation}
-                    </div>
-                  ` : ''}
-                  <div style="display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 10px; font-weight: bold; color: white; background: ${this.getPriorityColor(intervention.priority)};">
-                    ${isEnglish ? intervention.priority : this.translatePriority(intervention.priority)} ${isEnglish ? 'priority' : '優先級'}
-                  </div>
-                </div>
-                <div style="text-align: right; margin-left: 15px;">
-                  <div style="font-size: 18px; font-weight: bold; color: ${intervention.risk_score > 70 ? '#dc2626' : intervention.risk_score > 40 ? '#f59e0b' : '#10b981'};">
-                    ${intervention.risk_score}/100
-                  </div>
-                </div>
-              </div>
-            </div>
-          `).join('')}
-        </div>
-
+       <!-- Priority Interventions removed - no risk scoring -->
         <!-- Assessment Details by Section -->
         <div class="section-details" style="margin-bottom: 30px;">
           <h2 style="color: #1f2937; font-size: 18px; margin: 0 0 15px 0; font-weight: bold;">
@@ -260,6 +213,56 @@ export class PDFReportService {
     `;
   }
 
+/**
+   * Generates list of issues requiring attention
+   */
+  private static generateIssuesList(
+    questions: ChecklistItem[],
+    responses: ResponseMap,
+    isEnglish: boolean
+  ): string {
+    const issues = questions.filter(q => {
+      const response = responses[q.item_id];
+      if (!response || response === '') return false;
+      
+      // Check if this response indicates a problem based on risk scores
+      if (response === 'yes' && q.risk_score_yes > q.risk_score_no) return true;
+      if (response === 'no' && q.risk_score_no > q.risk_score_yes) return true;
+      // For other responses that indicate problems
+      if (['poor', 'very_poor', 'broken', 'absent', 'not_working'].includes(response)) return true;
+      
+      return false;
+    });
+
+    if (issues.length === 0) {
+      return `<p style="color: #10b981; font-style: italic;">
+        ${isEnglish ? 'No critical issues identified.' : '未發現重要問題。'}
+      </p>`;
+    }
+
+    // Group by section
+    const issuesBySection = issues.reduce((acc, q) => {
+      if (!acc[q.section]) acc[q.section] = [];
+      acc[q.section].push(q);
+      return acc;
+    }, {} as Record<string, ChecklistItem[]>);
+
+    return Object.entries(issuesBySection).map(([section, items]) => `
+      <div style="margin-bottom: 15px;">
+        <h3 style="color: #4a7c59; font-size: 14px; margin-bottom: 8px; font-weight: bold;">
+          ${section}
+        </h3>
+        <ul style="margin: 0; padding-left: 20px;">
+          ${items.map(item => `
+            <li style="margin-bottom: 4px; color: #374151; font-size: 12px;">
+              ${item.question_text}
+            </li>
+          `).join('')}
+        </ul>
+      </div>
+    `).join('');
+  }
+  
   /**
    * Generates detailed findings by section
    */
