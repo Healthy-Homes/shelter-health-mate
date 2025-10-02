@@ -247,20 +247,23 @@ export class PDFReportService {
       return acc;
     }, {} as Record<string, ChecklistItem[]>);
 
-    return Object.entries(issuesBySection).map(([section, items]) => `
-      <div style="margin-bottom: 15px;">
-        <h3 style="color: #4a7c59; font-size: 14px; margin-bottom: 8px; font-weight: bold;">
-          ${section}
-        </h3>
-        <ul style="margin: 0; padding-left: 20px;">
-          ${items.map(item => `
-            <li style="margin-bottom: 4px; color: #374151; font-size: 12px;">
-              ${item.question_text}
-            </li>
-          `).join('')}
-        </ul>
-      </div>
-    `).join('');
+   return Object.entries(issuesBySection).map(([section, items]) => `
+  <div style="margin-bottom: 15px;">
+    <h3 style="color: #4a7c59; font-size: 14px; margin-bottom: 8px; font-weight: bold;">
+      ${section}
+    </h3>
+    <ul style="margin: 0; padding-left: 20px;">
+      ${items.map(item => {
+        const response = responses[item.item_id];
+        return `
+          <li style="margin-bottom: 4px; color: #374151; font-size: 12px;">
+            ${item.question_text} <span style="color: #dc2626; font-weight: bold;">(${response})</span>
+          </li>
+        `;
+      }).join('')}
+    </ul>
+  </div>
+`).join('');
   }
   
   /**
