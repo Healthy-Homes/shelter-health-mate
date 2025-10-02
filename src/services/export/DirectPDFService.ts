@@ -5,6 +5,7 @@ import { ChecklistItem, ResponseMap } from '../../types/checklist';
 const SHELTER_HEALTH_LOGO_URL = '/shelter-health-logo.png';
 
 export class DirectPDFService {
+  private doc: jsPDF;
   private pageHeight = 280;
   private currentY = 20;
   private leftMargin = 20;
@@ -65,27 +66,33 @@ export class DirectPDFService {
     this.doc.text(`${percentage}%`, this.leftMargin + 105, y);
   }
 
-  generateReport(
-    responses: ResponseMap,
-    questions: ChecklistItem[],
-    language: string = 'en',
-    residentInfo?: any
-  ): Blob {
+async generateReport(
+  responses: ResponseMap,
+  questions: ChecklistItem[],
+  language: string = 'en',
+  residentInfo?: any
+): Promise<Blob> {
     const isEnglish = language === 'en';
+
+// Load logo asynchronously
+let logoImage: HTMLImageElement | null = null;
+try {
+  logoImage = await this.loadImage(SHELTER_HEALTH_LOGO_URL);
+} catch (error) {
+  console.log('Logo failed to load, continuing without it:', error);
+}
     
   
 // Header with logo
 this.doc.setFillColor(59, 130, 246);
 this.doc.rect(0, 0, 210, 30, 'F');
 
-// Add logo on right side of header (loaded from URL)
-const img = new Image();
-img.src = SHELTER_HEALTH_LOGO_URL;
-if (img.complete) {
+// Add logo if loaded successfully
+if (logoImage) {
   try {
-    this.doc.addImage(img, 'PNG', 165, 5, 35, 20);
+    this.doc.addImage(logoImage, 'PNG', 165, 5, 35, 20);
   } catch (error) {
-    console.log('Logo failed to load:', error);
+    console.log('Failed to add logo to PDF:', error);
   }
 }
 
@@ -206,4 +213,14 @@ this.doc.setTextColor(255, 255, 255);
     });
     return Array.from(map.entries());
   }
+
+  private loadImage(url: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = url;
+  });
+}
+  
 }
