@@ -100,12 +100,12 @@ const generateClinicalReport = async () => {
     if (useDirectPDF) {
       // New direct PDF generation
       const directPDF = new DirectPDFService();
-      const pdfBlob = directPDF.generateReport(
-        responses,
-        questions,
-        'en',
-        residentInfo
-      );
+      const pdfBlob = await directPDF.generateReport(
+  responses,
+  questions,
+  'en',
+  residentInfo
+);
       
       PDFReportService.downloadReport(pdfBlob, `assessment-${Date.now()}.pdf`);
       setSuccessMessage('Clinical report generated successfully!');
