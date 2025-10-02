@@ -535,22 +535,8 @@ const startAssessment = () => {
           </div>
         )}
 
-        <div className="flex justify-between items-center pt-6">
-          <div className="flex space-x-4">
-            <a 
-              href="/"
-              className="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors"
-            >
-              {t('navigation.backToMain')}
-            </a>
-            
-            <button
-              onClick={() => testScoringConsistency()}
-              className="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors"
-            >
-              {t('analysis.runScoringAnalysis')}
-            </button>
-          </div>
+        <div className="flex justify-end pt-6">
+         
 
           <button
             onClick={startAssessment}
