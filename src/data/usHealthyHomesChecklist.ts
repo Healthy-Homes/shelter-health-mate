@@ -42,15 +42,18 @@ export const US_HEALTHY_HOMES_QUESTIONS: ChecklistItem[] = [
     risk_score_no: 0,
     priority: "medium"
   },
-  {
+{
     item_id: "US004",
     category: "yard_exterior",
     section: "Yard and Exterior",
     subcategory: "walkways",
     question_key: "Are walkways and driveways in good condition?",
     question_text: "Are walkways and driveways in good condition (no major cracks, level)?",
-    response_type: "scale",
-    response_options: "excellent,good,fair,poor,very_poor",
+    response_type: "binary",
+    response_options: [
+      { value: "yes", label: "Yes" },
+      { value: "no", label: "No" }
+    ],
     risk_score_yes: 0,
     risk_score_no: 55,
     priority: "medium"
@@ -104,7 +107,10 @@ export const US_HEALTHY_HOMES_QUESTIONS: ChecklistItem[] = [
     question_key: "Is exterior siding in good condition?",
     question_text: "Is exterior siding/walls in good condition (no cracks, holes)?",
     response_type: "scale",
-    response_options: "excellent,good,fair,poor,very_poor",
+    response_options: [
+  { value: "yes", label: "Yes" },
+  { value: "no", label: "No" }
+],
     risk_score_yes: 0,
     risk_score_no: 65,
     priority: "high"
@@ -338,15 +344,18 @@ export const US_HEALTHY_HOMES_QUESTIONS: ChecklistItem[] = [
     risk_score_no: 35,
     priority: "low"
   },
-  {
+ {
     item_id: "US026",
     category: "plumbing",
     section: "Plumbing, Fixtures, and Appliances",
     subcategory: "leaks",
     question_key: "Any visible leaks under sinks?",
     question_text: "Are there visible leaks under sinks or around toilets?",
-    response_type: "scale",
-    response_options: "none,minor,moderate,severe",
+    response_type: "binary",
+    response_options: [
+      { value: "yes", label: "Yes" },
+      { value: "no", label: "No" }
+    ],
     risk_score_yes: 65,
     risk_score_no: 0,
     priority: "high"
@@ -405,15 +414,18 @@ export const US_HEALTHY_HOMES_QUESTIONS: ChecklistItem[] = [
     risk_score_no: 55,
     priority: "medium"
   },
-  {
+{
     item_id: "US031",
     category: "interior_structure",
     section: "Interior Walls, Ceilings, Windows, and Doors",
     subcategory: "ceiling_condition",
     question_key: "Are ceilings in good condition?",
     question_text: "Are ceilings in good condition (no stains, sagging)?",
-    response_type: "scale",
-    response_options: "excellent,good,fair,poor,very_poor",
+    response_type: "binary",
+    response_options: [
+      { value: "yes", label: "Yes" },
+      { value: "no", label: "No" }
+    ],
     risk_score_yes: 0,
     risk_score_no: 60,
     priority: "medium"
@@ -472,15 +484,18 @@ export const US_HEALTHY_HOMES_QUESTIONS: ChecklistItem[] = [
   },
 
   // Appliances
-  {
+{
     item_id: "US036",
     category: "appliances",
     section: "Appliances",
     subcategory: "stove_condition",
     question_key: "Is stove/oven working safely?",
     question_text: "Is the stove/oven working safely and properly?",
-    response_type: "scale",
-    response_options: "excellent,good,fair,poor,not_working",
+    response_type: "binary",
+    response_options: [
+      { value: "yes", label: "Yes" },
+      { value: "no", label: "No" }
+    ],
     risk_score_yes: 0,
     risk_score_no: 75,
     priority: "high"
@@ -552,15 +567,18 @@ export const US_HEALTHY_HOMES_QUESTIONS: ChecklistItem[] = [
     risk_score_no: 60,
     priority: "medium"
   },
-  {
+ {
     item_id: "US042",
     category: "electrical",
     section: "Electrical Equipment",
     subcategory: "circuit_breaker",
     question_key: "Is electrical panel accessible and labeled?",
     question_text: "Is the electrical panel accessible and properly labeled?",
-    response_type: "scale",
-    response_options: "excellent,good,fair,poor,very_poor",
+    response_type: "binary",
+    response_options: [
+      { value: "yes", label: "Yes" },
+      { value: "no", label: "No" }
+    ],
     risk_score_yes: 0,
     risk_score_no: 55,
     priority: "medium"
