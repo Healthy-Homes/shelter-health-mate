@@ -10,7 +10,26 @@
     "loading": "載入中...",
     "error": "載入資料時發生錯誤",
     "languages": { "en": "English", "zh": "繁體中文" }
+},
+  "consent": {
+    "title": "家庭健康評估同意書",
+    "text": "此評估將有助於識別您居住環境中的潛在健康和安全問題。您的回覆將被保密，僅用於改善您的家庭健康狀況。",
+    "agree": "我同意參與這項家庭健康評估",
+    "required": "請提供同意以繼續"
   },
+  "resident": {
+    "title": "居民資訊",
+    "nameLabel": "姓名/識別碼",
+    "namePlaceholder": "輸入姓名或識別碼",
+    "nameRequired": "請輸入居民姓名或識別碼",
+    "countLabel": "居民人數",
+    "tenureLabel": "居住月數",
+    "tenurePlaceholder": "例如：12"
+  },
+  "assessment": {
+    "selectAtLeastOne": "請選擇至少一種評估類型"
+  },
+  
   "common": {
     "yes": "是",
     "no": "否", 
