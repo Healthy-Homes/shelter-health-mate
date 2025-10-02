@@ -13,6 +13,13 @@ interface ExportModalProps {
   results: AssessmentResults;
   responses: ResponseMap;
   questions: ChecklistItem[];
+  residentInfo?: {
+    name: string;
+    numberOfResidents: number;
+    tenureMonths: string;
+    consentGiven: boolean;
+    consentDate: string;
+  };
 }
 
 type ExportFormat = 'clinical-pdf' | 'fhir-json' | 'research-csv';
@@ -22,7 +29,8 @@ const ExportModal: React.FC<ExportModalProps> = ({
   onClose,
   results,
   responses,
-  questions
+  questions,
+  residentInfo
 }) => {
   const { t } = useTranslation();
   const [selectedFormat, setSelectedFormat] = useState<ExportFormat>('clinical-pdf');
