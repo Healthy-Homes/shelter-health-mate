@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { PDFReportService } from '../../services/export/PDFReportService';
 import { QRCodeService, QRCodeResult } from '../../services/export/QRCodeService';
 import { AssessmentResults, ResponseMap, ChecklistItem } from '../../types/checklist';
+import { DirectPDFService } from '../../services/export/DirectPDFService';
 
 interface ExportModalProps {
   isOpen: boolean;
@@ -13,6 +14,13 @@ interface ExportModalProps {
   results: AssessmentResults;
   responses: ResponseMap;
   questions: ChecklistItem[];
+  residentInfo?: {
+    name: string;
+    numberOfResidents: number;
+    tenureMonths: string;
+    consentGiven: boolean;
+    consentDate: string;
+  };
 }
 
 type ExportFormat = 'clinical-pdf' | 'fhir-json' | 'research-csv';
@@ -22,7 +30,8 @@ const ExportModal: React.FC<ExportModalProps> = ({
   onClose,
   results,
   responses,
-  questions
+  questions,
+  residentInfo
 }) => {
   const { t } = useTranslation();
   const [selectedFormat, setSelectedFormat] = useState<ExportFormat>('clinical-pdf');
@@ -85,28 +94,45 @@ const generateClinicalReport = async () => {
   console.log('Starting PDF generation...');
   
   try {
-    const pdfBlob = await PDFReportService.generateReport(
-      results,
-      responses,
-      questions,
-      'en',
-      {
-        includeRawData,
-        includeQRCode: false
+    // Toggle between direct PDF and html2canvas approach
+    const useDirectPDF = true;
+    
+    if (useDirectPDF) {
+      // New direct PDF generation
+      const directPDF = new DirectPDFService();
+      const pdfBlob = await directPDF.generateReport(
+  responses,
+  questions,
+  'en',
+  residentInfo
+);
+      
+      PDFReportService.downloadReport(pdfBlob, `assessment-${Date.now()}.pdf`);
+      setSuccessMessage('Clinical report generated successfully!');
+    } else {
+      // Original html2canvas approach
+      const pdfBlob = await PDFReportService.generateReport(
+        results,
+        responses,
+        questions,
+        'en',
+        {
+          includeRawData,
+          includeQRCode: false
+        }
+      );
+
+      console.log('PDF blob generated:', pdfBlob);
+      console.log('Blob size:', pdfBlob.size);
+      console.log('Blob type:', pdfBlob.type);
+
+      if (pdfBlob.size === 0) {
+        throw new Error('Generated PDF is empty');
       }
-    );
 
-    console.log('PDF blob generated:', pdfBlob);
-    console.log('Blob size:', pdfBlob.size);
-    console.log('Blob type:', pdfBlob.type);
-
-    if (pdfBlob.size === 0) {
-      throw new Error('Generated PDF is empty');
+      PDFReportService.downloadReport(pdfBlob);
+      setSuccessMessage('Clinical report generated successfully!');
     }
-
-    PDFReportService.downloadReport(pdfBlob);
-    setSuccessMessage('Clinical report generated successfully!');
-
   } catch (error) {
     console.error('PDF generation error:', error);
     setError('Failed to generate PDF: ' + error.message);

@@ -10,7 +10,27 @@
     "loading": "Loading...",
     "error": "Error loading data",
     "languages": { "en": "English", "zh": "繁體中文" }
+
+},
+  "consent": {
+    "title": "Consent for Home Health Assessment",
+    "text": "This assessment will help identify potential health and safety concerns in your living environment. Your responses will be kept confidential and used solely for improving your home health conditions.",
+    "agree": "I consent to participate in this home health assessment",
+    "required": "Please provide consent to continue"
   },
+  "resident": {
+    "title": "Resident Information",
+    "nameLabel": "Name/ID",
+    "namePlaceholder": "Enter name or ID",
+    "nameRequired": "Please enter resident name or ID",
+    "countLabel": "Number of Residents",
+    "tenureLabel": "Months in Residence",
+    "tenurePlaceholder": "e.g., 12"
+  },
+  "assessment": {
+    "selectAtLeastOne": "Please select at least one assessment type"
+  },
+  
   "common": {
     "yes": "Yes",
     "no": "No",

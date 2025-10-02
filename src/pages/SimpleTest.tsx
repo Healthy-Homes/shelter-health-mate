@@ -6,9 +6,9 @@ import LanguageSwitcher from '../components/LanguageSwitcher';
 import { ExportModal } from '../components/reports/ExportModal';
 
 import { ChecklistItem, ResponseMap, SectionNotes } from '../types/checklist';
-import { calculateItemRisk, calculateOverallRisk, getCompletenessMessage } from '../utils/riskScoring';
-import { testScoringConsistency } from '../utils/scoringAnalysis';
-
+// Risk scoring imports - commented out for future use
+// import { calculateItemRisk, calculateOverallRisk, getCompletenessMessage } from '../utils/riskScoring';
+// import { testScoringConsistency } from '../utils/scoringAnalysis';
 // Import all checklist data
 import { TAIWAN_HALST_QUESTIONS } from '../data/taiwanHalstChecklist';
 import { US_HEALTHY_HOMES_QUESTIONS } from '../data/usHealthyHomesChecklist';
@@ -212,7 +212,11 @@ export default function SimpleTest() {
   const [responses, setResponses] = useState<ResponseMap>({});
   const [sectionNotes, setSectionNotes] = useState<SectionNotes>({});
   const [showExportModal, setShowExportModal] = useState(false);
-
+const [consentGiven, setConsentGiven] = useState(false);
+const [residentName, setResidentName] = useState('');
+const [numberOfResidents, setNumberOfResidents] = useState(1);
+const [tenureMonths, setTenureMonths] = useState('');
+  
   // Get current questions and sections
   const getCurrentQuestions = (): ChecklistItem[] => {
     let questions: ChecklistItem[] = [];
@@ -295,9 +299,21 @@ export default function SimpleTest() {
   };
 
   // Fixed: Use correct signature for calculateOverallRisk
-  const calculateResults = () => {
-    return calculateOverallRisk(currentQuestions, responses);
+// Simplified calculateResults - no risk scoring
+const calculateResults = () => {
+  const answeredQuestions = getTotalAnsweredQuestions();
+  const totalQuestions = currentQuestions.length;
+  
+  return {
+    risk_score: 0,  // Dummy value
+    risk_level: 'none',  // Dummy value
+    questions_with_issues: 0,  // Dummy value
+    priority_interventions: [],  // Empty array
+    completion_rate: Math.round((answeredQuestions / totalQuestions) * 100),
+    answered_count: answeredQuestions,
+    total_count: totalQuestions
   };
+};
 
   // Reset assessment
   const resetAssessment = () => {
@@ -311,11 +327,35 @@ export default function SimpleTest() {
   };
 
   // Start assessment
-  const startAssessment = () => {
-    if (homeChecklistType || includeElderSafety || includeSDOH) {
-      setPhase('assessment');
-    }
+const startAssessment = () => {
+  // Validate consent and required fields
+  if (!consentGiven) {
+    alert(t('consent.required', 'Please provide consent to continue'));
+    return;
+  }
+  
+  if (!residentName.trim()) {
+    alert(t('resident.nameRequired', 'Please enter resident name or ID'));
+    return;
+  }
+  
+  if (!homeChecklistType && !includeElderSafety && !includeSDOH) {
+    alert(t('assessment.selectAtLeastOne', 'Please select at least one assessment'));
+    return;
+  }
+  
+  // Store resident info
+  const residentInfo = {
+    name: residentName,
+    numberOfResidents,
+    tenureMonths,
+    consentGiven,
+    consentDate: new Date().toISOString()
   };
+  
+  localStorage.setItem('residentInfo', JSON.stringify(residentInfo));
+  setPhase('assessment');
+};
 
   // Calculate progress
   const getTotalAnsweredQuestions = () => {
@@ -343,6 +383,72 @@ export default function SimpleTest() {
         <LanguageSwitcher />
       </div>
 
+{/* Consent Section */}
+<div className="bg-green-50 p-6 rounded-lg shadow-md border border-green-200 mb-6">
+  <h2 className="text-xl font-semibold text-gray-900 mb-4">
+    {t('consent.title', 'Consent for Home Health Assessment')}
+  </h2>
+  <p className="text-gray-700 mb-4">
+    {t('consent.text', 'This assessment will help identify potential health and safety concerns in your living environment. Your responses will be kept confidential and used solely for improving your home health conditions.')}
+  </p>
+  <label className="flex items-start cursor-pointer">
+    <input
+      type="checkbox"
+      checked={consentGiven}
+      onChange={(e) => setConsentGiven(e.target.checked)}
+      className="mt-1 mr-3 text-green-600"
+    />
+    <span className="text-gray-800">
+      {t('consent.agree', 'I consent to participate in this home health assessment')}
+    </span>
+  </label>
+</div>
+
+{/* Resident Information Section */}
+<div className="bg-blue-50 p-6 rounded-lg shadow-md border border-blue-200 mb-6">
+  <h2 className="text-xl font-semibold text-gray-900 mb-4">
+    {t('resident.title', 'Resident Information')}
+  </h2>
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">
+        {t('resident.nameLabel', 'Name/ID')}*
+      </label>
+      <input
+        type="text"
+        placeholder={t('resident.namePlaceholder', 'Enter name or ID')}
+        value={residentName}
+        onChange={(e) => setResidentName(e.target.value)}
+        className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+      />
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">
+        {t('resident.countLabel', 'Number of Residents')}
+      </label>
+      <input
+        type="number"
+        min="1"
+        value={numberOfResidents}
+        onChange={(e) => setNumberOfResidents(parseInt(e.target.value) || 1)}
+        className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+      />
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">
+        {t('resident.tenureLabel', 'Months in Residence')}
+      </label>
+      <input
+        type="text"
+        placeholder={t('resident.tenurePlaceholder', 'e.g., 12')}
+        value={tenureMonths}
+        onChange={(e) => setTenureMonths(e.target.value)}
+        className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+      />
+    </div>
+  </div>
+</div>
+      
       <div className="space-y-6">
         <div className="bg-white p-6 rounded-lg shadow-md border">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('assessment.homeInspection')}</h2>
@@ -441,22 +547,8 @@ export default function SimpleTest() {
           </div>
         )}
 
-        <div className="flex justify-between items-center pt-6">
-          <div className="flex space-x-4">
-            <a 
-              href="/"
-              className="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors"
-            >
-              {t('navigation.backToMain')}
-            </a>
-            
-            <button
-              onClick={() => testScoringConsistency()}
-              className="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors"
-            >
-              {t('analysis.runScoringAnalysis')}
-            </button>
-          </div>
+        <div className="flex justify-end pt-6">
+         
 
           <button
             onClick={startAssessment}
@@ -682,7 +774,6 @@ export default function SimpleTest() {
   );
 
   const renderResultsPhase = () => {
-    const results = calculateResults();
     const answeredQuestions = getTotalAnsweredQuestions();
     const completionRate = Math.round((answeredQuestions / currentQuestions.length) * 100);
 
@@ -698,7 +789,8 @@ export default function SimpleTest() {
 
         <div className="bg-white rounded-lg shadow-md">
           <div className="p-8 border-b border-gray-200">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+            <div className="text-center">
+             {/* Risk Score Box - Commented Out
               <div className="p-6 bg-red-50 rounded-lg">
                 <div className="text-3xl font-bold text-red-600">{results.risk_score}</div>
                 <div className="text-red-800">{t('results.riskScore')}</div>
@@ -719,6 +811,7 @@ export default function SimpleTest() {
                 </div>
                 <div className="text-gray-800">{t('results.riskLevel')}</div>
               </div>
+              */}
               
               <div className="p-6 bg-blue-50 rounded-lg">
                 <div className="text-3xl font-bold text-blue-600">{completionRate}%</div>
@@ -728,44 +821,48 @@ export default function SimpleTest() {
             </div>
           </div>
 
-          {results.questions_with_issues > 0 && (
-            <div className="p-6 border-b border-gray-200">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">{t('results.issuesIdentified')}</h2>
-              <div className="bg-orange-50 p-4 rounded-lg">
-                <div className="text-orange-800 font-medium">
-                  {t('results.areasNeedAttention', { count: results.questions_with_issues, total: answeredQuestions })}
-                </div>
-                <div className="text-sm text-orange-600 mt-1">
-                  {t('results.reviewInterventions')}
-                </div>
-              </div>
-            </div>
-          )}
+         {/* Issues Identified Section - Commented Out
+{results.questions_with_issues > 0 && (
+  <div className="p-6 border-b border-gray-200">
+    <h2 className="text-xl font-bold text-gray-900 mb-4">{t('results.issuesIdentified')}</h2>
+    <div className="bg-orange-50 p-4 rounded-lg">
+      <div className="text-orange-800 font-medium">
+        {t('results.areasNeedAttention', { count: results.questions_with_issues, total: answeredQuestions })}
+      </div>
+      <div className="text-sm text-orange-600 mt-1">
+        {t('results.reviewInterventions')}
+      </div>
+    </div>
+  </div>
+)}
+*/}
 
-          {results.priority_interventions.length > 0 && (
-            <div className="p-6 border-b border-gray-200">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">{t('results.priorityInterventions')}</h2>
-              <div className="space-y-3">
-                {results.priority_interventions.slice(0, 10).map((intervention) => (
-                  <div key={intervention.item_id} className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
-                    <div className="flex-1">
-                      <div className="font-medium text-gray-900">{getSectionDisplayName(intervention.section, t)}</div>
-                      <div className="text-sm text-gray-600">{t(`results.priorities.${intervention.priority}`)}</div>
-                    </div>
-                    <div className="text-right">
-                      <div className={`text-lg font-bold ${
-                        intervention.risk_score > 70 ? 'text-red-600' :
-                        intervention.risk_score > 40 ? 'text-yellow-600' :
-                        'text-green-600'
-                      }`}>
-                        {intervention.risk_score}/100
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+         {/* Priority Interventions Section - Commented Out
+{results.priority_interventions.length > 0 && (
+  <div className="p-6 border-b border-gray-200">
+    <h2 className="text-xl font-bold text-gray-900 mb-4">{t('results.priorityInterventions')}</h2>
+    <div className="space-y-3">
+      {results.priority_interventions.slice(0, 10).map((intervention) => (
+        <div key={intervention.item_id} className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
+          <div className="flex-1">
+            <div className="font-medium text-gray-900">{getSectionDisplayName(intervention.section, t)}</div>
+            <div className="text-sm text-gray-600">{t(`results.priorities.${intervention.priority}`)}</div>
+          </div>
+          <div className="text-right">
+            <div className={`text-lg font-bold ${
+              intervention.risk_score > 70 ? 'text-red-600' :
+              intervention.risk_score > 40 ? 'text-yellow-600' :
+              'text-green-600'
+            }`}>
+              {intervention.risk_score}/100
             </div>
-          )}
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+)}
+*/}
 
           {Object.keys(sectionNotes).length > 0 && (
             <div className="p-6 border-b border-gray-200">
@@ -827,6 +924,13 @@ export default function SimpleTest() {
         results={calculateResults()}
         responses={responses}
         questions={currentQuestions}
+          residentInfo={{
+    name: residentName,
+    numberOfResidents,
+    tenureMonths,
+    consentGiven,
+    consentDate: new Date().toISOString()
+  }}
       />
     </div>
   );
