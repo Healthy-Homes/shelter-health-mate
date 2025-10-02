@@ -810,44 +810,48 @@ const startAssessment = () => {
             </div>
           </div>
 
-          {results.questions_with_issues > 0 && (
-            <div className="p-6 border-b border-gray-200">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">{t('results.issuesIdentified')}</h2>
-              <div className="bg-orange-50 p-4 rounded-lg">
-                <div className="text-orange-800 font-medium">
-                  {t('results.areasNeedAttention', { count: results.questions_with_issues, total: answeredQuestions })}
-                </div>
-                <div className="text-sm text-orange-600 mt-1">
-                  {t('results.reviewInterventions')}
-                </div>
-              </div>
-            </div>
-          )}
+         {/* Issues Identified Section - Commented Out
+{results.questions_with_issues > 0 && (
+  <div className="p-6 border-b border-gray-200">
+    <h2 className="text-xl font-bold text-gray-900 mb-4">{t('results.issuesIdentified')}</h2>
+    <div className="bg-orange-50 p-4 rounded-lg">
+      <div className="text-orange-800 font-medium">
+        {t('results.areasNeedAttention', { count: results.questions_with_issues, total: answeredQuestions })}
+      </div>
+      <div className="text-sm text-orange-600 mt-1">
+        {t('results.reviewInterventions')}
+      </div>
+    </div>
+  </div>
+)}
+*/}
 
-          {results.priority_interventions.length > 0 && (
-            <div className="p-6 border-b border-gray-200">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">{t('results.priorityInterventions')}</h2>
-              <div className="space-y-3">
-                {results.priority_interventions.slice(0, 10).map((intervention) => (
-                  <div key={intervention.item_id} className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
-                    <div className="flex-1">
-                      <div className="font-medium text-gray-900">{getSectionDisplayName(intervention.section, t)}</div>
-                      <div className="text-sm text-gray-600">{t(`results.priorities.${intervention.priority}`)}</div>
-                    </div>
-                    <div className="text-right">
-                      <div className={`text-lg font-bold ${
-                        intervention.risk_score > 70 ? 'text-red-600' :
-                        intervention.risk_score > 40 ? 'text-yellow-600' :
-                        'text-green-600'
-                      }`}>
-                        {intervention.risk_score}/100
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+         {/* Priority Interventions Section - Commented Out
+{results.priority_interventions.length > 0 && (
+  <div className="p-6 border-b border-gray-200">
+    <h2 className="text-xl font-bold text-gray-900 mb-4">{t('results.priorityInterventions')}</h2>
+    <div className="space-y-3">
+      {results.priority_interventions.slice(0, 10).map((intervention) => (
+        <div key={intervention.item_id} className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
+          <div className="flex-1">
+            <div className="font-medium text-gray-900">{getSectionDisplayName(intervention.section, t)}</div>
+            <div className="text-sm text-gray-600">{t(`results.priorities.${intervention.priority}`)}</div>
+          </div>
+          <div className="text-right">
+            <div className={`text-lg font-bold ${
+              intervention.risk_score > 70 ? 'text-red-600' :
+              intervention.risk_score > 40 ? 'text-yellow-600' :
+              'text-green-600'
+            }`}>
+              {intervention.risk_score}/100
             </div>
-          )}
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+)}
+*/}
 
           {Object.keys(sectionNotes).length > 0 && (
             <div className="p-6 border-b border-gray-200">
