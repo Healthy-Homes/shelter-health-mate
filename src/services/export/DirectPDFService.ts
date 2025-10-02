@@ -90,7 +90,7 @@ this.doc.rect(0, 0, 210, 30, 'F');
 // Add logo if loaded successfully
 if (logoImage) {
   try {
-    this.doc.addImage(logoImage, 'PNG', 165, 5, 35, 20);
+    this.doc.addImage(logoImage, 'PNG', 165, 5, 40, 30);
   } catch (error) {
     console.log('Failed to add logo to PDF:', error);
   }
