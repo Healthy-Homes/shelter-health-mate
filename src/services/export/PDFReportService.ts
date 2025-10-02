@@ -191,22 +191,13 @@ export class PDFReportService {
           </div>
         </div>
 
-        <!-- Issues Summary -->
-        ${results.questions_with_issues > 0 ? `
-        <div class="issues-summary" style="margin-bottom: 30px;">
-          <h2 style="color: #1f2937; font-size: 18px; margin: 0 0 15px 0; font-weight: bold;">
-            ${isEnglish ? 'Issues Identified' : '已識別問題'}
-          </h2>
-          <div style="background: #fef3c7; padding: 15px; border-radius: 8px; border-left: 4px solid #f59e0b;">
-            <div style="font-weight: bold; color: #92400e; margin-bottom: 5px;">
-              ${results.questions_with_issues} ${isEnglish ? 'areas need attention' : '個區域需要關注'}
-            </div>
-            <div style="font-size: 12px; color: #92400e;">
-              ${isEnglish ? 'Review the priority interventions below for specific actions' : '請查看下方的優先處理事項以了解具體行動'}
-            </div>
-          </div>
-        </div>
-        ` : ''}
+       <!-- Items Requiring Attention -->
+<div class="issues-section" style="margin-bottom: 30px;">
+  <h2 style="color: #1f2937; font-size: 18px; margin: 0 0 15px 0; font-weight: bold;">
+    ${isEnglish ? 'Items Requiring Attention' : '需要關注的項目'}
+  </h2>
+  ${this.generateIssuesList(questions, responses, isEnglish)}
+</div>
 
         <!-- Priority Interventions -->
         <div class="interventions" style="margin-bottom: 30px;">
