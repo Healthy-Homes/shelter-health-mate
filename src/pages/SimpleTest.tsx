@@ -6,9 +6,9 @@ import LanguageSwitcher from '../components/LanguageSwitcher';
 import { ExportModal } from '../components/reports/ExportModal';
 
 import { ChecklistItem, ResponseMap, SectionNotes } from '../types/checklist';
-import { calculateItemRisk, calculateOverallRisk, getCompletenessMessage } from '../utils/riskScoring';
-import { testScoringConsistency } from '../utils/scoringAnalysis';
-
+// Risk scoring imports - commented out for future use
+// import { calculateItemRisk, calculateOverallRisk, getCompletenessMessage } from '../utils/riskScoring';
+// import { testScoringConsistency } from '../utils/scoringAnalysis';
 // Import all checklist data
 import { TAIWAN_HALST_QUESTIONS } from '../data/taiwanHalstChecklist';
 import { US_HEALTHY_HOMES_QUESTIONS } from '../data/usHealthyHomesChecklist';
@@ -299,9 +299,21 @@ const [tenureMonths, setTenureMonths] = useState('');
   };
 
   // Fixed: Use correct signature for calculateOverallRisk
-  const calculateResults = () => {
-    return calculateOverallRisk(currentQuestions, responses);
+// Simplified calculateResults - no risk scoring
+const calculateResults = () => {
+  const answeredQuestions = getTotalAnsweredQuestions();
+  const totalQuestions = currentQuestions.length;
+  
+  return {
+    risk_score: 0,  // Dummy value
+    risk_level: 'none',  // Dummy value
+    questions_with_issues: 0,  // Dummy value
+    priority_interventions: [],  // Empty array
+    completion_rate: Math.round((answeredQuestions / totalQuestions) * 100),
+    answered_count: answeredQuestions,
+    total_count: totalQuestions
   };
+};
 
   // Reset assessment
   const resetAssessment = () => {
@@ -762,7 +774,6 @@ const startAssessment = () => {
   );
 
   const renderResultsPhase = () => {
-    const results = calculateResults();
     const answeredQuestions = getTotalAnsweredQuestions();
     const completionRate = Math.round((answeredQuestions / currentQuestions.length) * 100);
 
