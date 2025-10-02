@@ -72,10 +72,19 @@ const SHELTER_HEALTH_LOGO = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAzMAA
   ): Blob {
     const isEnglish = language === 'en';
     
-    // Header
-    this.doc.setFillColor(59, 130, 246);
-    this.doc.rect(0, 0, 210, 30, 'F');
-    this.doc.setTextColor(255, 255, 255);
+  
+// Header with logo
+this.doc.setFillColor(59, 130, 246);
+this.doc.rect(0, 0, 210, 30, 'F');
+
+// Add logo on right side of header
+try {
+  this.doc.addImage(SHELTER_HEALTH_LOGO, 'PNG', 165, 5, 35, 20);
+} catch (error) {
+  console.log('Logo failed to load:', error);
+}
+
+this.doc.setTextColor(255, 255, 255);
     this.doc.setFontSize(20);
     this.doc.setFont(undefined, 'bold');
     this.doc.text(
