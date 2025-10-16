@@ -80,7 +80,7 @@
   },
   "checklists": {
     "taiwan": {
-      "title": "台灣 HALST 評估",
+      "title": "台灣評估",
       "description": "台灣住宅環境健康評估（{{count}} 題）"
     },
     "us": {
