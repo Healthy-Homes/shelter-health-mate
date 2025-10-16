@@ -81,7 +81,7 @@
   },
   "checklists": {
     "taiwan": {
-      "title": "Taiwan HALST Assessment",
+      "title": "Taiwan Assessment",
       "description": "Environmental health assessment for Taiwan housing ({{count}} questions)"
     },
     "us": {
