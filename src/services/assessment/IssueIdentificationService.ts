@@ -74,19 +74,21 @@ export class IssueIdentificationService {
   return issues.sort((a, b) => b.risk_score - a.risk_score);
 }
 
-  private static getSDOHRiskScore(questionId: string): number {
-    const riskScores: { [key: string]: number } = {
-      'SDOH_1': 75, // Food insecurity
-      'SDOH_2': 80, // Food insecurity severe
-      'SDOH_3': 85, // Housing instability
-      'SDOH_4': 60, // Transportation
-      'SDOH_5': 55, // Social isolation
-      'SDOH_6': 50, // Stress
-      'SDOH_7': 70, // Home safety
-      'SDOH_8': 65  // Neighborhood safety
-    };
-    return riskScores[questionId] || 50;
-  }
+ private static getSDOHRiskScore(questionId: string): number {
+  const riskScores: { [key: string]: number } = {
+    // Using actual IDs from SDOHSection component
+    'housingStability': 85,
+    'foodSecurity': 75,
+    'transportation': 60,
+    'utilities': 70,
+    'socialSupport': 55,
+    'healthcare': 70,
+    'employment': 50,
+    'education': 45,
+    'income': 65
+  };
+  return riskScores[questionId] || 50;
+}
 
   private static evaluateNonSDOHResponse(
     question: ChecklistItem, 
