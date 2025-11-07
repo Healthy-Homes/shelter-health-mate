@@ -3,6 +3,7 @@
 
 import { AssessmentResults, ResponseMap, ChecklistItem } from '../../types/checklist';
 import { EncryptionService } from '../security/EncryptionService';
+import { mapQuestionToClinicalCode } from '../../constants/clinicalMappings';
 
 export interface CSVExportOptions {
   includePersonalInfo?: boolean;
@@ -10,6 +11,8 @@ export interface CSVExportOptions {
   includeRiskScores?: boolean;
   includeMetadata?: boolean;
   includeBilingualText?: boolean;
+  includeNonResponses?: boolean;  // NEW: Include questions without responses
+  includeClinicalCodes?: boolean; // NEW: Include LOINC/SNOMED codes
   customFields?: { [key: string]: any };
 }
 
@@ -21,6 +24,7 @@ export interface ResearchDataRow {
   responseValue: string | number;
   responseText_EN: string;
   responseText_ZH: string;
+  responseStatus: 'answered' | 'not_answered'; // NEW
   riskScore: number;
   hasIssue: boolean;
   category: string;
@@ -31,6 +35,13 @@ export interface ResearchDataRow {
   questionOrder: number;
   responseType: 'single' | 'multiple' | 'text' | 'number';
   isRequired: boolean;
+  // NEW: Clinical code fields
+  loincCode?: string;
+  loincDisplay?: string;
+  snomedCode?: string;
+  snomedDisplay?: string;
+  icd10Code?: string;
+  icd10Display?: string;
 }
 
 export class CSVExportService {
@@ -49,10 +60,12 @@ export class CSVExportService {
       includeRiskScores = true,
       includeMetadata = true,
       includeBilingualText = true,
+      includeNonResponses = true, // Default to including all questions
+      includeClinicalCodes = true, // Default to including clinical codes
       customFields = {}
     } = options;
 
-    // Generate data rows
+    // Generate data rows - now always includes all questions
     const dataRows = this.generateDataRows(
       results,
       responses,
@@ -60,13 +73,29 @@ export class CSVExportService {
       options
     );
 
+    // Filter if not including non-responses (backward compatibility)
+    const finalRows = includeNonResponses 
+      ? dataRows 
+      : dataRows.filter(row => row.responseStatus === 'answered');
+
     // Generate headers
-    const headers = this.generateHeaders(includeBilingualText, includeMetadata, customFields);
+    const headers = this.generateHeaders(
+      includeBilingualText, 
+      includeMetadata, 
+      includeClinicalCodes,
+      customFields
+    );
 
     // Convert to CSV format
     const csvRows = [
       headers,
-      ...dataRows.map(row => this.rowToCSVArray(row, includeBilingualText, includeMetadata, customFields))
+      ...finalRows.map(row => this.rowToCSVArray(
+        row, 
+        includeBilingualText, 
+        includeMetadata,
+        includeClinicalCodes, 
+        customFields
+      ))
     ];
 
     return csvRows
@@ -75,7 +104,37 @@ export class CSVExportService {
   }
 
   /**
-   * Generates data rows for each question response
+   * NEW: Comprehensive export method expected by ExportModal
+   */
+  static generateComprehensiveExport(
+    results: AssessmentResults,
+    responses: ResponseMap,
+    questions: ChecklistItem[],
+    options: CSVExportOptions = {}
+  ): {
+    csv: string;
+    summary: string;
+    filename: string;
+  } {
+    // Ensure comprehensive options are enabled
+    const comprehensiveOptions = {
+      ...options,
+      includeNonResponses: true,  // Always include all questions
+      includeClinicalCodes: true, // Always include clinical codes
+      includeMetadata: true,       // Include full metadata
+      includeRiskScores: true      // Include risk assessment
+    };
+
+    const csv = this.generateResearchCSV(results, responses, questions, comprehensiveOptions);
+    const summary = this.generateEnhancedSummaryReport(results, responses, questions);
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const filename = `comprehensive-health-assessment-${results.assessmentType}-${timestamp}.csv`;
+
+    return { csv, summary, filename };
+  }
+
+  /**
+   * Generates data rows for each question (whether answered or not)
    */
   private static generateDataRows(
     results: AssessmentResults,
@@ -93,8 +152,14 @@ export class CSVExportService {
 
     return questions.map((question, index) => {
       const responseValue = responses[question.item_id];
+      const hasResponse = responseValue !== undefined && responseValue !== null && responseValue !== '';
       const riskScore = this.calculateQuestionRiskScore(question, responseValue, results);
-      const hasIssue = this.determineHasIssue(question, responseValue, riskScore);
+      const hasIssue = hasResponse ? this.determineHasIssue(question, responseValue, riskScore) : false;
+      
+      // Get clinical codes
+      const clinicalCodes = options.includeClinicalCodes 
+        ? mapQuestionToClinicalCode(question.item_id)
+        : null;
 
       return {
         questionId: question.item_id,
@@ -104,7 +169,8 @@ export class CSVExportService {
         responseValue: responseValue || '',
         responseText_EN: this.getResponseText(question, responseValue, 'en'),
         responseText_ZH: this.getResponseText(question, responseValue, 'zh'),
-        riskScore: riskScore,
+        responseStatus: hasResponse ? 'answered' : 'not_answered',
+        riskScore: hasResponse ? riskScore : 0,
         hasIssue: hasIssue,
         category: this.categorizeQuestion(question),
         assessmentType: results.assessmentType || 'unknown',
@@ -113,7 +179,14 @@ export class CSVExportService {
         sessionId: sessionId,
         questionOrder: index + 1,
         responseType: this.determineResponseType(question),
-        isRequired: question.required || false
+        isRequired: question.required || false,
+        // Clinical codes
+        loincCode: clinicalCodes?.loinc || '',
+        loincDisplay: clinicalCodes?.loinc ? clinicalCodes.display : '',
+        snomedCode: clinicalCodes?.snomed || '',
+        snomedDisplay: clinicalCodes?.snomed ? clinicalCodes.display : '',
+        icd10Code: clinicalCodes?.icd10 || '',
+        icd10Display: clinicalCodes?.icd10 ? clinicalCodes.display : ''
       };
     });
   }
@@ -124,6 +197,7 @@ export class CSVExportService {
   private static generateHeaders(
     includeBilingual: boolean,
     includeMetadata: boolean,
+    includeClinicalCodes: boolean,
     customFields: { [key: string]: any }
   ): string[] {
     const baseHeaders = [
@@ -134,6 +208,7 @@ export class CSVExportService {
       'ResponseValue',
       'ResponseText_EN',
       ...(includeBilingual ? ['ResponseText_ZH'] : []),
+      'ResponseStatus',
       'RiskScore',
       'HasIssue',
       'Category',
@@ -149,9 +224,18 @@ export class CSVExportService {
       'IsRequired'
     ] : [];
 
+    const clinicalHeaders = includeClinicalCodes ? [
+      'LOINC_Code',
+      'LOINC_Display',
+      'SNOMED_Code', 
+      'SNOMED_Display',
+      'ICD10_Code',
+      'ICD10_Display'
+    ] : [];
+
     const customHeaders = Object.keys(customFields);
 
-    return [...baseHeaders, ...metadataHeaders, ...customHeaders];
+    return [...baseHeaders, ...metadataHeaders, ...clinicalHeaders, ...customHeaders];
   }
 
   /**
@@ -161,6 +245,7 @@ export class CSVExportService {
     row: ResearchDataRow,
     includeBilingual: boolean,
     includeMetadata: boolean,
+    includeClinicalCodes: boolean,
     customFields: { [key: string]: any }
   ): (string | number | boolean)[] {
     const baseData = [
@@ -171,6 +256,7 @@ export class CSVExportService {
       row.responseValue,
       row.responseText_EN,
       ...(includeBilingual ? [row.responseText_ZH] : []),
+      row.responseStatus,
       row.riskScore,
       row.hasIssue,
       row.category,
@@ -186,9 +272,18 @@ export class CSVExportService {
       row.isRequired
     ] : [];
 
+    const clinicalData = includeClinicalCodes ? [
+      row.loincCode || '',
+      row.loincDisplay || '',
+      row.snomedCode || '',
+      row.snomedDisplay || '',
+      row.icd10Code || '',
+      row.icd10Display || ''
+    ] : [];
+
     const customData = Object.values(customFields);
 
-    return [...baseData, ...metadataData, ...customData];
+    return [...baseData, ...metadataData, ...clinicalData, ...customData];
   }
 
   /**
@@ -199,6 +294,8 @@ export class CSVExportService {
     responseValue: any,
     results: AssessmentResults
   ): number {
+    if (!responseValue) return 0;
+    
     // Get section risk score as baseline
     const sectionScore = results.sectionScores?.[question.section] || 0;
     
@@ -208,6 +305,13 @@ export class CSVExportService {
         rf.trigger_response === responseValue
       );
       return riskFactor?.risk_score || sectionScore;
+    }
+
+    // Check for yes/no risk scoring
+    if (question.response_type === 'binary') {
+      return responseValue.toLowerCase() === 'yes' 
+        ? (question.risk_score_yes || sectionScore)
+        : (question.risk_score_no || 0);
     }
 
     return sectionScore;
@@ -225,10 +329,17 @@ export class CSVExportService {
     if (riskScore >= 70) return true;
 
     // Check for specific problem responses
-    const problemResponses = ['yes', 'very_often', 'always', 'severe', 'major_issue'];
+    const problemResponses = ['yes', 'very_often', 'always', 'severe', 'major_issue', 
+                             'often_true', 'transitional', 'very_much', 'no'];
     if (typeof responseValue === 'string' && 
         problemResponses.includes(responseValue.toLowerCase())) {
-      return true;
+      // Special handling for safety questions where "no" is bad
+      if (question.item_id.includes('safety') || question.item_id.includes('SDOH_7') || 
+          question.item_id.includes('SDOH_8')) {
+        return responseValue.toLowerCase() === 'no';
+      }
+      // For other questions, "yes" or other problem indicators
+      return responseValue.toLowerCase() !== 'no';
     }
 
     return false;
@@ -247,13 +358,15 @@ export class CSVExportService {
     // For multiple choice questions, find the option text
     if (question.response_options) {
       const option = question.response_options.find(opt => 
-        opt.option_id === responseValue || opt.display_text === responseValue
+        opt.option_id === responseValue || opt.display_text === responseValue ||
+        opt.value === responseValue || opt.label === responseValue
       );
       
       if (option) {
-        return language === 'zh' && option.display_text_zh 
-          ? option.display_text_zh 
-          : option.display_text;
+        if (language === 'zh') {
+          return option.display_text_zh || option.label_zh || option.label || option.display_text || '';
+        }
+        return option.label || option.display_text || '';
       }
     }
 
@@ -265,6 +378,21 @@ export class CSVExportService {
    * Categorizes question by type/domain
    */
   private static categorizeQuestion(question: ChecklistItem): string {
+    // Check for SDOH category
+    if (question.item_id.startsWith('SDOH_')) {
+      return 'Social Determinants';
+    }
+    
+    // Check for Elder Safety
+    if (question.item_id.startsWith('ELDER_')) {
+      return 'Elder Safety';
+    }
+    
+    // Check for housing codes
+    if (question.item_id.startsWith('US') || question.item_id.startsWith('HALST_')) {
+      return 'Housing & Environment';
+    }
+    
     const questionText = question.question_text.toLowerCase();
     
     // Housing-related
@@ -304,6 +432,10 @@ export class CSVExportService {
    * Determines the type of response expected
    */
   private static determineResponseType(question: ChecklistItem): 'single' | 'multiple' | 'text' | 'number' {
+    if (question.response_type === 'binary') {
+      return 'single';
+    }
+    
     if (question.response_options) {
       return question.multiple_choice ? 'multiple' : 'single';
     }
@@ -332,9 +464,9 @@ export class CSVExportService {
   }
 
   /**
-   * Generates summary statistics for the dataset
+   * Enhanced summary report with clinical code statistics
    */
-  static generateSummaryReport(
+  static generateEnhancedSummaryReport(
     results: AssessmentResults,
     responses: ResponseMap,
     questions: ChecklistItem[]
@@ -342,6 +474,19 @@ export class CSVExportService {
     const totalQuestions = questions.length;
     const answeredQuestions = Object.keys(responses).length;
     const completionRate = (answeredQuestions / totalQuestions) * 100;
+    const unansweredQuestions = totalQuestions - answeredQuestions;
+    
+    // Count questions with clinical codes
+    let questionsWithLOINC = 0;
+    let questionsWithSNOMED = 0;
+    let questionsWithICD10 = 0;
+    
+    questions.forEach(q => {
+      const codes = mapQuestionToClinicalCode(q.item_id);
+      if (codes.loinc) questionsWithLOINC++;
+      if (codes.snomed) questionsWithSNOMED++;
+      if (codes.icd10) questionsWithICD10++;
+    });
     
     const riskCounts = {
       low: 0,
@@ -357,14 +502,22 @@ export class CSVExportService {
     });
 
     const summary = [
-      'HEALTH ASSESSMENT RESEARCH DATA SUMMARY',
-      '==========================================',
+      'COMPREHENSIVE HEALTH ASSESSMENT RESEARCH DATA SUMMARY',
+      '======================================================',
       '',
       `Assessment Type: ${results.assessmentType || 'Unknown'}`,
       `Export Date: ${new Date().toISOString()}`,
+      '',
+      'QUESTION STATISTICS:',
       `Total Questions: ${totalQuestions}`,
       `Answered Questions: ${answeredQuestions}`,
+      `Unanswered Questions: ${unansweredQuestions}`,
       `Completion Rate: ${completionRate.toFixed(1)}%`,
+      '',
+      'CLINICAL CODE COVERAGE:',
+      `Questions with LOINC codes: ${questionsWithLOINC} (${(questionsWithLOINC/totalQuestions*100).toFixed(1)}%)`,
+      `Questions with SNOMED codes: ${questionsWithSNOMED} (${(questionsWithSNOMED/totalQuestions*100).toFixed(1)}%)`,
+      `Questions with ICD-10 codes: ${questionsWithICD10} (${(questionsWithICD10/totalQuestions*100).toFixed(1)}%)`,
       '',
       'RISK DISTRIBUTION:',
       `Low Risk Sections: ${riskCounts.low}`,
@@ -375,10 +528,27 @@ export class CSVExportService {
       ...Object.entries(results.sectionScores || {}).map(
         ([section, score]) => `${section}: ${score}`
       ),
+      '',
+      'DATA EXPORT NOTES:',
+      '- All questions included (answered and unanswered)',
+      '- Clinical codes (LOINC, SNOMED, ICD-10) included where available',
+      '- Response status tracked for filtering',
+      '- Bilingual support for international research',
       ''
     ];
 
     return summary.join('\n');
+  }
+
+  /**
+   * Generates summary statistics for the dataset (original method maintained for compatibility)
+   */
+  static generateSummaryReport(
+    results: AssessmentResults,
+    responses: ResponseMap,
+    questions: ChecklistItem[]
+  ): string {
+    return this.generateEnhancedSummaryReport(results, responses, questions);
   }
 
   /**
@@ -405,7 +575,7 @@ export class CSVExportService {
   }
 
   /**
-   * Generates multiple export formats simultaneously
+   * Generates multiple export formats simultaneously (original method for compatibility)
    */
   static generateBulkExport(
     results: AssessmentResults,
