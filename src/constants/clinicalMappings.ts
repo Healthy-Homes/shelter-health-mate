@@ -216,4 +216,94 @@ export const mapQuestionToClinicalCode = (questionId: string) => {
     snomed: '418799008', // Finding
     display: 'Health assessment finding'
   };
+  
 };
+// Add at the end of the file, after existing exports
+
+// SDOH Question Response Mappings - NEW ADDITION
+export const SDOH_RESPONSE_MAPPINGS = {
+  // SDOH_1 & SDOH_2 - Food insecurity (negative if true)
+  SDOH_1: {
+    loinc: '88122-7',
+    positiveResponses: ['nevertrue', 'opt4'], // Never true
+    negativeResponses: ['alwaystrue', 'oftentrue', 'opt1', 'opt2'], // Always/Often true
+  },
+  SDOH_2: {
+    loinc: '88123-5',
+    positiveResponses: ['nevertrue', 'opt4'],
+    negativeResponses: ['alwaystrue', 'oftentrue', 'opt1', 'opt2'],
+  },
+  // SDOH_3 - Housing situation
+  SDOH_3: {
+    loinc: '71802-3',
+    positiveResponses: ['own', 'opt1'], // I have housing
+    negativeResponses: ['transitional', 'opt3'], // No housing
+  },
+  // SDOH_4 - Transportation
+  SDOH_4: {
+    loinc: '93030-5',
+    positiveResponses: ['no', 'opt2'], // NO lack of transportation (double negative = positive)
+    negativeResponses: ['yes', 'opt1'], // YES lack of transportation
+  },
+  // SDOH_5 - Social isolation
+  SDOH_5: {
+    loinc: '93159-2',
+    positiveResponses: ['5ormoretimesweek', 'opt4'], // Frequent contact
+    negativeResponses: ['lessthanoceweek', 'opt1'], // Rare contact
+  },
+  // SDOH_6 - Stress level
+  SDOH_6: {
+    loinc: '76513-1',
+    positiveResponses: ['notatall', 'opt1'], // Not stressed
+    negativeResponses: ['quiteabit', 'verymuch', 'opt3', 'opt4'], // Very stressed
+  },
+  // SDOH_7 - Home safety
+  SDOH_7: {
+    loinc: '93038-8',
+    positiveResponses: ['yes', 'opt1'], // Feels safe at home
+    negativeResponses: ['no', 'opt2'], // Doesn't feel safe
+  },
+  // SDOH_8 - NEIGHBORHOOD SAFETY - THE FIX!
+  SDOH_8: {
+    loinc: '93038-8',
+    positiveResponses: ['yes', 'opt1'], // YES feels safe - THIS IS THE FIX
+    negativeResponses: ['no', 'opt2'], // NO doesn't feel safe
+  }
+};
+
+// Helper function to check if SDOH response indicates an issue
+export function isSDOHIssue(questionId: string, response: string): boolean {
+  const mapping = SDOH_RESPONSE_MAPPINGS[questionId];
+  if (!mapping) return false;
+  
+  // Normalize response to lowercase for comparison
+  const normalizedResponse = response.toLowerCase();
+  
+  // Check if it's a negative response (indicates an issue)
+  return mapping.negativeResponses.some(neg => 
+    normalizedResponse === neg.toLowerCase()
+  );
+}
+
+// Get proper LOINC code for SDOH question
+export function getSDOHLOINC(questionId: string): { code: string; display: string } | null {
+  const mapping = SDOH_RESPONSE_MAPPINGS[questionId];
+  if (!mapping) return null;
+  
+  // Map to existing CLINICAL_CODES structure
+  if (questionId === 'SDOH_1' || questionId === 'SDOH_2') {
+    return {
+      code: CLINICAL_CODES.sdoh.food_insecurity.loinc,
+      display: CLINICAL_CODES.sdoh.food_insecurity.display
+    };
+  }
+  if (questionId === 'SDOH_3') {
+    return {
+      code: CLINICAL_CODES.sdoh.housing_instability.loinc,
+      display: CLINICAL_CODES.sdoh.housing_instability.display
+    };
+  }
+  // Add other mappings...
+  
+  return null;
+}
