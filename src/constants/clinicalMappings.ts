@@ -6,7 +6,7 @@ export const CLINICAL_CODES = {
   housing: {
     type: {
       loinc: '71802-3', // Housing type
-      snomed: '224730000', // Domiciliary accommodation
+      snomed: '224730000', // Domiciliary accommodation 
       display: 'Housing type assessment'
     },
     condition: {
