@@ -10,56 +10,18 @@ import {
   ResponseMap,
   ChecklistItem
 } from '../../types/export/fhirTypes';
-import { mapQuestionToClinicalCode, FHIR_CATEGORIES, CLINICAL_CODES } from '../../constants/clinicalMappings';
+import { 
+  mapQuestionToClinicalCode, 
+  FHIR_CATEGORIES, 
+  CLINICAL_CODES,
+  HOUSING_HAZARD_MAPPINGS,
+  ENHANCED_SDOH_MAPPINGS 
+} from '../../constants/clinicalMappings';
 import { EncryptionService } from '../security/EncryptionService';
 import { IssueIdentificationService } from '../assessment/IssueIdentificationService';
 
 export class FHIRMappingService {
   private static readonly SYSTEM_BASE_URL = 'https://shelter-health-assessment.org/fhir';
-
-  // Enhanced SDOH Clinical Codes with both LOINC and SNOMED
-  private static readonly SDOH_CLINICAL_CODES: { [key: string]: any } = {
-    'SDOH_1': {
-      loinc: '88122-7',
-      snomed: '733423003',
-      display: 'Food insecurity risk'
-    },
-    'SDOH_2': {
-      loinc: '88123-5', 
-      snomed: '733423003',
-      display: 'Food ran out'
-    },
-    'SDOH_3': {
-      loinc: '71802-3',
-      snomed: '32911000',
-      display: 'Housing instability'
-    },
-    'SDOH_4': {
-      loinc: '93030-5',
-      snomed: '160693006',
-      display: 'Transportation insecurity'
-    },
-    'SDOH_5': {
-      loinc: '93159-2',
-      snomed: '105529008',
-      display: 'Social isolation'
-    },
-    'SDOH_6': {
-      loinc: '76513-1',
-      snomed: '73595000',
-      display: 'Stress level'
-    },
-    'SDOH_7': {
-      loinc: '93038-8',
-      snomed: '224838001',
-      display: 'Home safety'
-    },
-    'SDOH_8': {
-      loinc: '93038-8',
-      snomed: '224838001', 
-      display: 'Neighborhood safety'
-    }
-  };
 
   /**
    * Creates FHIR Bundle - method expected by ExportModal
@@ -69,7 +31,6 @@ export class FHIRMappingService {
     responses: ResponseMap,
     questions: ChecklistItem[]
   ): FHIRBundle {
-    // Use the existing mapAssessmentToFHIR method with default parameters
     return this.mapAssessmentToFHIR(
       responses,
       questions,
@@ -170,40 +131,61 @@ export class FHIRMappingService {
   ): FHIRObservation {
     
     const observationId = EncryptionService.generateSecureId('obs');
-
-    // Determine observation category based on question type
     const category = this.getObservationCategory(question);
-
-    // Get clinical codes - enhanced for SDOH
-    const clinicalCodes = this.getClinicalCodes(question);
-
-    // Map response to appropriate FHIR value
-    const valueMapping = this.mapResponseToFHIRValue(question, response);
-
-    // Build coding array with both LOINC and SNOMED when available
+    
+    // Get comprehensive clinical codes
+    const clinicalCodes = mapQuestionToClinicalCode(question.item_id);
+    
+    // Build coding array with all available codes
     const coding = [];
+    
+    // Add LOINC code
     if (clinicalCodes.loinc) {
       coding.push({
         system: 'http://loinc.org',
         code: clinicalCodes.loinc,
-        display: clinicalCodes.display
+        display: clinicalCodes.display || question.question_text
       });
     }
+    
+    // Add SNOMED code
     if (clinicalCodes.snomed) {
       coding.push({
         system: 'http://snomed.info/sct',
         code: clinicalCodes.snomed,
-        display: clinicalCodes.display
+        display: clinicalCodes.display || question.question_text
       });
     }
+    
+    // Add alternative SNOMED if available
+    if (clinicalCodes.altSnomed) {
+      coding.push({
+        system: 'http://snomed.info/sct',
+        code: clinicalCodes.altSnomed,
+        display: clinicalCodes.display || question.question_text
+      });
+    }
+    
+    // Add ICD-10 if available
+    if (clinicalCodes.icd10) {
+      coding.push({
+        system: 'http://hl7.org/fhir/sid/icd-10',
+        code: clinicalCodes.icd10,
+        display: clinicalCodes.display || question.question_text
+      });
+    }
+    
+    // Fallback if no standard codes
     if (coding.length === 0) {
-      // Fallback if no standard codes
       coding.push({
         system: `${this.SYSTEM_BASE_URL}/codes`,
         code: question.item_id,
         display: question.question_text
       });
     }
+
+    // Map response to appropriate FHIR value
+    const valueMapping = this.mapResponseToFHIRValue(question, response, clinicalCodes);
 
     const observation: FHIRObservation = {
       resourceType: 'Observation',
@@ -221,16 +203,36 @@ export class FHIRMappingService {
       ...valueMapping
     };
 
-    // Add proper interpretation based on whether this is an issue
+    // Add interpretation based on issue identification
     const interpretation = this.getInterpretation(question, response, allQuestions, allResponses);
     if (interpretation) {
       observation.interpretation = [interpretation];
     }
 
-    // Add notes for explanation if available
+    // Add notes
     if (question.explanation) {
       observation.note = [{
         text: question.explanation
+      }];
+    }
+    
+    // For housing hazards with LOINC answer codes, add component
+    if (clinicalCodes.loincAnswer) {
+      observation.component = [{
+        code: {
+          coding: [{
+            system: 'http://loinc.org',
+            code: clinicalCodes.loinc,
+            display: 'Housing problem type'
+          }]
+        },
+        valueCodeableConcept: {
+          coding: [{
+            system: 'http://loinc.org',
+            code: this.mapLoincAnswer(clinicalCodes.loincAnswer),
+            display: clinicalCodes.loincAnswer
+          }]
+        }
       }];
     }
 
@@ -238,85 +240,38 @@ export class FHIRMappingService {
   }
 
   /**
-   * Get clinical codes for a question, with special handling for SDOH
+   * Map LOINC answer text to codes for 96778-6
    */
-  private static getClinicalCodes(question: ChecklistItem) {
-    // Check if it's an SDOH question
-    if (question.item_id.startsWith('SDOH_')) {
-      return this.SDOH_CLINICAL_CODES[question.item_id] || mapQuestionToClinicalCode(question.item_id);
-    }
-    
-    // Use standard mapping for other questions
-    return mapQuestionToClinicalCode(question.item_id);
-  }
-
-  /**
-   * Determine proper interpretation based on issue identification
-   */
-  private static getInterpretation(
-    question: ChecklistItem, 
-    response: string,
-    allQuestions: ChecklistItem[],
-    allResponses: ResponseMap
-  ) {
-    // Use IssueIdentificationService to determine if this is an issue
-    const issues = IssueIdentificationService.identifyIssues(allQuestions, allResponses);
-    const isIssue = issues.some(issue => issue.item_id === question.item_id);
-
-    if (isIssue) {
-      // Find the specific issue to get its severity
-      const issue = issues.find(i => i.item_id === question.item_id);
-      if (issue) {
-        // Map category to interpretation code
-        let code, display;
-        if (issue.category === 'critical') {
-          code = 'HH';
-          display = 'Critical high';
-        } else if (issue.category === 'high') {
-          code = 'H';
-          display = 'High';
-        } else if (issue.category === 'moderate') {
-          code = 'A';
-          display = 'Abnormal';
-        } else {
-          code = 'L';
-          display = 'Low';
-        }
-
-        return {
-          coding: [{
-            system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation',
-            code: code,
-            display: display
-          }]
-        };
-      }
-    }
-
-    // Not an issue - normal
-    return {
-      coding: [{
-        system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation',
-        code: 'N',
-        display: 'Normal'
-      }]
+  private static mapLoincAnswer(answer: string): string {
+    const loincAnswerCodes: { [key: string]: string } = {
+      'Mold': 'LA31994-7',
+      'Water leaks': 'LA31995-4',
+      'Pests': 'LA31996-2',
+      'Lead paint or pipes': 'LA31997-0',
+      'Lack of heat': 'LA31998-8',
+      'Oven or stove not working': 'LA31999-6',
+      'Smoke detectors missing or not working': 'LA32000-2',
+      'Unsafe or not working electrical outlets': 'LA32001-0',
+      'Exposed wiring': 'LA32002-8',
+      'Toilets not working': 'LA32003-6',
+      'Violence': 'LA32004-4',
+      'Other problems': 'LA32005-1'
     };
+    return loincAnswerCodes[answer] || 'LA32005-1'; // Default to 'Other'
   }
 
   /**
    * Maps assessment response to appropriate FHIR value type
    */
-  private static mapResponseToFHIRValue(question: ChecklistItem, response: string) {
+  private static mapResponseToFHIRValue(question: ChecklistItem, response: string, clinicalCodes: any) {
     // For binary responses (yes/no)
-    if (question.response_type === 'binary') {
-      if (['yes', 'no'].includes(response.toLowerCase())) {
-        return {
-          valueBoolean: response.toLowerCase() === 'yes'
-        };
-      }
+    if (question.response_type === 'binary' || ['yes', 'no'].includes(response.toLowerCase())) {
+      return {
+        valueBoolean: response.toLowerCase() === 'yes'
+      };
     }
 
-    // For multiple choice responses
+    // For multiple choice responses with defined options
     if (Array.isArray(question.response_options)) {
       const option = question.response_options.find(opt => opt.value === response);
       if (option) {
@@ -333,7 +288,7 @@ export class FHIRMappingService {
       }
     }
 
-    // For SDOH specific responses that don't match options
+    // For SDOH specific responses
     if (question.item_id.startsWith('SDOH_')) {
       return {
         valueCodeableConcept: {
@@ -344,6 +299,16 @@ export class FHIRMappingService {
           }],
           text: this.getSDOHResponseDisplay(response)
         }
+      };
+    }
+
+    // For housing hazard questions with specific issues
+    if (clinicalCodes.loincAnswer) {
+      // These are typically yes/no about presence of hazard
+      return {
+        valueBoolean: response.toLowerCase() === 'yes' || 
+                     response.toLowerCase() === 'poor' ||
+                     response.toLowerCase() === 'broken'
       };
     }
 
@@ -377,6 +342,57 @@ export class FHIRMappingService {
       'no': 'No'
     };
     return displayMap[response] || response;
+  }
+
+  /**
+   * Determine proper interpretation based on issue identification
+   */
+  private static getInterpretation(
+    question: ChecklistItem, 
+    response: string,
+    allQuestions: ChecklistItem[],
+    allResponses: ResponseMap
+  ) {
+    // Use IssueIdentificationService to determine if this is an issue
+    const issues = IssueIdentificationService.identifyIssues(allQuestions, allResponses);
+    const isIssue = issues.some(issue => issue.item_id === question.item_id);
+
+    if (isIssue) {
+      const issue = issues.find(i => i.item_id === question.item_id);
+      if (issue) {
+        let code, display;
+        if (issue.category === 'critical') {
+          code = 'HH';
+          display = 'Critical high';
+        } else if (issue.category === 'high') {
+          code = 'H';
+          display = 'High';
+        } else if (issue.category === 'moderate') {
+          code = 'A';
+          display = 'Abnormal';
+        } else {
+          code = 'L';
+          display = 'Low';
+        }
+
+        return {
+          coding: [{
+            system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation',
+            code: code,
+            display: display
+          }]
+        };
+      }
+    }
+
+    // Not an issue - normal
+    return {
+      coding: [{
+        system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation',
+        code: 'N',
+        display: 'Normal'
+      }]
+    };
   }
 
   /**
