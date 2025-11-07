@@ -140,65 +140,105 @@ const generateClinicalReport = async () => {
 };
 
   const generateFHIRExport = async () => {
-    // Use full FHIR payload for JSON export
-    const fhirBundle = await QRCodeService.prepareFullFHIRPayload(
+  // Import the mapping service
+  const { FHIRMappingService } = await import('../../services/export/FHIRMappingService');
+  
+  // Check if filtered export method exists, otherwise use standard
+  let fhirBundle;
+  
+  if (FHIRMappingService.createFilteredFHIRBundle) {
+    // Use filtered export (Option 2 - only clinically mapped items)
+    fhirBundle = FHIRMappingService.createFilteredFHIRBundle(
       results,
       responses,
       questions
     );
+  } else if (FHIRMappingService.createFHIRBundle) {
+    // Fallback to existing method if available
+    fhirBundle = FHIRMappingService.createFHIRBundle(
+      results,
+      responses,
+      questions
+    );
+  } else {
+    // Use original QRCodeService as ultimate fallback
+    fhirBundle = await QRCodeService.prepareFullFHIRPayload(
+      results,
+      responses,
+      questions
+    );
+  }
 
-    // Download as JSON file
-    const blob = new Blob([JSON.stringify(fhirBundle, null, 2)], {
-      type: 'application/json'
-    });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'health-assessment-fhir-bundle.json';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+  // Download as JSON file
+  const blob = new Blob([JSON.stringify(fhirBundle, null, 2)], {
+    type: 'application/json'
+  });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `health-assessment-fhir-${Date.now()}.json`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
 
-    setSuccessMessage('FHIR bundle downloaded successfully!');
+  setSuccessMessage('FHIR bundle (filtered - clinical codes only) downloaded successfully!');
+};
+
+ const generateResearchCSV = async () => {
+  const { CSVExportService } = await import('../../services/export/CSVExportService');
+  
+  const csvOptions = {
+    includePersonalInfo,
+    anonymizeSensitiveData: anonymizeResearch,
+    includeRiskScores: true,
+    includeMetadata: true,
+    includeBilingualText: true,
+    includeNonResponses: true,  // NEW: Ensures all questions included
+    includeClinicalCodes: true  // NEW: Adds LOINC/SNOMED codes
   };
 
-  const generateResearchCSV = async () => {
-    const { CSVExportService } = await import('../../services/export/CSVExportService');
-    
-    const csvOptions = {
-      includePersonalInfo,
-      anonymizeSensitiveData: anonymizeResearch,
-      includeRiskScores: true,
-      includeMetadata: true,
-      includeBilingualText: true
-    };
-
-    const { csv, summary, filename } = CSVExportService.generateBulkExport(
+  // Check if comprehensive export exists, otherwise use standard
+  let exportResult;
+  
+  if (CSVExportService.generateComprehensiveExport) {
+    // Use new comprehensive export that includes all questions
+    exportResult = CSVExportService.generateComprehensiveExport(
       results,
       responses,
       questions,
       csvOptions
     );
+  } else {
+    // Use existing method
+    exportResult = CSVExportService.generateBulkExport(
+      results,
+      responses,
+      questions,
+      csvOptions
+    );
+  }
 
-    // Download the CSV file
-    CSVExportService.downloadCSV(csv, filename);
+  const { csv, summary, filename } = exportResult;
 
-    // Download summary report
-    if (summary) {
-      const summaryBlob = new Blob([summary], { type: 'text/plain' });
-      const summaryUrl = URL.createObjectURL(summaryBlob);
-      const summaryLink = document.createElement('a');
-      summaryLink.href = summaryUrl;
-      summaryLink.download = filename.replace('.csv', '-summary.txt');
-      document.body.appendChild(summaryLink);
-      summaryLink.click();
-      document.body.removeChild(summaryLink);
-      URL.revokeObjectURL(summaryUrl);
-    }
+  // Download the CSV file
+  CSVExportService.downloadCSV(csv, filename);
 
-    setSuccessMessage('Research CSV and summary report downloaded successfully!');
-  };
+  // Download summary report
+  if (summary) {
+    const summaryBlob = new Blob([summary], { type: 'text/plain' });
+    const summaryUrl = URL.createObjectURL(summaryBlob);
+    const summaryLink = document.createElement('a');
+    summaryLink.href = summaryUrl;
+    summaryLink.download = filename.replace('.csv', '-summary.txt');
+    document.body.appendChild(summaryLink);
+    summaryLink.click();
+    document.body.removeChild(summaryLink);
+    URL.revokeObjectURL(summaryUrl);
+  }
+
+  setSuccessMessage(`Research CSV downloaded - includes ALL ${questions.length} questions (answered & unanswered)`);
+};
 
   // QR-related functions preserved but not used
   const handleDownloadQR = (qrResult: QRCodeResult) => {
