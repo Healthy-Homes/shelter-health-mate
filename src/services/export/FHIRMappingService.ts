@@ -39,7 +39,38 @@ export class FHIRMappingService {
       'en'
     );
   }
+/**
+ * Creates filtered FHIR Bundle - only includes clinically mapped items
+ * This implements Option 2: Filter to only export clinically relevant data
+ */
+static createFilteredFHIRBundle(
+  results: AssessmentResults,
+  responses: ResponseMap,
+  questions: ChecklistItem[]
+): FHIRBundle {
+  // Filter to only questions with valid clinical mappings
+  const clinicallyMappedQuestions = questions.filter(question => {
+    const clinicalCodes = mapQuestionToClinicalCode(question.item_id);
+    
+    // Include if it has LOINC, SNOMED, or ICD-10 codes
+    // Exclude if it only has the fallback generic code
+    return (clinicalCodes.loinc || 
+            clinicalCodes.snomed || 
+            clinicalCodes.icd10) &&
+            clinicalCodes.snomed !== '418799008'; // Exclude generic "Finding" code
+  });
 
+  console.log(`Filtering FHIR export: ${clinicallyMappedQuestions.length} of ${questions.length} questions have clinical codes`);
+
+  // Use the standard method with filtered questions
+  return this.mapAssessmentToFHIR(
+    responses,
+    clinicallyMappedQuestions, // Only clinically mapped questions
+    results,
+    'anonymous-patient',
+    'en'
+  );
+}
   /**
    * Main method to convert assessment data to FHIR Bundle
    */
