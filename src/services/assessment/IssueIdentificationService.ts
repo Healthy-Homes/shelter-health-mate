@@ -14,39 +14,65 @@ export interface IdentifiedIssue {
 
 export class IssueIdentificationService {
   static identifyIssues(
-    questions: ChecklistItem[], 
-    responses: ResponseMap
-  ): IdentifiedIssue[] {
-    const issues: IdentifiedIssue[] = [];
+  questions: ChecklistItem[], 
+  responses: ResponseMap
+): IdentifiedIssue[] {
+  const issues: IdentifiedIssue[] = [];
 
-    questions.forEach(question => {
-      const response = responses[question.item_id];
-      if (!response) return;
+  questions.forEach(question => {
+    const response = responses[question.item_id];
+    if (!response) return;
 
-      // Check if it's an SDOH question
-      if (question.item_id.startsWith('SDOH_')) {
-        if (isSDOHIssue(question.item_id, response)) {
-          issues.push({
-            item_id: question.item_id,
-            question_text: question.question_text,
-            response: response,
-            risk_score: this.getSDOHRiskScore(question.item_id),
-            category: this.categorizeRisk(this.getSDOHRiskScore(question.item_id)),
-            intervention_needed: true,
-            section: question.section || 'SDOH'
-          });
-        }
-      } else {
-        // Original logic for non-SDOH questions
-        const issue = this.evaluateNonSDOHResponse(question, response);
-        if (issue) {
-          issues.push(issue);
-        }
+    // List of SDOH question IDs from the actual component
+    const sdohIds = [
+      'housingStability',
+      'foodSecurity',
+      'transportation',
+      'utilities',
+      'socialSupport',
+      'healthcare',
+      'employment',
+      'education',
+      'income'
+    ];
+
+    // Check if it's an SDOH question using the actual IDs
+    const isSDOHQuestion = question.item_id.startsWith('SDOH_') || 
+                          sdohIds.includes(question.item_id);
+    
+    if (isSDOHQuestion) {
+      // For SDOH questions, "opt1" is typically the best answer
+      // Issues should be flagged for opt2, opt3, opt4, opt5
+      const negativeResponses = ['opt2', 'opt3', 'opt4', 'opt5'];
+      
+      if (negativeResponses.includes(response)) {
+        // Calculate risk based on how negative the response is
+        let riskMultiplier = 1;
+        if (response === 'opt2') riskMultiplier = 0.6;
+        if (response === 'opt3') riskMultiplier = 0.8;
+        if (response === 'opt4' || response === 'opt5') riskMultiplier = 1;
+        
+        issues.push({
+          item_id: question.item_id,
+          question_text: question.question_text,
+          response: response,
+          risk_score: this.getSDOHRiskScore(question.item_id) * riskMultiplier,
+          category: this.categorizeRisk(this.getSDOHRiskScore(question.item_id) * riskMultiplier),
+          intervention_needed: true,
+          section: question.section || 'SDOH'
+        });
       }
-    });
+    } else {
+      // Original logic for non-SDOH questions
+      const issue = this.evaluateNonSDOHResponse(question, response);
+      if (issue) {
+        issues.push(issue);
+      }
+    }
+  });
 
-    return issues.sort((a, b) => b.risk_score - a.risk_score);
-  }
+  return issues.sort((a, b) => b.risk_score - a.risk_score);
+}
 
   private static getSDOHRiskScore(questionId: string): number {
     const riskScores: { [key: string]: number } = {
