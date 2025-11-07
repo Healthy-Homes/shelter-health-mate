@@ -80,38 +80,53 @@ export class IssueIdentificationService {
         console.log(`Potential SDOH match for ${question.item_id}, isSDOHQuestion=${isSDOHQuestion}`);
       }
       
-      if (isSDOHQuestion) {
-        console.log(`Processing SDOH question ${question.item_id} with response ${response}`);
-        
-        // For SDOH questions, "opt1" is typically the best answer
-        // Issues should be flagged for opt2, opt3, opt4, opt5
-        const negativeResponses = ['opt2', 'opt3', 'opt4', 'opt5'];
-        
-        if (negativeResponses.includes(response)) {
-          console.log(`FLAGGING ISSUE for ${question.item_id}: ${response} is negative`);
-          
-          // Calculate risk based on how negative the response is
-          let riskMultiplier = 1;
-          if (response === 'opt2') riskMultiplier = 0.6;
-          if (response === 'opt3') riskMultiplier = 0.8;
-          if (response === 'opt4' || response === 'opt5') riskMultiplier = 1;
-          
-          const riskScore = this.getSDOHRiskScore(question.item_id) * riskMultiplier;
-          console.log(`Risk score for ${question.item_id}: ${riskScore}`);
-          
-          issues.push({
-            item_id: question.item_id,
-            question_text: question.question_text,
-            response: response,
-            risk_score: riskScore,
-            category: this.categorizeRisk(riskScore),
-            intervention_needed: true,
-            section: question.section || 'SDOH'
-          });
-        } else {
-          console.log(`NOT FLAGGING ${question.item_id}: ${response} is not negative`);
-        }
-      } else {
+     if (isSDOHQuestion) {
+  console.log(`Processing SDOH question ${question.item_id} with response ${response}`);
+  
+  // Define negative responses for EACH SDOH question based on actual values
+  const negativeResponsesMap: { [key: string]: string[] } = {
+    // Food insecurity - negative if true
+    'SDOH_1': ['often_true', 'sometimes_true'],
+    'SDOH_2': ['often_true', 'sometimes_true'],
+    // Housing - negative if unstable
+    'SDOH_3': ['temporary', 'transitional'],
+    // Transportation - negative if YES to lack
+    'SDOH_4': ['yes'],
+    // Social isolation - negative if infrequent contact
+    'SDOH_5': ['less_than_once_week', '1_2_times_week'],
+    // Stress - negative if high
+    'SDOH_6': ['quite_a_bit', 'very_much', 'somewhat'],
+    // Safety - negative if NO
+    'SDOH_7': ['no'],
+    'SDOH_8': ['no']
+  };
+
+  const negativeResponses = negativeResponsesMap[question.item_id] || [];
+  
+  if (negativeResponses.includes(response)) {
+    console.log(`FLAGGING ISSUE for ${question.item_id}: ${response} is negative`);
+    
+    // Calculate risk based on severity
+    let riskMultiplier = 1;
+    if (response === 'sometimes_true' || response === 'temporary' || response === 'somewhat') {
+      riskMultiplier = 0.7;
+    }
+    
+    const riskScore = this.getSDOHRiskScore(question.item_id) * riskMultiplier;
+    
+    issues.push({
+      item_id: question.item_id,
+      question_text: question.question_text,
+      response: response,
+      risk_score: riskScore,
+      category: this.categorizeRisk(riskScore),
+      intervention_needed: true,
+      section: question.section || 'SDOH'
+    });
+  } else {
+    console.log(`NOT FLAGGING ${question.item_id}: ${response} is not negative`);
+  }
+} else {
         // Original logic for non-SDOH questions
         const issue = this.evaluateNonSDOHResponse(question, response);
         if (issue) {
@@ -130,20 +145,18 @@ export class IssueIdentificationService {
   }
 
   private static getSDOHRiskScore(questionId: string): number {
-    const riskScores: { [key: string]: number } = {
-      // Using actual IDs from SDOHSection component
-      'housingStability': 85,
-      'foodSecurity': 75,
-      'transportation': 60,
-      'utilities': 70,
-      'socialSupport': 55,
-      'healthcare': 70,
-      'employment': 50,
-      'education': 45,
-      'income': 65
-    };
-    return riskScores[questionId] || 50;
-  }
+  const riskScores: { [key: string]: number } = {
+    'SDOH_1': 75,  // Food insecurity
+    'SDOH_2': 80,  // Food insecurity severe
+    'SDOH_3': 85,  // Housing instability
+    'SDOH_4': 60,  // Transportation
+    'SDOH_5': 55,  // Social isolation
+    'SDOH_6': 50,  // Stress
+    'SDOH_7': 70,  // Home safety
+    'SDOH_8': 65   // Neighborhood safety
+  };
+  return riskScores[questionId] || 50;
+}
 
   private static evaluateNonSDOHResponse(
     question: ChecklistItem, 
