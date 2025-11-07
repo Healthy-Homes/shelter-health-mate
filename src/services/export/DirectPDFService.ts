@@ -1,6 +1,8 @@
 // src/services/export/DirectPDFService.ts
 import jsPDF from 'jspdf';
 import { ChecklistItem, ResponseMap } from '../../types/checklist';
+import { IssueIdentificationService } from '../assessment/IssueIdentificationService';
+
 // Logo as base64
 const SHELTER_HEALTH_LOGO_URL = '/shelter-health-logo.png';
 
@@ -66,37 +68,36 @@ export class DirectPDFService {
     this.doc.text(`${percentage}%`, this.leftMargin + 105, y);
   }
 
-async generateReport(
-  responses: ResponseMap,
-  questions: ChecklistItem[],
-  language: string = 'en',
-  residentInfo?: any
-): Promise<Blob> {
+  async generateReport(
+    responses: ResponseMap,
+    questions: ChecklistItem[],
+    language: string = 'en',
+    residentInfo?: any
+  ): Promise<Blob> {
     const isEnglish = language === 'en';
 
-// Load logo asynchronously
-let logoImage: HTMLImageElement | null = null;
-try {
-  logoImage = await this.loadImage(SHELTER_HEALTH_LOGO_URL);
-} catch (error) {
-  console.log('Logo failed to load, continuing without it:', error);
-}
+    // Load logo asynchronously
+    let logoImage: HTMLImageElement | null = null;
+    try {
+      logoImage = await this.loadImage(SHELTER_HEALTH_LOGO_URL);
+    } catch (error) {
+      console.log('Logo failed to load, continuing without it:', error);
+    }
     
-  
-// Header with logo
-this.doc.setFillColor(59, 130, 246);
-this.doc.rect(0, 0, 210, 30, 'F');
+    // Header with logo
+    this.doc.setFillColor(59, 130, 246);
+    this.doc.rect(0, 0, 210, 30, 'F');
 
-// Add logo if loaded successfully
-if (logoImage) {
-  try {
-    this.doc.addImage(logoImage, 'PNG', 165, 5, 40, 30);
-  } catch (error) {
-    console.log('Failed to add logo to PDF:', error);
-  }
-}
+    // Add logo if loaded successfully
+    if (logoImage) {
+      try {
+        this.doc.addImage(logoImage, 'PNG', 165, 5, 40, 30);
+      } catch (error) {
+        console.log('Failed to add logo to PDF:', error);
+      }
+    }
 
-this.doc.setTextColor(255, 255, 255);
+    this.doc.setTextColor(255, 255, 255);
     this.doc.setFontSize(20);
     this.doc.setFont(undefined, 'bold');
     this.doc.text(
@@ -193,16 +194,11 @@ this.doc.setTextColor(255, 255, 255);
   }
 
   private identifyIssues(questions: ChecklistItem[], responses: ResponseMap): ChecklistItem[] {
-    return questions.filter(q => {
-      const response = responses[q.item_id];
-      if (!response) return false;
-      
-      if (response === 'yes' && q.risk_score_yes > q.risk_score_no) return true;
-      if (response === 'no' && q.risk_score_no > q.risk_score_yes) return true;
-      if (['poor', 'very_poor', 'broken', 'absent', 'not_working'].includes(response)) return true;
-      
-      return false;
-    });
+    const issues = IssueIdentificationService.identifyIssues(questions, responses);
+    
+    return questions.filter(q => 
+      issues.some(issue => issue.item_id === q.item_id)
+    );
   }
 
   private groupBySection(questions: ChecklistItem[]): Array<[string, ChecklistItem[]]> {
@@ -215,12 +211,11 @@ this.doc.setTextColor(255, 255, 255);
   }
 
   private loadImage(url: string): Promise<HTMLImageElement> {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.onload = () => resolve(img);
-    img.onerror = reject;
-    img.src = url;
-  });
-}
-  
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = reject;
+      img.src = url;
+    });
+  }
 }
