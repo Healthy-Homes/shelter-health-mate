@@ -12,9 +12,54 @@ import {
 } from '../../types/export/fhirTypes';
 import { mapQuestionToClinicalCode, FHIR_CATEGORIES, CLINICAL_CODES } from '../../constants/clinicalMappings';
 import { EncryptionService } from '../security/EncryptionService';
+import { IssueIdentificationService } from '../assessment/IssueIdentificationService';
 
 export class FHIRMappingService {
   private static readonly SYSTEM_BASE_URL = 'https://shelter-health-assessment.org/fhir';
+
+  // Enhanced SDOH Clinical Codes with both LOINC and SNOMED
+  private static readonly SDOH_CLINICAL_CODES: { [key: string]: any } = {
+    'SDOH_1': {
+      loinc: '88122-7',
+      snomed: '733423003',
+      display: 'Food insecurity risk'
+    },
+    'SDOH_2': {
+      loinc: '88123-5', 
+      snomed: '733423003',
+      display: 'Food ran out'
+    },
+    'SDOH_3': {
+      loinc: '71802-3',
+      snomed: '32911000',
+      display: 'Housing instability'
+    },
+    'SDOH_4': {
+      loinc: '93030-5',
+      snomed: '160693006',
+      display: 'Transportation insecurity'
+    },
+    'SDOH_5': {
+      loinc: '93159-2',
+      snomed: '105529008',
+      display: 'Social isolation'
+    },
+    'SDOH_6': {
+      loinc: '76513-1',
+      snomed: '73595000',
+      display: 'Stress level'
+    },
+    'SDOH_7': {
+      loinc: '93038-8',
+      snomed: '224838001',
+      display: 'Home safety'
+    },
+    'SDOH_8': {
+      loinc: '93038-8',
+      snomed: '224838001', 
+      display: 'Neighborhood safety'
+    }
+  };
 
   /**
    * Creates FHIR Bundle - method expected by ExportModal
@@ -58,7 +103,9 @@ export class FHIRMappingService {
         question, 
         responses[question.item_id], 
         patientId,
-        timestamp
+        timestamp,
+        questions,
+        responses
       ));
 
     // Create diagnostic report summarizing results
@@ -117,17 +164,46 @@ export class FHIRMappingService {
     question: ChecklistItem,
     response: string,
     patientId: string,
-    timestamp: string
+    timestamp: string,
+    allQuestions: ChecklistItem[],
+    allResponses: ResponseMap
   ): FHIRObservation {
     
-    const clinicalCode = mapQuestionToClinicalCode(question.item_id);
     const observationId = EncryptionService.generateSecureId('obs');
 
     // Determine observation category based on question type
     const category = this.getObservationCategory(question);
 
+    // Get clinical codes - enhanced for SDOH
+    const clinicalCodes = this.getClinicalCodes(question);
+
     // Map response to appropriate FHIR value
     const valueMapping = this.mapResponseToFHIRValue(question, response);
+
+    // Build coding array with both LOINC and SNOMED when available
+    const coding = [];
+    if (clinicalCodes.loinc) {
+      coding.push({
+        system: 'http://loinc.org',
+        code: clinicalCodes.loinc,
+        display: clinicalCodes.display
+      });
+    }
+    if (clinicalCodes.snomed) {
+      coding.push({
+        system: 'http://snomed.info/sct',
+        code: clinicalCodes.snomed,
+        display: clinicalCodes.display
+      });
+    }
+    if (coding.length === 0) {
+      // Fallback if no standard codes
+      coding.push({
+        system: `${this.SYSTEM_BASE_URL}/codes`,
+        code: question.item_id,
+        display: question.question_text
+      });
+    }
 
     const observation: FHIRObservation = {
       resourceType: 'Observation',
@@ -135,13 +211,7 @@ export class FHIRMappingService {
       status: 'final',
       category: [category],
       code: {
-        coding: [{
-          system: clinicalCode.snomed ? 'http://snomed.info/sct' : 
-                  clinicalCode.loinc ? 'http://loinc.org' :
-                  `${this.SYSTEM_BASE_URL}/codes`,
-          code: clinicalCode.snomed || clinicalCode.loinc || question.item_id,
-          display: clinicalCode.display || question.question_text
-        }],
+        coding: coding,
         text: question.question_text
       },
       subject: {
@@ -151,16 +221,10 @@ export class FHIRMappingService {
       ...valueMapping
     };
 
-    // Add risk assessment interpretation
-    if (question.risk_score_yes > 50) {
-      const riskLevel = this.calculateQuestionRisk(question, response);
-      observation.interpretation = [{
-        coding: [{
-          system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation',
-          code: riskLevel > 70 ? 'H' : riskLevel > 30 ? 'N' : 'L',
-          display: riskLevel > 70 ? 'High' : riskLevel > 30 ? 'Normal' : 'Low'
-        }]
-      }];
+    // Add proper interpretation based on whether this is an issue
+    const interpretation = this.getInterpretation(question, response, allQuestions, allResponses);
+    if (interpretation) {
+      observation.interpretation = [interpretation];
     }
 
     // Add notes for explanation if available
@@ -171,6 +235,72 @@ export class FHIRMappingService {
     }
 
     return observation;
+  }
+
+  /**
+   * Get clinical codes for a question, with special handling for SDOH
+   */
+  private static getClinicalCodes(question: ChecklistItem) {
+    // Check if it's an SDOH question
+    if (question.item_id.startsWith('SDOH_')) {
+      return this.SDOH_CLINICAL_CODES[question.item_id] || mapQuestionToClinicalCode(question.item_id);
+    }
+    
+    // Use standard mapping for other questions
+    return mapQuestionToClinicalCode(question.item_id);
+  }
+
+  /**
+   * Determine proper interpretation based on issue identification
+   */
+  private static getInterpretation(
+    question: ChecklistItem, 
+    response: string,
+    allQuestions: ChecklistItem[],
+    allResponses: ResponseMap
+  ) {
+    // Use IssueIdentificationService to determine if this is an issue
+    const issues = IssueIdentificationService.identifyIssues(allQuestions, allResponses);
+    const isIssue = issues.some(issue => issue.item_id === question.item_id);
+
+    if (isIssue) {
+      // Find the specific issue to get its severity
+      const issue = issues.find(i => i.item_id === question.item_id);
+      if (issue) {
+        // Map category to interpretation code
+        let code, display;
+        if (issue.category === 'critical') {
+          code = 'HH';
+          display = 'Critical high';
+        } else if (issue.category === 'high') {
+          code = 'H';
+          display = 'High';
+        } else if (issue.category === 'moderate') {
+          code = 'A';
+          display = 'Abnormal';
+        } else {
+          code = 'L';
+          display = 'Low';
+        }
+
+        return {
+          coding: [{
+            system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation',
+            code: code,
+            display: display
+          }]
+        };
+      }
+    }
+
+    // Not an issue - normal
+    return {
+      coding: [{
+        system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation',
+        code: 'N',
+        display: 'Normal'
+      }]
+    };
   }
 
   /**
@@ -203,10 +333,50 @@ export class FHIRMappingService {
       }
     }
 
+    // For SDOH specific responses that don't match options
+    if (question.item_id.startsWith('SDOH_')) {
+      return {
+        valueCodeableConcept: {
+          coding: [{
+            system: `${this.SYSTEM_BASE_URL}/responses`,
+            code: response,
+            display: this.getSDOHResponseDisplay(response)
+          }],
+          text: this.getSDOHResponseDisplay(response)
+        }
+      };
+    }
+
     // Fallback to string value
     return {
       valueString: response
     };
+  }
+
+  /**
+   * Get display text for SDOH responses
+   */
+  private static getSDOHResponseDisplay(response: string): string {
+    const displayMap: { [key: string]: string } = {
+      'often_true': 'Often true',
+      'sometimes_true': 'Sometimes true',
+      'never_true': 'Never true',
+      'transitional': 'I do not have housing (staying with others, in a shelter, etc.)',
+      'temporary': 'I have housing but am worried about losing it',
+      'own': 'I have stable housing',
+      'less_than_once_week': 'Less than once a week',
+      '1_2_times_week': '1 or 2 times a week',
+      '3_5_times_week': '3 to 5 times a week',
+      '5_or_more_times_week': '5 or more times a week',
+      'not_at_all': 'Not at all',
+      'a_little_bit': 'A little bit',
+      'somewhat': 'Somewhat',
+      'quite_a_bit': 'Quite a bit',
+      'very_much': 'Very much',
+      'yes': 'Yes',
+      'no': 'No'
+    };
+    return displayMap[response] || response;
   }
 
   /**
@@ -307,25 +477,6 @@ export class FHIRMappingService {
       case 'critical': return riskCodes.critical.snomed;
       default: return riskCodes.moderate.snomed;
     }
-  }
-
-  /**
-   * Calculates risk score for individual question
-   */
-  private static calculateQuestionRisk(question: ChecklistItem, response: string): number {
-    if (question.response_type === 'binary') {
-      return response.toLowerCase() === 'yes' ? question.risk_score_yes : question.risk_score_no;
-    }
-
-    if (Array.isArray(question.response_options)) {
-      const option = question.response_options.find(opt => opt.value === response);
-      if (option) {
-        const maxRisk = Math.max(question.risk_score_yes, question.risk_score_no);
-        return Math.round(maxRisk * option.weight);
-      }
-    }
-
-    return 0;
   }
 
   /**
