@@ -140,38 +140,269 @@ export const FHIR_CATEGORIES = {
   }
 };
 
-// Question ID to clinical code mapping helper
+// Comprehensive Housing & Environmental Hazard Mappings from clinical table
+export const HOUSING_HAZARD_MAPPINGS: { [key: string]: any } = {
+  // Mold-related
+  'US035': { // US specific mold question
+    loinc: '96778-6',
+    loincAnswer: 'Mold',
+    snomed: '224255009', // Mold growth in home
+    display: 'Visible mold on walls/ceilings'
+  },
+  'HALST_27': { // Visible mold in bathroom
+    loinc: '96778-6',
+    loincAnswer: 'Mold',
+    snomed: '224255009',
+    display: 'Mold growth in bathroom'
+  },
+  
+  // Water damage/leaks
+  'US011': { // Basement moisture
+    loinc: '96778-6',
+    loincAnswer: 'Water leaks',
+    snomed: '224260008',
+    display: 'Water damage - basement'
+  },
+  'US023': { // Attic leaks
+    loinc: '96778-6',
+    loincAnswer: 'Water leaks',
+    snomed: '224260008',
+    display: 'Water damage - attic'
+  },
+  'US026': { // Plumbing leaks
+    loinc: '96778-6',
+    loincAnswer: 'Water leaks',
+    snomed: '224260008',
+    display: 'Plumbing leaks'
+  },
+  'HALST_6': { // Signs of water damage
+    loinc: '96778-6',
+    loincAnswer: 'Water leaks',
+    snomed: '224260008',
+    display: 'Signs of water damage or leaks'
+  },
+  'HALST_26': { // Bathroom leaks
+    loinc: '96778-6',
+    loincAnswer: 'Water leaks',
+    snomed: '224260008',
+    display: 'Bathroom leaks'
+  },
+  
+  // Pest infestation
+  'US014': { // Basement pests
+    loinc: '96778-6',
+    loincAnswer: 'Pests',
+    snomed: '1162585007', // Infestation of residence
+    display: 'Pest infestation - basement'
+  },
+  'US024': { // Attic pests
+    loinc: '96778-6',
+    loincAnswer: 'Pests',
+    snomed: '1162585007',
+    display: 'Pest infestation - attic'
+  },
+  'HALST_8': { // General pests
+    loinc: '96778-6',
+    loincAnswer: 'Pests',
+    snomed: '1162585007',
+    display: 'Problems with pests (insects, rodents)'
+  },
+  
+  // Lead paint hazard
+  'US032': { // Lead paint
+    loinc: '96778-6',
+    loincAnswer: 'Lead paint or pipes',
+    snomed: '1197631001', // Lead in residence
+    display: 'Peeling/chipping paint (lead hazard)'
+  },
+  'HALST_7': { // Peeling paint
+    loinc: '96778-6',
+    loincAnswer: 'Lead paint or pipes',
+    snomed: '1197631001',
+    display: 'Peeling or chipping paint'
+  },
+  
+  // Electrical hazards
+  'US041': { // Electrical outlets
+    loinc: '96778-6',
+    loincAnswer: 'Unsafe or not working electrical outlets',
+    snomed: '224260008',
+    display: 'Electrical outlets working and covered'
+  },
+  'HALST_39': { // Electrical condition
+    loinc: '96778-6',
+    loincAnswer: 'Exposed wiring',
+    snomed: '224260008',
+    display: 'Electrical outlets and wiring condition'
+  },
+  
+  // Smoke/CO detectors
+  'US043': { // Smoke detectors
+    loinc: '96778-6',
+    loincAnswer: 'Smoke detectors missing or not working',
+    snomed: '1197640002', // Inadequate smoke detection
+    display: 'Smoke detector functionality'
+  },
+  'US019': { // CO detectors
+    loinc: '96778-6',
+    loincAnswer: 'Other problems',
+    snomed: '224260008',
+    display: 'Carbon monoxide detector status'
+  },
+  'HALST_37': { // Smoke detectors working
+    loinc: '95401-6', // Needs smoke detector
+    snomed: '1197640002',
+    display: 'Working smoke detectors'
+  },
+  
+  // Heating/cooling
+  'US016': { // Heating system
+    loinc: '96778-6',
+    loincAnswer: 'Lack of heat',
+    snomed: '105535008', // Lack of heat in house
+    display: 'Heating system functionality'
+  },
+  'US017': { // Cooling system
+    loinc: '96778-6',
+    loincAnswer: 'Other problems',
+    snomed: '224260008',
+    display: 'Cooling/AC system functionality'
+  },
+  'HALST_30': { // Adequate heating
+    loinc: '96778-6',
+    loincAnswer: 'Lack of heat',
+    snomed: '105535008',
+    display: 'Adequate heating in winter'
+  },
+  'HALST_31': { // Adequate cooling
+    loinc: '96778-6',
+    loincAnswer: 'Other problems',
+    snomed: '224260008',
+    display: 'Adequate cooling in summer'
+  },
+  
+  // Kitchen/appliances
+  'US036': { // Stove/oven
+    loinc: '96778-6',
+    loincAnswer: 'Oven or stove not working',
+    snomed: '1197634009', // Inadequate food preparation equipment
+    display: 'Stove/oven functionality'
+  },
+  'HALST_20': { // Cooking equipment problems
+    loinc: '96778-6',
+    loincAnswer: 'Oven or stove not working',
+    snomed: '1197634009',
+    display: 'Problems with stove or cooking equipment'
+  },
+  
+  // Plumbing
+  'US023': { // Toilet functionality
+    loinc: '96778-6',
+    loincAnswer: 'Toilets not working',
+    snomed: '224260008',
+    display: 'Toilet functionality'
+  },
+  'HALST_23': { // Toilet flush
+    loinc: '96778-6',
+    loincAnswer: 'Toilets not working',
+    snomed: '224260008',
+    display: 'Toilet flushes properly'
+  },
+  
+  // Utilities insecurity
+  'utilities': { // If using utilities question
+    loinc: '96779-4', // Utility shut-off threat
+    snomed: '1184702004', // Financial insecurity (utilities)
+    icd10: 'Z59.861', // Difficulty paying utilities
+    display: 'Utilities insecurity'
+  }
+};
+
+// Enhanced SDOH Clinical Codes with proper LOINC/SNOMED from standards
+export const ENHANCED_SDOH_MAPPINGS: { [key: string]: any } = {
+  'SDOH_1': { // Food insecurity
+    loinc: '88122-7', // Hunger Vital Sign item 1
+    snomed: '733423003', // Food insecurity
+    display: 'Food insecurity - worry about food'
+  },
+  'SDOH_2': { // Food insecurity severe
+    loinc: '88123-5', // Hunger Vital Sign item 2
+    snomed: '733423003',
+    display: 'Food insecurity - food ran out'
+  },
+  'SDOH_3': { // Housing
+    loinc: '71802-3', // AHC housing status
+    snomed: '1156191002', // Housing instability
+    altSnomed: '32911000', // Homeless
+    display: 'Housing situation today'
+  },
+  'SDOH_4': { // Transportation
+    loinc: '93030-5', // PRAPARE/AHC transportation
+    snomed: '713458007', // Lack of access to transportation
+    display: 'Transportation insecurity'
+  },
+  'SDOH_5': { // Social isolation
+    loinc: '93159-2', // CMS loneliness/isolation
+    snomed: '422650009', // Social isolation
+    display: 'Social connection and isolation'
+  },
+  'SDOH_6': { // Stress (maps to financial strain in standards)
+    loinc: '76513-1', // CARDIA financial strain
+    snomed: '73595000', // Stress (finding)
+    altSnomed: '1184702004', // Financial insecurity
+    display: 'Stress level'
+  },
+  'SDOH_7': { // Home safety
+    loinc: '96778-6', // Problems with place you live
+    snomed: '224838001', // Building safety
+    display: 'Home safety'
+  },
+  'SDOH_8': { // Neighborhood safety
+    loinc: '96778-6', // Problems with place you live
+    loincAnswer: 'Violence',
+    snomed: '224838001', // Building safety
+    display: 'Neighborhood safety'
+  }
+};
+
+// Updated Question ID to clinical code mapping helper
 export const mapQuestionToClinicalCode = (questionId: string) => {
-  // Taiwan HALST mappings
+  // Check comprehensive housing hazard mappings FIRST
+  if (HOUSING_HAZARD_MAPPINGS[questionId]) {
+    return HOUSING_HAZARD_MAPPINGS[questionId];
+  }
+  
+  // Check enhanced SDOH mappings
+  if (ENHANCED_SDOH_MAPPINGS[questionId]) {
+    return ENHANCED_SDOH_MAPPINGS[questionId];
+  }
+  
+  // Taiwan HALST mappings (for questions not in hazard mappings)
   if (questionId.startsWith('HALST_')) {
     const questionNum = parseInt(questionId.split('_')[1]);
     
     if ([1, 2, 3].includes(questionNum)) {
       return CLINICAL_CODES.housing.type;
-    } else if ([4, 17, 25].includes(questionNum)) {
+    } else if ([4, 17, 25].includes(questionNum) && !HOUSING_HAZARD_MAPPINGS[questionId]) {
       return CLINICAL_CODES.environmental.ventilation;
-    } else if ([5, 6, 26, 27].includes(questionNum)) {
+    } else if ([5].includes(questionNum) && !HOUSING_HAZARD_MAPPINGS[questionId]) {
       return CLINICAL_CODES.housing.condition;
-    } else if ([8].includes(questionNum)) {
-      return CLINICAL_CODES.environmental.pest_infestation;
-    } else if ([18].includes(questionNum)) {
+    } else if ([18].includes(questionNum) && !HOUSING_HAZARD_MAPPINGS[questionId]) {
       return CLINICAL_CODES.environmental.water_quality;
-    } else if ([32, 33, 34].includes(questionNum)) {
+    } else if ([32, 33, 34].includes(questionNum) && !HOUSING_HAZARD_MAPPINGS[questionId]) {
       return CLINICAL_CODES.environmental.air_quality;
     }
   }
   
-  // US Healthy Homes mappings  
+  // US Healthy Homes mappings (for questions not in hazard mappings)
   if (questionId.startsWith('US')) {
     const questionNum = parseInt(questionId.substring(2));
     
-    if ([1, 2, 3].includes(questionNum)) {
+    if ([1, 2, 3].includes(questionNum) && !HOUSING_HAZARD_MAPPINGS[questionId]) {
       return CLINICAL_CODES.housing.condition;
-    } else if ([13, 22].includes(questionNum)) {
+    } else if ([13, 22].includes(questionNum) && !HOUSING_HAZARD_MAPPINGS[questionId]) {
       return CLINICAL_CODES.environmental.ventilation;
-    } else if ([14].includes(questionNum)) {
-      return CLINICAL_CODES.environmental.pest_infestation;
-    } else if ([25, 26, 27, 28, 29].includes(questionNum)) {
+    } else if ([25, 27, 28, 29].includes(questionNum) && !HOUSING_HAZARD_MAPPINGS[questionId]) {
       return CLINICAL_CODES.environmental.water_quality;
     }
   }
@@ -189,10 +420,16 @@ export const mapQuestionToClinicalCode = (questionId: string) => {
     }
   }
   
-  // SDOH mappings
+  // SDOH mappings (fallback for old pattern)
   if (questionId.startsWith('SDOH_')) {
     const questionNum = parseInt(questionId.split('_')[1]);
     
+    // Use enhanced mappings if available
+    if (ENHANCED_SDOH_MAPPINGS[questionId]) {
+      return ENHANCED_SDOH_MAPPINGS[questionId];
+    }
+    
+    // Fallback to old mappings
     switch (questionNum) {
       case 1:
       case 2:
@@ -216,11 +453,9 @@ export const mapQuestionToClinicalCode = (questionId: string) => {
     snomed: '418799008', // Finding
     display: 'Health assessment finding'
   };
-  
 };
-// Add at the end of the file, after existing exports
 
-// SDOH Question Response Mappings - NEW ADDITION
+// SDOH Question Response Mappings
 export const SDOH_RESPONSE_MAPPINGS = {
   // SDOH_1 & SDOH_2 - Food insecurity (negative if true)
   SDOH_1: {
@@ -263,10 +498,10 @@ export const SDOH_RESPONSE_MAPPINGS = {
     positiveResponses: ['yes', 'opt1'], // Feels safe at home
     negativeResponses: ['no', 'opt2'], // Doesn't feel safe
   },
-  // SDOH_8 - NEIGHBORHOOD SAFETY - THE FIX!
+  // SDOH_8 - NEIGHBORHOOD SAFETY
   SDOH_8: {
     loinc: '93038-8',
-    positiveResponses: ['yes', 'opt1'], // YES feels safe - THIS IS THE FIX
+    positiveResponses: ['yes', 'opt1'], // YES feels safe
     negativeResponses: ['no', 'opt2'], // NO doesn't feel safe
   }
 };
@@ -303,7 +538,6 @@ export function getSDOHLOINC(questionId: string): { code: string; display: strin
       display: CLINICAL_CODES.sdoh.housing_instability.display
     };
   }
-  // Add other mappings...
   
   return null;
 }
