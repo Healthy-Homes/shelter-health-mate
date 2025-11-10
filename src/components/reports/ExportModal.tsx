@@ -38,7 +38,7 @@ const ExportModal: React.FC<ExportModalProps> = ({
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [fhirExportOption, setFhirExportOption] = useState<'all' | 'filtered' | 'comprehensive'>('all');
+  const [fhirExportOption, setFhirExportOption] = useState<'all' | 'filtered'>('all');
 
   // QR Code specific state - DISABLED FOR NOW
   const [qrCodes, setQrCodes] = useState<QRCodeResult[]>([]);
@@ -159,15 +159,7 @@ const generateClinicalReport = async () => {
       }
       break;
       
-    case 'comprehensive':
-      // Option 3: Could be same as 'all' but with additional metadata
-      fhirBundle = FHIRMappingService.createFHIRBundle(
-        results,
-        responses,
-        questions
-      );
-      successMsg = 'FHIR bundle (comprehensive with all metadata) downloaded successfully!';
-      break;
+    
       
     case 'all':
     default:
@@ -379,22 +371,7 @@ const generateClinicalReport = async () => {
                 </div>
               </label>
               
-              <label className="flex items-start space-x-2">
-                <input
-                  type="radio"
-                  name="fhirOption"
-                  value="comprehensive"
-                  checked={fhirExportOption === 'comprehensive'}
-                  onChange={() => setFhirExportOption('comprehensive')}
-                  className="mt-1"
-                />
-                <div>
-                  <div className="font-medium">Option 3: Comprehensive with enhanced metadata</div>
-                  <div className="text-sm text-gray-600 dark:text-gray-300">
-                    All questions plus additional clinical context and metadata
-                  </div>
-                </div>
-              </label>
+              
             </div>
           </div>
         )}
