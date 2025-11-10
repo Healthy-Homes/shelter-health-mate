@@ -38,7 +38,8 @@ const ExportModal: React.FC<ExportModalProps> = ({
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  
+  const [fhirExportOption, setFhirExportOption] = useState<'all' | 'filtered' | 'comprehensive'>('all');
+
   // QR Code specific state - DISABLED FOR NOW
   const [qrCodes, setQrCodes] = useState<QRCodeResult[]>([]);
   const [qrExpiration, setQrExpiration] = useState<number>(60);
@@ -140,33 +141,44 @@ const generateClinicalReport = async () => {
 };
 
   const generateFHIRExport = async () => {
-  // Import the mapping service
   const { FHIRMappingService } = await import('../../services/export/FHIRMappingService');
   
-  // Check if filtered export method exists, otherwise use standard
   let fhirBundle;
+  let successMsg = '';
   
-  if (FHIRMappingService.createFilteredFHIRBundle) {
-    // Use filtered export (Option 2 - only clinically mapped items)
-    fhirBundle = FHIRMappingService.createFilteredFHIRBundle(
-      results,
-      responses,
-      questions
-    );
-  } else if (FHIRMappingService.createFHIRBundle) {
-    // Fallback to existing method if available
-    fhirBundle = FHIRMappingService.createFHIRBundle(
-      results,
-      responses,
-      questions
-    );
-  } else {
-    // Use original QRCodeService as ultimate fallback
-    fhirBundle = await QRCodeService.prepareFullFHIRPayload(
-      results,
-      responses,
-      questions
-    );
+  switch (fhirExportOption) {
+    case 'filtered':
+      // Option 2: Only clinically-mapped items
+      if (FHIRMappingService.createFilteredFHIRBundle) {
+        fhirBundle = FHIRMappingService.createFilteredFHIRBundle(
+          results,
+          responses,
+          questions
+        );
+        successMsg = 'FHIR bundle (filtered - clinical codes only) downloaded successfully!';
+      }
+      break;
+      
+    case 'comprehensive':
+      // Option 3: Could be same as 'all' but with additional metadata
+      fhirBundle = FHIRMappingService.createFHIRBundle(
+        results,
+        responses,
+        questions
+      );
+      successMsg = 'FHIR bundle (comprehensive with all metadata) downloaded successfully!';
+      break;
+      
+    case 'all':
+    default:
+      // Option 1: All questions with clinical codes
+      fhirBundle = FHIRMappingService.createFHIRBundle(
+        results,
+        responses,
+        questions
+      );
+      successMsg = 'FHIR bundle (all questions) downloaded successfully!';
+      break;
   }
 
   // Download as JSON file
@@ -182,7 +194,7 @@ const generateClinicalReport = async () => {
   document.body.removeChild(link);
   URL.revokeObjectURL(url);
 
-  setSuccessMessage('FHIR bundle (filtered - clinical codes only) downloaded successfully!');
+  setSuccessMessage(successMsg);
 };
 
  const generateResearchCSV = async () => {
@@ -328,8 +340,66 @@ const generateClinicalReport = async () => {
             </div>
           </div>
         </div>
+{/* FHIR Export Options - Add this right after the format selection grid */}
+        {selectedFormat === 'fhir-json' && (
+          <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+            <h4 className="font-semibold mb-3">FHIR Export Options:</h4>
+            <div className="space-y-2">
+              <label className="flex items-start space-x-2">
+                <input
+                  type="radio"
+                  name="fhirOption"
+                  value="all"
+                  checked={fhirExportOption === 'all'}
+                  onChange={() => setFhirExportOption('all')}
+                  className="mt-1"
+                />
+                <div>
+                  <div className="font-medium">Option 1: Include all assessment questions</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-300">
+                    Complete FHIR bundle with all questions, including those without standard clinical codes
+                  </div>
+                </div>
+              </label>
+              
+              <label className="flex items-start space-x-2">
+                <input
+                  type="radio"
+                  name="fhirOption"
+                  value="filtered"
+                  checked={fhirExportOption === 'filtered'}
+                  onChange={() => setFhirExportOption('filtered')}
+                  className="mt-1"
+                />
+                <div>
+                  <div className="font-medium">Option 2: Only clinically-mapped questions</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-300">
+                    Filtered to include only questions with LOINC/SNOMED/ICD-10 codes for EHR integration
+                  </div>
+                </div>
+              </label>
+              
+              <label className="flex items-start space-x-2">
+                <input
+                  type="radio"
+                  name="fhirOption"
+                  value="comprehensive"
+                  checked={fhirExportOption === 'comprehensive'}
+                  onChange={() => setFhirExportOption('comprehensive')}
+                  className="mt-1"
+                />
+                <div>
+                  <div className="font-medium">Option 3: Comprehensive with enhanced metadata</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-300">
+                    All questions plus additional clinical context and metadata
+                  </div>
+                </div>
+              </label>
+            </div>
+          </div>
+        )}
 
-        {/* Export Options - QR-related options hidden */}
+        {/* Export Options - existing code continues here */}        {/* Export Options - QR-related options hidden */}
         <div className="mb-6">
           <h3 className="text-lg font-semibold mb-3">{t('export.options')}</h3>
           <div className="space-y-3">
